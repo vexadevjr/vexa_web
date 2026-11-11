@@ -1,0 +1,112 @@
+'use strict'
+
+const path = require('path')
+const fs = require('fs')
+const express = require('express')
+const cors = require('cors')
+const helmet = require('helmet')
+const mongoSanitize = require('express-mongo-sanitize')
+
+const config = require('./config/appConfig')
+const db = require('./config/db')
+const limiters = require('./middleware/limiters')
+
+const app = express()
+
+// Render terminates TLS at a proxy; trust it so rate limiting sees real client IPs.
+app.set('trust proxy', 1)
+
+// ---- security middleware ----
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        'img-src': ["'self'", 'data:'],
+      },
+    },
+  })
+)
+app.use(
+  cors({
+    origin: config.corsOrigins.length ? config.corsOrigins : false,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 600,
+  })
+)
+app.use(express.json({ limit: '20kb' }))
+app.use(mongoSanitize()) // strips $ and . operators from body/query/params (NoSQL injection)
+app.use('/api', limiters.api)
+
+// ---- API ----
+app.get('/api/status', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Vexa Backend API is active',
+    database: db.isConnected() ? 'connected' : 'unavailable',
+  })
+})
+app.use('/api/products', require('./routes/products'))
+app.use('/api/orders', require('./routes/orders'))
+app.use('/api/contact', require('./routes/contact'))
+app.use('/api/auth', require('./routes/auth'))
+
+app.use('/api', (req, res) => {
+  res.status(404).json({ status: 'error', message: 'Not found' })
+})
+
+// ---- built React app (single Render web service) ----
+const distPath = path.join(__dirname, '..', 'frontend', 'dist')
+const indexHtml = path.join(distPath, 'index.html')
+
+if (fs.existsSync(indexHtml)) {
+  app.use(
+    express.static(distPath, {
+      index: false,
+      setHeaders(res, filePath) {
+        const hashed = filePath.includes(`${path.sep}assets${path.sep}`)
+        res.setHeader('Cache-Control', hashed ? 'public, max-age=31536000, immutable' : 'no-cache')
+      },
+    })
+  )
+  // client-side routes (/discord-botlari, /portfoy, ...)
+  app.get('*', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache')
+    res.sendFile(indexHtml)
+  })
+}
+
+// ---- error handling ----
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ message: 'Geçersiz istek gövdesi.' })
+  if (err.type === 'entity.too.large') return res.status(413).json({ message: 'İstek çok büyük.' })
+  console.error('[error]', err)
+  res.status(500).json({ message: 'Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.' })
+})
+
+// ---- start ----
+const server = app.listen(config.port, () => {
+  console.log(`Vexa server listening on port ${config.port} (${config.env})`)
+})
+db.connectDb() // does not block startup; failures are logged and retried
+
+function shutdown(signal) {
+  console.log(`${signal} received, shutting down`)
+  server.close(async () => {
+    try {
+      await db.closeDb()
+    } catch (e) {
+      /* ignore */
+    }
+    process.exit(0)
+  })
+  setTimeout(() => process.exit(1), 10000).unref()
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
+
+module.exports = app

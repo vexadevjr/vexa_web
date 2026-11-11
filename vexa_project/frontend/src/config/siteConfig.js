@@ -1,0 +1,351 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Single source of truth for the whole application.
+// Links, brand colours, contact details, prices, FAQ and page content live here.
+// The backend seed script (backend/seed.js) also reads `catalog` from this file.
+//
+// This file must stay plain data: no imports, no JSX, no browser APIs.
+//
+// !! Values marked PLACEHOLDER (prices, contact details, guarantees, portfolio, reviews)
+// !! are examples. Replace them with your real information before going live.
+// ─────────────────────────────────────────────────────────────────────────────
+export const siteConfig = {
+  brand: {
+    name: 'Vexa Development',
+    // Applied as CSS variables at start-up (see src/lib/brand.js) and used by Tailwind (`bg-vx-card`, ...).
+    colors: {
+      bg: '#08090f',
+      bgEnd: '#0f101a',
+      surface: '#0c0d14',
+      card: '#131422',
+      line: '#201b3a',
+      accent: '#4f46e5',
+      accentHover: '#4338ca',
+      accentSoft: '#a5b4fc',
+      accentText: '#818cf8',
+      muted: '#94a3b8',
+    },
+  },
+
+  // PLACEHOLDER contact details
+  contact: {
+    email: 'destek@vexadevelopment.com',
+    discord: 'Vexa Development Discord sunucusu',
+    hours: 'Destek kanalı 7/24 açıktır. Sipariş ve teklif yanıtları 09:00 – 24:00 arası verilir.',
+    location: 'Türkiye',
+  },
+
+  links: {
+    discord: 'https://discord.gg', // PLACEHOLDER: community invite
+    demoServer: 'https://discord.gg', // PLACEHOLDER: server where bots can be tried live
+    support: 'https://discord.gg', // PLACEHOLDER: support channel
+    payment: '', // PLACEHOLDER: payment / invoice link shown after an order (leave empty to hide)
+    github: 'https://github.com',
+    youtube: 'https://youtube.com',
+    x: 'https://x.com',
+  },
+
+  currency: { code: 'TRY', symbol: '₺', locale: 'tr-TR' },
+
+  // Client-side routes
+  routes: {
+    home: '/',
+    bots: '/discord-botlari',
+    web: '/web-gelistirme',
+    portfolio: '/portfoy',
+    contact: '/iletisim',
+    panel: '/panel',
+  },
+
+  // In-page anchors on the home page
+  sections: {
+    home: '#home',
+    services: '#services',
+  },
+
+  stats: [
+    { value: '500+', label: 'Tamamlanan projeler' },
+    { value: '1K+', label: 'Müşteri Sayısı' },
+    { value: '%99.9', label: 'Müşteri Memnuniyeti' },
+  ],
+
+  // Cards on the home page
+  serviceCards: [
+    { title: 'Discord Botları', icon: 'discord', to: '/discord-botlari', desc: 'Sunucunuz için gelişmiş, güvenli ve özelleştirilebilir botlar.' },
+    { title: 'Web Geliştirme', icon: 'code', to: '/web-gelistirme', desc: 'Modern ve performanslı web siteleri ile projelerinizi büyütün.' },
+    { title: 'Sunucu Çözümleri', icon: 'server', to: '/iletisim?konu=Sunucu%20Çözümleri', desc: 'Sunucu, hosting ve altyapı desteği ile kesintisiz hizmet.' },
+    { title: 'Özel Yazılım', icon: 'settings', to: '/iletisim?konu=Özel%20Yazılım', desc: 'İhtiyacınıza özel yazılım çözümleri geliştiriyoruz.' },
+  ],
+
+  botCategories: ['Moderasyon', 'Müzik', 'Ekonomi', 'Kayıt'],
+
+  // PLACEHOLDER prices (TRY). `price: null` means "get a quote".
+  catalog: [
+    {
+      slug: 'vexa-guard',
+      category: 'discord-bot',
+      subCategory: 'Moderasyon',
+      name: 'Vexa Guard',
+      tagline: 'Gelişmiş moderasyon ve otomatik koruma',
+      description: 'Spam, reklam ve küfür filtresiyle sunucunuzu 7/24 koruyan, detaylı log tutan moderasyon botu.',
+      features: ['Spam, link ve küfür filtresi', 'Ban, mute ve uyarı sistemi', 'Detaylı log kanalları', 'Slash komut desteği', 'Özel bot adı ve avatar'],
+      tags: ['ban', 'mute', 'log', 'koruma'],
+      price: 1490,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 2,
+      popular: false,
+      demo: [
+        { who: 'user', text: '/uyar @kullanici sebep:Spam' },
+        { who: 'bot', text: '@kullanici uyarıldı. Toplam uyarı: 2/3' },
+        { who: 'user', text: '/temizle 20' },
+        { who: 'bot', text: '20 mesaj silindi. İşlem log kanalına kaydedildi.' },
+      ],
+    },
+    {
+      slug: 'vexa-shield',
+      category: 'discord-bot',
+      subCategory: 'Moderasyon',
+      name: 'Vexa Shield',
+      tagline: 'Raid ve yetki kötüye kullanımına karşı koruma',
+      description: 'Toplu giriş (raid), kanal silme ve yetki değişikliği girişimlerini algılayıp otomatik önlem alan koruma botu.',
+      features: ['Raid algılama ve otomatik kilit', 'Kanal ve rol silme koruması', 'Güvenilir üye listesi', 'Anlık yönetici bildirimi', 'Özel bot adı ve avatar'],
+      tags: ['raid', 'anti-nuke', 'güvenlik'],
+      price: 2290,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 3,
+      popular: true,
+      demo: [
+        { who: 'bot', text: 'Son 10 saniyede 14 yeni hesap katıldı. Raid koruması aktif.' },
+        { who: 'bot', text: 'Sunucu doğrulama seviyesi yükseltildi, davet bağlantıları duraklatıldı.' },
+        { who: 'user', text: '/koruma durum' },
+        { who: 'bot', text: 'Raid koruması: Açık · Kanal koruması: Açık · Rol koruması: Açık' },
+      ],
+    },
+    {
+      slug: 'vexa-music',
+      category: 'discord-bot',
+      subCategory: 'Müzik',
+      name: 'Vexa Music',
+      tagline: 'Kesintisiz, yüksek kaliteli müzik botu',
+      description: 'Sıra yönetimi, ses efektleri ve çalma listesi desteğiyle sesli kanallarınız için müzik botu.',
+      features: ['YouTube ve Spotify bağlantı desteği', 'Sıra, döngü ve karıştırma', 'Ses efektleri ve ekolayzır', 'Sunucuya özel çalma listeleri', 'Slash komut desteği'],
+      tags: ['müzik', 'şarkı', 'ses'],
+      price: 1190,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 2,
+      popular: false,
+      demo: [
+        { who: 'user', text: '/cal sarki:lofi hip hop' },
+        { who: 'bot', text: 'Sıraya eklendi: lofi hip hop radio (Sıra: 1)' },
+        { who: 'user', text: '/ses 60' },
+        { who: 'bot', text: 'Ses seviyesi %60 olarak ayarlandı.' },
+      ],
+    },
+    {
+      slug: 'vexa-economy',
+      category: 'discord-bot',
+      subCategory: 'Ekonomi',
+      name: 'Vexa Economy',
+      tagline: 'Sunucunuza özel sanal ekonomi sistemi',
+      description: 'Günlük ödül, çalışma, bahis ve sıralama komutlarıyla üyeleri aktif tutan ekonomi botu.',
+      features: ['Günlük ödül ve çalışma komutları', 'Sunucuya özel para birimi', 'Sıralama tablosu', 'Yönetici ekonomi araçları', 'Özel bot adı ve avatar'],
+      tags: ['ekonomi', 'para', 'oyun'],
+      price: 1690,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 3,
+      popular: false,
+      demo: [
+        { who: 'user', text: '/gunluk' },
+        { who: 'bot', text: 'Günlük ödülünüz: 250 Vexa Coin. Serin: 4 gün' },
+        { who: 'user', text: '/bakiye' },
+        { who: 'bot', text: 'Cüzdan: 1.840 · Banka: 5.200' },
+      ],
+    },
+    {
+      slug: 'vexa-market',
+      category: 'discord-bot',
+      subCategory: 'Ekonomi',
+      name: 'Vexa Market',
+      tagline: 'Rol marketi ve envanter sistemi',
+      description: 'Üyelerin sanal para ile rol ve ödül satın alabildiği, yönetilebilir mağaza ve envanter botu.',
+      features: ['Rol ve ödül marketi', 'Üye envanteri ve hediye gönderme', 'Stok ve süreli ürünler', 'Satın alma logları', 'Vexa Economy ile entegrasyon'],
+      tags: ['market', 'rol', 'mağaza'],
+      price: 1990,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 4,
+      popular: false,
+      demo: [
+        { who: 'user', text: '/market' },
+        { who: 'bot', text: '1) VIP Rolü – 5.000 · 2) Özel Renk – 1.500 · 3) Ekstra Çekiliş Hakkı – 800' },
+        { who: 'user', text: '/satinal urun:2' },
+        { who: 'bot', text: 'Özel Renk satın alındı. Kalan bakiye: 340' },
+      ],
+    },
+    {
+      slug: 'vexa-register',
+      category: 'discord-bot',
+      subCategory: 'Kayıt',
+      name: 'Vexa Register',
+      tagline: 'Otomatik kayıt ve doğrulama sistemi',
+      description: 'Yeni üyeleri karşılayan, kayıt formunu alıp rolleri otomatik veren kayıt ve doğrulama botu.',
+      features: ['Butonlu kayıt ve doğrulama', 'Otomatik rol verme', 'Karşılama ve ayrılma mesajları', 'Kayıt yetkilisi istatistikleri', 'Özel bot adı ve avatar'],
+      tags: ['kayıt', 'doğrulama', 'hoşgeldin'],
+      price: 990,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 2,
+      popular: false,
+      demo: [
+        { who: 'bot', text: 'Hoş geldin @yeniuye! Kayıt olmak için aşağıdaki butona tıkla.' },
+        { who: 'user', text: '[Kayıt Ol] butonuna tıkladı' },
+        { who: 'bot', text: 'Kayıt tamamlandı. @Üye rolü verildi, #genel kanalı açıldı.' },
+      ],
+    },
+
+    {
+      slug: 'web-kurumsal',
+      category: 'web',
+      subCategory: 'Kurumsal',
+      name: 'Kurumsal Web Sitesi',
+      tagline: 'Markanızı güvenle temsil eden profesyonel site',
+      description: 'Şirketiniz için özel tasarlanmış, hızlı ve mobil uyumlu kurumsal web sitesi.',
+      features: ['5 sayfaya kadar özel tasarım', 'Mobil uyumlu (responsive) arayüz', 'Temel SEO kurulumu', 'İletişim formu', 'SSL sertifikası kurulumu'],
+      tags: ['kurumsal', 'web sitesi', 'şirket'],
+      price: 12900,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 10,
+      popular: false,
+      demo: [],
+    },
+    {
+      slug: 'web-eticaret',
+      category: 'web',
+      subCategory: 'E-Ticaret',
+      name: 'E-Ticaret Sitesi',
+      tagline: 'Satışa hazır, yönetilebilir online mağaza',
+      description: 'Ürün yönetimi, sepet ve sipariş takibi ile satışa hazır e-ticaret altyapısı.',
+      features: ['Sınırsız ürün ve kategori', 'Sepet ve sipariş yönetimi', 'Yönetim paneli', 'Ödeme sağlayıcı entegrasyonu', 'Mobil uyumlu arayüz'],
+      tags: ['e-ticaret', 'mağaza', 'satış'],
+      price: 34900,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 21,
+      popular: true,
+      demo: [],
+    },
+    {
+      slug: 'web-ozel-script',
+      category: 'web',
+      subCategory: 'Özel Script',
+      name: 'Özel Script & Entegrasyon',
+      tagline: 'İhtiyacınıza göre yazılan özel bileşenler',
+      description: 'Mevcut sitenize veya sisteminize özel script, API entegrasyonu ve otomasyon geliştirme.',
+      features: ['İhtiyaca özel geliştirme', 'API ve üçüncü taraf entegrasyonu', 'Kod belgelendirmesi', 'Test ve teslim desteği'],
+      tags: ['script', 'api', 'entegrasyon', 'otomasyon'],
+      price: 4900,
+      priceFrom: true,
+      currency: 'TRY',
+      period: 'tek seferlik',
+      deliveryDays: 5,
+      popular: false,
+      demo: [],
+    },
+
+    {
+      slug: 'sunucu-kurulum',
+      category: 'server',
+      subCategory: 'Sunucu',
+      name: 'Sunucu Kurulum & Yönetim',
+      tagline: 'Kesintisiz çalışan altyapı',
+      description: 'VPS ve hosting kurulumu, güvenlik yapılandırması, yedekleme ve izleme.',
+      features: ['Sunucu kurulumu ve güvenlik ayarları', 'Yedekleme ve izleme', 'Uygulama dağıtımı', 'Aylık bakım seçeneği'],
+      tags: ['sunucu', 'vps', 'hosting', 'altyapı'],
+      price: null,
+      currency: 'TRY',
+      period: 'teklife göre',
+      deliveryDays: null,
+      popular: false,
+      demo: [],
+    },
+    {
+      slug: 'ozel-yazilim',
+      category: 'software',
+      subCategory: 'Özel Yazılım',
+      name: 'Özel Yazılım Geliştirme',
+      tagline: 'İş süreçlerinize özel yazılım çözümleri',
+      description: 'Masaüstü, web ve otomasyon projeleri için ihtiyaç analizi ile başlayan özel yazılım geliştirme.',
+      features: ['İhtiyaç analizi ve planlama', 'Özel yazılım geliştirme', 'Test ve teslim', 'Teslim sonrası destek'],
+      tags: ['yazılım', 'özel', 'otomasyon'],
+      price: null,
+      currency: 'TRY',
+      period: 'teklife göre',
+      deliveryDays: null,
+      popular: false,
+      demo: [],
+    },
+  ],
+
+  // Comparison table on the Discord bots page. `slugs` = bots that include the feature.
+  botComparison: [
+    { label: 'Özel bot adı ve avatar', slugs: ['vexa-guard', 'vexa-shield', 'vexa-economy', 'vexa-register'] },
+    { label: 'Slash komut desteği', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
+    { label: 'Detaylı log kanalları', slugs: ['vexa-guard', 'vexa-shield', 'vexa-market', 'vexa-register'] },
+    { label: 'Yönetici kontrol komutları', slugs: ['vexa-guard', 'vexa-shield', 'vexa-economy', 'vexa-market', 'vexa-register'] },
+    { label: 'Ücretsiz güncellemeler', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
+    { label: '7/24 teknik destek', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
+  ],
+
+  // PLACEHOLDER business commitments: confirm each one before publishing.
+  guarantees: [
+    { icon: 'refresh', title: '7 Gün Memnuniyet Garantisi', text: 'Teslimattan sonraki 7 gün içinde, belirtilen özelliklerin eksik çalışması halinde ücretsiz düzeltme yapılır.' },
+    { icon: 'shield', title: '30 Gün Hata Düzeltme', text: 'Teslim sonrası 30 gün boyunca ortaya çıkan hatalar ücretsiz giderilir.' },
+    { icon: 'clock', title: 'SLA: 24 Saat Yanıt', text: 'Destek taleplerine en geç 24 saat içinde dönüş yapılır.' },
+  ],
+
+  // Short trust row used inside checkout / auth modals
+  trust: [
+    { icon: 'lock', title: 'SSL ile şifreli bağlantı' },
+    { icon: 'shield', title: 'Bilgileriniz üçüncü kişilerle paylaşılmaz' },
+    { icon: 'clock', title: '24 saat içinde yanıt' },
+  ],
+
+  steps: [
+    { title: 'Talebinizi iletin', desc: 'Sipariş veya teklif formunu doldurun. İhtiyacınızı birlikte netleştirelim.' },
+    { title: 'Planlama ve onay', desc: 'Kapsam, teslim süresi ve fiyat yazılı olarak size iletilir; onayınızla başlarız.' },
+    { title: 'Geliştirme ve ara bildirim', desc: 'Çalışma sürecinde ilerleme paylaşılır, geri bildirimleriniz doğrudan uygulanır.' },
+    { title: 'Teslim ve destek', desc: 'Kurulum yapılır, kullanım anlatılır ve garanti süresince destek devam eder.' },
+  ],
+
+  faq: [
+    { q: 'Sipariş verdikten sonra süreç nasıl ilerliyor?', a: 'Sipariş formunuz bize ulaştığında en geç 24 saat içinde sizinle iletişime geçeriz. Kapsam ve teslim süresi netleştikten sonra çalışmaya başlanır.' },
+    { q: 'Ödeme nasıl yapılıyor?', a: 'Sipariş formu ödeme almaz. Talebiniz onaylandıktan sonra ödeme bilgileri size iletilir; ödeme yapılmadan geliştirmeye başlanmaz.' },
+    { q: 'Teslim süreleri nelerdir?', a: 'Her paketin kartında tahmini teslim süresi yazar. Özel istekler için süre, planlama aşamasında yazılı olarak bildirilir.' },
+    { q: 'Teslimattan sonra destek alabilir miyim?', a: 'Evet. Garanti süresi boyunca hatalar ücretsiz düzeltilir. Sonrasında bakım ve destek için ayrı bir plan sunulabilir.' },
+    { q: 'Özel bir bot veya yazılım yaptırabilir miyim?', a: 'Evet. İletişim formundan ihtiyacınızı anlatın, size kapsam ve fiyat teklifi hazırlayalım.' },
+    { q: 'Botları satın almadan deneyebilir miyim?', a: 'Her botun kartında bulunan “Demo Dene” seçeneği ile komutların nasıl çalıştığını görebilir, demo sunucumuza katılarak canlı deneyebilirsiniz.' },
+  ],
+
+  // SAMPLE portfolio entries: replace with real projects. Remove `sample: true` once real.
+  portfolio: [
+    { id: 'p1', title: 'Topluluk Moderasyon Sistemi', category: 'Discord Bot', client: 'Oyun topluluğu', result: 'Moderatör iş yükünde belirgin azalma', satisfaction: 98, tags: ['Moderasyon', 'Slash komutlar'], sample: true },
+    { id: 'p2', title: 'Kurumsal Tanıtım Sitesi', category: 'Web', client: 'Danışmanlık firması', result: 'Mobil uyumlu yeni site, hızlı yükleme', satisfaction: 97, tags: ['Kurumsal', 'SEO'], sample: true },
+    { id: 'p3', title: 'Online Mağaza Altyapısı', category: 'Web', client: 'Butik giyim markası', result: 'Sipariş yönetimi tek panelde toplandı', satisfaction: 99, tags: ['E-Ticaret', 'Yönetim paneli'], sample: true },
+    { id: 'p4', title: 'Müzik ve Ekonomi Botu', category: 'Discord Bot', client: 'Sosyal topluluk', result: 'Üye etkileşiminde artış', satisfaction: 96, tags: ['Müzik', 'Ekonomi'], sample: true },
+    { id: 'p5', title: 'Oyun Sunucusu Altyapısı', category: 'Sunucu', client: 'Oyun sunucusu', result: 'Yedekleme ve izleme ile kesintisiz çalışma', satisfaction: 98, tags: ['VPS', 'Yedekleme'], sample: true },
+    { id: 'p6', title: 'Sipariş Takip Otomasyonu', category: 'Yazılım', client: 'Lojistik firması', result: 'Manuel veri girişi otomatikleşti', satisfaction: 97, tags: ['Otomasyon', 'API'], sample: true },
+  ],
+  portfolioCategories: ['Discord Bot', 'Web', 'Sunucu', 'Yazılım'],
+
+  // SAMPLE reviews: replace with real customer reviews. Set `verified: true` only for reviews you have
+  // confirmed with the customer; the “Doğrulanmış müşteri” badge is shown only for those.
+  reviews: [
+    { name: 'M. K.', role: 'Topluluk yöneticisi', rating: 5, product: 'Vexa Guard', text: 'Kurulum hızlıydı, komutlar tam istediğimiz gibi çalışıyor. Sorularımıza aynı gün dönüş yapıldı.', verified: false, sample: true },
+    { name: 'S. A.', role: 'E-ticaret girişimcisi', rating: 5, product: 'E-Ticaret Sitesi', text: 'Süreç boyunca ne yapıldığını net şekilde bildirdiler. Teslim tarihine uyuldu.', verified: false, sample: true },
+    { name: 'E. T.', role: 'Sunucu sahibi', rating: 5, product: 'Vexa Economy', text: 'Üyelerimiz ekonomi sistemini çok sevdi. İstediğimiz değişiklikler kısa sürede uygulandı.', verified: false, sample: true },
+  ],
+}
