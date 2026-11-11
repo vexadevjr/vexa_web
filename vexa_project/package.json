@@ -1,0 +1,15 @@
+{
+  "name": "vexa-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vexa Development - React frontend + Express backend",
+  "scripts": {
+    "build": "npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
+    "start": "npm start --prefix backend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
