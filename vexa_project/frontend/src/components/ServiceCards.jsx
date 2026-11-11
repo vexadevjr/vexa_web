@@ -1,19 +1,22 @@
 import { Code2, Server, Settings, ArrowRight } from 'lucide-react'
 import { DiscordIcon } from './Icons.jsx'
+import { siteConfig } from '../config/siteConfig.js'
+import { idOf, scrollToHash } from '../lib/scroll.js'
 
 const services = [
-  { title: 'Discord Botları', icon: DiscordIcon, desc: 'Sunucunuz için gelişmiş, güvenli ve özelleştirilebilir botlar.' },
-  { title: 'Web Geliştirme', icon: Code2, desc: 'Modern ve performanslı web siteleri ile projelerinizi büyütün.' },
+  { id: idOf(siteConfig.sections.discordBots), title: 'Discord Botları', icon: DiscordIcon, desc: 'Sunucunuz için gelişmiş, güvenli ve özelleştirilebilir botlar.' },
+  { id: idOf(siteConfig.sections.webDevelopment), title: 'Web Geliştirme', icon: Code2, desc: 'Modern ve performanslı web siteleri ile projelerinizi büyütün.' },
   { title: 'Sunucu Çözümleri', icon: Server, desc: 'Sunucu, hosting ve altyapı desteği ile kesintisiz hizmet.' },
   { title: 'Özel Yazılım', icon: Settings, desc: 'İhtiyacınıza özel yazılım çözümleri geliştiriyoruz.' },
 ]
 
 export default function ServiceCards() {
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
-      {services.map(({ title, icon: Icon, desc }) => (
+    <section id={idOf(siteConfig.sections.services)} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
+      {services.map(({ id, title, icon: Icon, desc }) => (
         <article
           key={title}
+          id={id}
           className="group h-full min-h-[190px] flex flex-col p-6 rounded-2xl bg-[#131422] border border-purple-950/40 transition-colors hover:border-indigo-900/80"
         >
           <div className="flex gap-4">
@@ -24,15 +27,20 @@ export default function ServiceCards() {
             </div>
           </div>
 
-          <div className="mt-auto pt-6 flex items-center justify-between">
-            <a href="#" className="flex items-center gap-2 text-[14px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+          <a
+            href={siteConfig.sections.contact}
+            onClick={(e) => scrollToHash(e, siteConfig.sections.contact)}
+            aria-label={`${title} - İncele`}
+            className="mt-auto pt-6 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2 text-[14px] font-semibold text-indigo-400 group-hover:text-indigo-300 transition-colors">
               İncele
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </span>
             <span className="grid place-items-center shrink-0 w-9 h-9 rounded-full bg-[#0c0d14] border border-purple-950/60 text-white group-hover:bg-indigo-600 group-hover:border-indigo-600 transition-colors">
               <ArrowRight className="w-4 h-4" />
             </span>
-          </div>
+          </a>
         </article>
       ))}
     </section>

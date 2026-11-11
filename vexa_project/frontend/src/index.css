@@ -42,3 +42,10 @@ body {
   from { transform: translateX(-100%); }
   to   { transform: translateX(100%); }
 }
+
+/* in-page navigation */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 1.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

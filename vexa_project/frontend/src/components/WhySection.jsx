@@ -1,5 +1,7 @@
 import { ShieldCheck, Zap, Headphones, Star, ArrowRight } from 'lucide-react'
 import CtaFx from './CtaFx.jsx'
+import { siteConfig } from '../config/siteConfig.js'
+import { scrollToHash } from '../lib/scroll.js'
 import { cta } from './styles.js'
 
 const points = [
@@ -18,11 +20,15 @@ export default function WhySection() {
         <p className="mt-4 text-[14px] leading-relaxed text-slate-400 max-w-[470px]">
           Yılların deneyimi, profesyonel ekibimiz ve müşteri odaklı hizmet anlayışımızla projelerinizi bir üst seviyeye taşıyoruz.
         </p>
-        <button className={`${cta} mt-7 h-11 px-5 text-[14px]`}>
+        <a
+          href={siteConfig.sections.contact}
+          onClick={(e) => scrollToHash(e, siteConfig.sections.contact)}
+          className={`${cta} mt-7 h-11 px-5 text-[14px]`}
+        >
           <CtaFx />
           Daha Fazla Bilgi
           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-        </button>
+        </a>
       </div>
 
       <ul className="flex flex-col justify-center gap-6">

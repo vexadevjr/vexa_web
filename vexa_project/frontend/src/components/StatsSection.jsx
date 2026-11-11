@@ -1,28 +1,34 @@
 import { Box, Users, Star, ArrowRight } from 'lucide-react'
 import { DiscordIcon } from './Icons.jsx'
 import Shimmer from './Shimmer.jsx'
+import { siteConfig } from '../config/siteConfig.js'
+import { idOf, external } from '../lib/scroll.js'
 
-const stats = [
-  { icon: Box, value: '500+', label: 'Tamamlanan projeler' },
-  { icon: Users, value: '1K+', label: 'Müşteri Sayısı' },
-  { icon: Star, value: '%99.9', label: 'Müşteri Memnuniyeti' },
-]
+const statIcons = [Box, Users, Star]
 
 export default function StatsSection() {
   return (
     <div className="h-full flex flex-col gap-5">
-      <div className="grid grid-cols-3 gap-4 px-6 py-8 rounded-2xl bg-[#131422] border border-purple-950/40">
-        {stats.map(({ icon: Icon, value, label }) => (
-          <div key={label} className="flex flex-col items-center text-center">
-            <Icon className="w-6 h-6 text-indigo-400" strokeWidth={1.8} />
-            <div className="mt-4 text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight">{value}</div>
-            <div className="mt-2 text-[12px] sm:text-[13px] text-slate-400">{label}</div>
-          </div>
-        ))}
+      <div
+        id={idOf(siteConfig.sections.portfolio)}
+        className="grid grid-cols-3 gap-4 px-6 py-8 rounded-2xl bg-[#131422] border border-purple-950/40"
+      >
+        {siteConfig.stats.map(({ value, label }, i) => {
+          const Icon = statIcons[i] || Star
+          return (
+            <div key={label} className="flex flex-col items-center text-center">
+              <Icon className="w-6 h-6 text-indigo-400" strokeWidth={1.8} />
+              <div className="mt-4 text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight">{value}</div>
+              <div className="mt-2 text-[12px] sm:text-[13px] text-slate-400">{label}</div>
+            </div>
+          )
+        })}
       </div>
 
       <a
-        href="#"
+        id={idOf(siteConfig.sections.contact)}
+        href={siteConfig.links.discord}
+        {...external}
         className="group relative overflow-hidden flex-1 flex items-center gap-5 p-6 rounded-2xl bg-gradient-to-r from-indigo-600/20 to-[#131422] border border-indigo-500/40 hover:border-indigo-400/60 transition-colors duration-300"
       >
         <Shimmer />

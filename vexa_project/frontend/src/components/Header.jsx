@@ -1,4 +1,6 @@
 import { Search, LogIn, Menu } from 'lucide-react'
+import { siteConfig } from '../config/siteConfig.js'
+import { external } from '../lib/scroll.js'
 
 export default function Header({ onMenu }) {
   return (
@@ -22,10 +24,10 @@ export default function Header({ onMenu }) {
 
       <div className="ml-auto flex items-center gap-4">
 
-        <button className="inline-flex items-center gap-2 h-12 px-5 rounded-xl text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-300">
+        <a href={siteConfig.links.login} {...external} className="inline-flex items-center gap-2 h-12 px-5 rounded-xl text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-300">
           Giriş Yap
           <LogIn className="w-4 h-4" />
-        </button>
+        </a>
       </div>
     </header>
   )

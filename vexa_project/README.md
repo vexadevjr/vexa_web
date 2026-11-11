@@ -17,6 +17,10 @@ npm run dev:frontend    # Vite dev server, /api is proxied to the backend
 
 API: `GET /api/status`, `GET /api/services`.
 
+## Links and sections
+
+All external URLs, in-page anchors and the statistics live in `frontend/src/config/siteConfig.js`.
+
 ## Deploy on Render
 
 Push this folder to a Git repository, then in Render choose **New → Blueprint** and select the repo
