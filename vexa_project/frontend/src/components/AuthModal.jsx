@@ -3,12 +3,13 @@ import Modal from './Modal.jsx'
 import Button from './Button.jsx'
 import Field, { inputCls } from './Field.jsx'
 import TrustBadges from './TrustBadges.jsx'
+import { DiscordIcon, GoogleIcon } from './Icons.jsx'
 import { useApp } from '../context/AppContext.jsx'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export default function AuthModal() {
-  const { authTab, closeAuth, login, register } = useApp()
+  const { authTab, authNotice, closeAuth, login, register } = useApp()
   const [tab, setTab] = useState(authTab)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [errors, setErrors] = useState({})
@@ -82,6 +83,11 @@ export default function AuthModal() {
           />
         </Field>
 
+        {authNotice && !serverError && (
+          <p role="alert" className="text-[13px] text-amber-300">
+            {authNotice}
+          </p>
+        )}
         {serverError && (
           <p role="alert" className="text-[13px] text-rose-400">
             {serverError}
@@ -93,6 +99,26 @@ export default function AuthModal() {
         </Button>
         <TrustBadges compact />
       </form>
+
+      <div className="mt-5 flex items-center gap-3 text-[12px] text-vx-muted">
+        <span className="h-px flex-1 bg-vx-line" />
+        veya
+        <span className="h-px flex-1 bg-vx-line" />
+      </div>
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a
+          href="/api/auth/discord"
+          className="h-11 inline-flex items-center justify-center gap-2.5 rounded-xl text-[13px] font-semibold text-white bg-[#5865F2] hover:bg-[#4752c4] transition-colors"
+        >
+          <DiscordIcon className="w-5 h-5" /> Discord ile {isRegister ? 'kayıt ol' : 'giriş yap'}
+        </a>
+        <a
+          href="/api/auth/google"
+          className="h-11 inline-flex items-center justify-center gap-2.5 rounded-xl text-[13px] font-semibold text-slate-900 bg-white hover:bg-slate-100 transition-colors"
+        >
+          <GoogleIcon className="w-5 h-5" /> Google ile {isRegister ? 'kayıt ol' : 'giriş yap'}
+        </a>
+      </div>
     </Modal>
   )
 }

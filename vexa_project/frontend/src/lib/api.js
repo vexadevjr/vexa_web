@@ -1,5 +1,5 @@
 const BASE = `${import.meta.env.VITE_API_URL || ''}/api`
-const TOKEN_KEY = 'vexa_token'
+const TOKEN_KEY = 'vexstar_token'
 
 export const tokenStore = {
   get() {
@@ -52,10 +52,33 @@ async function request(path, { method = 'GET', body } = {}) {
 
 export const api = {
   products: () => request('/products'),
+  content: () => request('/content'),
+  stats: () => request('/stats'),
+  reviews: () => request('/reviews'),
+  myReview: () => request('/reviews/mine'),
+  postReview: (payload) => request('/reviews', { method: 'POST', body: payload }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload }),
   register: (payload) => request('/auth/register', { method: 'POST', body: payload }),
+  exchange: (code) => request('/auth/exchange', { method: 'POST', body: { code } }),
   me: () => request('/auth/me'),
   createOrder: (payload) => request('/orders', { method: 'POST', body: payload }),
   myOrders: () => request('/orders/mine'),
   contact: (payload) => request('/contact', { method: 'POST', body: payload }),
+  myTickets: () => request('/contact/mine'),
+  lookupTicket: (payload) => request('/contact/lookup', { method: 'POST', body: payload }),
+  replyTicket: (payload) => request('/contact/reply', { method: 'POST', body: payload }),
+  readTicket: (ticketNo) => request('/contact/read', { method: 'POST', body: { ticketNo } }),
+  // visit counter: fire and forget, never throws
+  track(path) {
+    try {
+      fetch(`${BASE}/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path }),
+        keepalive: true,
+      }).catch(() => {})
+    } catch (e) {
+      /* ignore */
+    }
+  },
 }

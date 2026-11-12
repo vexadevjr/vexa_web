@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 export default function Faq() {
+  const { faq } = useSite()
   const [open, setOpen] = useState(0)
+  if (!faq.length) return null
 
   return (
     <section>
       <h2 className="text-2xl font-bold tracking-tight text-white">Sık Sorulan Sorular</h2>
       <div className="mt-5 rounded-2xl bg-vx-card border border-vx-line divide-y divide-vx-line">
-        {siteConfig.faq.map((item, i) => {
+        {faq.map((item, i) => {
           const isOpen = open === i
           return (
             <div key={item.q}>

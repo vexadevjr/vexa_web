@@ -8,7 +8,8 @@ import Faq from '../components/Faq.jsx'
 import TrustBadges from '../components/TrustBadges.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
+import TicketLookup from '../components/TicketLookup.jsx'
 
 const SUBJECTS = ['Sipariş Hakkında', 'Teknik Destek', 'Fiyat Teklifi', 'Diğer']
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -22,6 +23,7 @@ export default function Contact() {
 
 function ContactPage({ topic }) {
   const { user } = useApp()
+  const siteConfig = useSite()
 
   const [form, setForm] = useState({
     name: user ? user.name : '',
@@ -140,6 +142,8 @@ function ContactPage({ topic }) {
           <TrustBadges compact />
         </aside>
       </section>
+
+      {!user && <TicketLookup />}
 
       <Faq />
     </div>

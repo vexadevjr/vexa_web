@@ -1,10 +1,11 @@
 import { Lock, ShieldCheck, Clock, RefreshCw } from 'lucide-react'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 const icons = { lock: Lock, shield: ShieldCheck, clock: Clock, refresh: RefreshCw }
 
 // compact: one short row (modals). Default: guarantee cards with explanations.
 export default function TrustBadges({ compact = false }) {
+  const siteConfig = useSite()
   if (compact) {
     return (
       <ul className="flex flex-col gap-2 rounded-xl bg-vx-surface border border-vx-line p-4">

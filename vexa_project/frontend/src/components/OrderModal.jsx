@@ -6,13 +6,14 @@ import Field, { inputCls } from './Field.jsx'
 import TrustBadges from './TrustBadges.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 import { formatPrice, deliveryLabel } from '../lib/format.js'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export default function OrderModal({ product, onClose }) {
   const { user } = useApp()
+  const siteConfig = useSite()
   const [form, setForm] = useState({ name: user ? user.name : '', email: user ? user.email : '', discord: '', note: '' })
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')

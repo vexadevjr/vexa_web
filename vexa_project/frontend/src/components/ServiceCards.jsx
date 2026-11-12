@@ -2,14 +2,16 @@ import { Link } from 'react-router-dom'
 import { Code2, Server, Settings, ArrowRight } from 'lucide-react'
 import { DiscordIcon } from './Icons.jsx'
 import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 import { idOf } from '../lib/scroll.js'
 
 const icons = { discord: DiscordIcon, code: Code2, server: Server, settings: Settings }
 
 export default function ServiceCards() {
+  const { serviceCards } = useSite()
   return (
     <section id={idOf(siteConfig.sections.services)} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
-      {siteConfig.serviceCards.map(({ title, icon, desc, to }) => {
+      {serviceCards.map(({ title, icon, desc, to }) => {
         const Icon = icons[icon] || Settings
         return (
           <Link

@@ -1,11 +1,12 @@
 import { Link, NavLink } from 'react-router-dom'
 import { Home, Code2, LayoutGrid, Mail, ChevronRight, Headphones, X } from 'lucide-react'
 import { DiscordIcon, GithubIcon, YoutubeIcon, XIcon } from './Icons.jsx'
-import vLogo from '../assets/v-logo.png'
+import vLogo from '../assets/vexstar-logo.png'
 import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 import { external } from '../lib/scroll.js'
 
-const { routes, links } = siteConfig
+const { routes } = siteConfig
 
 const items = [
   { label: 'Ana Sayfa', icon: Home, to: routes.home },
@@ -15,14 +16,16 @@ const items = [
   { label: 'İletişim', icon: Mail, to: routes.contact },
 ]
 
-const socials = [
-  { label: 'Discord', Icon: DiscordIcon, href: links.discord },
-  { label: 'GitHub', Icon: GithubIcon, href: links.github },
-  { label: 'YouTube', Icon: YoutubeIcon, href: links.youtube },
-  { label: 'X', Icon: XIcon, href: links.x },
+const socialDefs = [
+  { label: 'Discord', Icon: DiscordIcon, key: 'discord' },
+  { label: 'GitHub', Icon: GithubIcon, key: 'github' },
+  { label: 'YouTube', Icon: YoutubeIcon, key: 'youtube' },
+  { label: 'X', Icon: XIcon, key: 'x' },
 ]
 
 export default function Sidebar({ open, onClose }) {
+  const { links } = useSite()
+  const socials = socialDefs.filter((s) => links[s.key]).map((s) => ({ ...s, href: links[s.key] }))
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-40 w-[215px] flex flex-col bg-vx-surface border-r border-vx-line transition-transform duration-300 ${
@@ -33,9 +36,9 @@ export default function Sidebar({ open, onClose }) {
         <X className="w-5 h-5" />
       </button>
 
-      <Link to={routes.home} onClick={onClose} className="flex flex-col items-center pt-9 pb-8" aria-label="Vexa Development ana sayfa">
-        <img src={vLogo} alt="Vexa" className="w-[84px] h-auto" />
-        <div className="mt-2 text-[22px] font-semibold tracking-[0.28em] leading-none pl-[0.28em] text-white">VEXA</div>
+      <Link to={routes.home} onClick={onClose} className="flex flex-col items-center pt-9 pb-8" aria-label="Vexstar Development ana sayfa">
+        <img src={vLogo} alt="Vexstar" className="w-[96px] h-auto" />
+        <div className="mt-2 text-[22px] font-semibold tracking-[0.28em] leading-none pl-[0.28em] text-white">VEXSTAR</div>
         <div className="mt-1.5 text-[10px] tracking-[0.32em] text-vx-muted pl-[0.32em]">DEVELOPMENT</div>
       </Link>
 
@@ -75,7 +78,7 @@ export default function Sidebar({ open, onClose }) {
 
       <div className="mt-auto px-6 pb-6">
         <div className="text-[11px] text-vx-muted leading-relaxed">
-          © 2026 Vexa Development
+          © 2026 Vexstar Development
           <br />
           Tüm hakları saklıdır.
         </div>

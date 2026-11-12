@@ -3,16 +3,18 @@ import PageHeader from '../components/PageHeader.jsx'
 import Button from '../components/Button.jsx'
 import Reviews from '../components/Reviews.jsx'
 import { StatsGrid } from '../components/StatsSection.jsx'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 export default function Portfolio() {
+  const siteConfig = useSite()
   const [filter, setFilter] = useState('Tümü')
-  const chips = ['Tümü', ...siteConfig.portfolioCategories]
-  const items = filter === 'Tümü' ? siteConfig.portfolio : siteConfig.portfolio.filter((p) => p.category === filter)
+  const all = siteConfig.portfolio
+  const chips = ['Tümü', ...Array.from(new Set(all.map((p) => p.category).filter(Boolean)))]
+  const items = filter === 'Tümü' ? all : all.filter((p) => p.category === filter)
 
   return (
     <div className="space-y-10">
-      <PageHeader title="Portföy" description="Tamamladığımız projelerden seçmeler. Her proje için hedef, sonuç ve müşteri memnuniyeti puanını paylaşıyoruz." />
+      <PageHeader title="Portföy" description="Tamamladığımız projelerden seçmeler. Müşteri memnuniyeti oranımız, gerçek müşteri yorumlarının yıldızlarından hesaplanır." />
 
       <StatsGrid />
 
@@ -44,17 +46,11 @@ export default function Portfolio() {
               <div className="mt-1 text-[13px] text-vx-muted">{p.client}</div>
               <p className="mt-4 text-[14px] leading-relaxed text-slate-200">{p.result}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {p.tags.map((t) => (
+                {(p.tags || []).map((t) => (
                   <span key={t} className="px-2.5 h-6 inline-flex items-center rounded-md border border-vx-line text-[11px] text-vx-muted">
                     {t}
                   </span>
                 ))}
-              </div>
-              <div className="mt-auto pt-5">
-                <div className="flex items-center justify-between border-t border-vx-line pt-4 text-[13px]">
-                  <span className="text-vx-muted">Müşteri memnuniyeti</span>
-                  <span className="font-bold text-white">%{p.satisfaction}</span>
-                </div>
               </div>
             </article>
           ))}

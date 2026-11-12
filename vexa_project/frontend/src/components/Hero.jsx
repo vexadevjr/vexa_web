@@ -2,7 +2,7 @@ import { ArrowRight, ShoppingCart, Headphones } from 'lucide-react'
 import Button from './Button.jsx'
 import { siteConfig } from '../config/siteConfig.js'
 import { scrollToHash } from '../lib/scroll.js'
-import vLogo from '../assets/v-logo.png'
+import vLogo from '../assets/vexstar-logo.png'
 
 export default function Hero() {
   return (
@@ -17,7 +17,7 @@ export default function Hero() {
 
       <div className="relative z-10 p-8 sm:p-10">
         <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-extrabold tracking-tight leading-[1.05] text-white">
-          Vexa{' '}
+          Vexstar{' '}
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">Development</span>
         </h1>
 

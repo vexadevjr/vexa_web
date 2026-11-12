@@ -5,12 +5,14 @@
 //
 // This file must stay plain data: no imports, no JSX, no browser APIs.
 //
-// !! Values marked PLACEHOLDER (prices, contact details, guarantees, portfolio, reviews)
-// !! are examples. Replace them with your real information before going live.
+// !! Values marked PLACEHOLDER (prices, contact details, guarantees, portfolio)
+// !! are examples. Everything here can also be edited live from the admin panel (/admin).
+// !! Reviews and satisfaction figures are NEVER stored here: they come from real customer reviews.
+// !! Replace every PLACEHOLDER with your real information before going live.
 // ─────────────────────────────────────────────────────────────────────────────
 export const siteConfig = {
   brand: {
-    name: 'Vexa Development',
+    name: 'Vexstar Development',
     // Applied as CSS variables at start-up (see src/lib/brand.js) and used by Tailwind (`bg-vx-card`, ...).
     colors: {
       bg: '#08090f',
@@ -28,16 +30,16 @@ export const siteConfig = {
 
   // PLACEHOLDER contact details
   contact: {
-    email: 'destek@vexadevelopment.com',
-    discord: 'Vexa Development Discord sunucusu',
-    hours: 'Destek kanalı 7/24 açıktır. Sipariş ve teklif yanıtları 18:00 – 24:00 arası verilir.',
+    email: 'destek@vexstardevelopment.com',
+    discord: 'Vexstar Development Discord sunucusu',
+    hours: 'Destek kanalı 7/24 açıktır. Sipariş ve teklif yanıtları 09:00 – 24:00 arası verilir.',
     location: 'Türkiye',
   },
 
   links: {
-    discord: 'https://discord.gg/RBkTVjUXY6', // PLACEHOLDER: community invite
-    demoServer: 'https://discord.gg/', // PLACEHOLDER: server where bots can be tried live
-    support: 'https://discord.gg/RBkTVjUXY6', // PLACEHOLDER: support channel
+    discord: 'https://discord.gg', // PLACEHOLDER: community invite
+    demoServer: 'https://discord.gg', // PLACEHOLDER: server where bots can be tried live
+    support: 'https://discord.gg', // PLACEHOLDER: support channel
     payment: '', // PLACEHOLDER: payment / invoice link shown after an order (leave empty to hide)
     github: 'https://github.com',
     youtube: 'https://youtube.com',
@@ -54,6 +56,7 @@ export const siteConfig = {
     portfolio: '/portfoy',
     contact: '/iletisim',
     panel: '/panel',
+    admin: '/admin',
   },
 
   // In-page anchors on the home page
@@ -61,12 +64,6 @@ export const siteConfig = {
     home: '#home',
     services: '#services',
   },
-
-  stats: [
-    { value: '3', label: 'Tamamlanan projeler' },
-    { value: '2', label: 'Müşteri Sayısı' },
-    { value: '%95+', label: 'Müşteri Memnuniyeti' },
-  ],
 
   // Cards on the home page
   serviceCards: [
@@ -81,10 +78,10 @@ export const siteConfig = {
   // PLACEHOLDER prices (TRY). `price: null` means "get a quote".
   catalog: [
     {
-      slug: 'vexa-guard',
+      slug: 'vexstar-guard',
       category: 'discord-bot',
       subCategory: 'Moderasyon',
-      name: 'Vexa Guard',
+      name: 'Vexstar Guard',
       tagline: 'Gelişmiş moderasyon ve otomatik koruma',
       description: 'Spam, reklam ve küfür filtresiyle sunucunuzu 7/24 koruyan, detaylı log tutan moderasyon botu.',
       features: ['Spam, link ve küfür filtresi', 'Ban, mute ve uyarı sistemi', 'Detaylı log kanalları', 'Slash komut desteği', 'Özel bot adı ve avatar'],
@@ -102,10 +99,10 @@ export const siteConfig = {
       ],
     },
     {
-      slug: 'vexa-shield',
+      slug: 'vexstar-shield',
       category: 'discord-bot',
       subCategory: 'Moderasyon',
-      name: 'Vexa Shield',
+      name: 'Vexstar Shield',
       tagline: 'Raid ve yetki kötüye kullanımına karşı koruma',
       description: 'Toplu giriş (raid), kanal silme ve yetki değişikliği girişimlerini algılayıp otomatik önlem alan koruma botu.',
       features: ['Raid algılama ve otomatik kilit', 'Kanal ve rol silme koruması', 'Güvenilir üye listesi', 'Anlık yönetici bildirimi', 'Özel bot adı ve avatar'],
@@ -123,10 +120,10 @@ export const siteConfig = {
       ],
     },
     {
-      slug: 'vexa-music',
+      slug: 'vexstar-music',
       category: 'discord-bot',
       subCategory: 'Müzik',
-      name: 'Vexa Music',
+      name: 'Vexstar Music',
       tagline: 'Kesintisiz, yüksek kaliteli müzik botu',
       description: 'Sıra yönetimi, ses efektleri ve çalma listesi desteğiyle sesli kanallarınız için müzik botu.',
       features: ['YouTube ve Spotify bağlantı desteği', 'Sıra, döngü ve karıştırma', 'Ses efektleri ve ekolayzır', 'Sunucuya özel çalma listeleri', 'Slash komut desteği'],
@@ -144,10 +141,10 @@ export const siteConfig = {
       ],
     },
     {
-      slug: 'vexa-economy',
+      slug: 'vexstar-economy',
       category: 'discord-bot',
       subCategory: 'Ekonomi',
-      name: 'Vexa Economy',
+      name: 'Vexstar Economy',
       tagline: 'Sunucunuza özel sanal ekonomi sistemi',
       description: 'Günlük ödül, çalışma, bahis ve sıralama komutlarıyla üyeleri aktif tutan ekonomi botu.',
       features: ['Günlük ödül ve çalışma komutları', 'Sunucuya özel para birimi', 'Sıralama tablosu', 'Yönetici ekonomi araçları', 'Özel bot adı ve avatar'],
@@ -159,19 +156,19 @@ export const siteConfig = {
       popular: false,
       demo: [
         { who: 'user', text: '/gunluk' },
-        { who: 'bot', text: 'Günlük ödülünüz: 250 Vexa Coin. Serin: 4 gün' },
+        { who: 'bot', text: 'Günlük ödülünüz: 250 Vexstar Coin. Serin: 4 gün' },
         { who: 'user', text: '/bakiye' },
         { who: 'bot', text: 'Cüzdan: 1.840 · Banka: 5.200' },
       ],
     },
     {
-      slug: 'vexa-market',
+      slug: 'vexstar-market',
       category: 'discord-bot',
       subCategory: 'Ekonomi',
-      name: 'Vexa Market',
+      name: 'Vexstar Market',
       tagline: 'Rol marketi ve envanter sistemi',
       description: 'Üyelerin sanal para ile rol ve ödül satın alabildiği, yönetilebilir mağaza ve envanter botu.',
-      features: ['Rol ve ödül marketi', 'Üye envanteri ve hediye gönderme', 'Stok ve süreli ürünler', 'Satın alma logları', 'Vexa Economy ile entegrasyon'],
+      features: ['Rol ve ödül marketi', 'Üye envanteri ve hediye gönderme', 'Stok ve süreli ürünler', 'Satın alma logları', 'Vexstar Economy ile entegrasyon'],
       tags: ['market', 'rol', 'mağaza'],
       price: 1990,
       currency: 'TRY',
@@ -186,10 +183,10 @@ export const siteConfig = {
       ],
     },
     {
-      slug: 'vexa-register',
+      slug: 'vexstar-register',
       category: 'discord-bot',
       subCategory: 'Kayıt',
-      name: 'Vexa Register',
+      name: 'Vexstar Register',
       tagline: 'Otomatik kayıt ve doğrulama sistemi',
       description: 'Yeni üyeleri karşılayan, kayıt formunu alıp rolleri otomatik veren kayıt ve doğrulama botu.',
       features: ['Butonlu kayıt ve doğrulama', 'Otomatik rol verme', 'Karşılama ve ayrılma mesajları', 'Kayıt yetkilisi istatistikleri', 'Özel bot adı ve avatar'],
@@ -292,12 +289,12 @@ export const siteConfig = {
 
   // Comparison table on the Discord bots page. `slugs` = bots that include the feature.
   botComparison: [
-    { label: 'Özel bot adı ve avatar', slugs: ['vexa-guard', 'vexa-shield', 'vexa-economy', 'vexa-register'] },
-    { label: 'Slash komut desteği', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
-    { label: 'Detaylı log kanalları', slugs: ['vexa-guard', 'vexa-shield', 'vexa-market', 'vexa-register'] },
-    { label: 'Yönetici kontrol komutları', slugs: ['vexa-guard', 'vexa-shield', 'vexa-economy', 'vexa-market', 'vexa-register'] },
-    { label: 'Ücretsiz güncellemeler', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
-    { label: '7/24 teknik destek', slugs: ['vexa-guard', 'vexa-shield', 'vexa-music', 'vexa-economy', 'vexa-market', 'vexa-register'] },
+    { label: 'Özel bot adı ve avatar', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-economy', 'vexstar-register'] },
+    { label: 'Slash komut desteği', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
+    { label: 'Detaylı log kanalları', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-market', 'vexstar-register'] },
+    { label: 'Yönetici kontrol komutları', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
+    { label: 'Ücretsiz güncellemeler', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
+    { label: '7/24 teknik destek', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
   ],
 
   // PLACEHOLDER business commitments: confirm each one before publishing.
@@ -332,20 +329,13 @@ export const siteConfig = {
 
   // SAMPLE portfolio entries: replace with real projects. Remove `sample: true` once real.
   portfolio: [
-    { id: 'p1', title: 'Topluluk Moderasyon Sistemi', category: 'Discord Bot', client: 'Oyun topluluğu', result: 'Moderatör iş yükünde belirgin azalma', satisfaction: 98, tags: ['Moderasyon', 'Slash komutlar'], sample: true },
-    { id: 'p2', title: 'Kurumsal Tanıtım Sitesi', category: 'Web', client: 'Danışmanlık firması', result: 'Mobil uyumlu yeni site, hızlı yükleme', satisfaction: 97, tags: ['Kurumsal', 'SEO'], sample: true },
-    { id: 'p3', title: 'Online Mağaza Altyapısı', category: 'Web', client: 'Butik giyim markası', result: 'Sipariş yönetimi tek panelde toplandı', satisfaction: 99, tags: ['E-Ticaret', 'Yönetim paneli'], sample: true },
-    { id: 'p4', title: 'Müzik ve Ekonomi Botu', category: 'Discord Bot', client: 'Sosyal topluluk', result: 'Üye etkileşiminde artış', satisfaction: 96, tags: ['Müzik', 'Ekonomi'], sample: true },
-    { id: 'p5', title: 'Oyun Sunucusu Altyapısı', category: 'Sunucu', client: 'Oyun sunucusu', result: 'Yedekleme ve izleme ile kesintisiz çalışma', satisfaction: 98, tags: ['VPS', 'Yedekleme'], sample: true },
-    { id: 'p6', title: 'Sipariş Takip Otomasyonu', category: 'Yazılım', client: 'Lojistik firması', result: 'Manuel veri girişi otomatikleşti', satisfaction: 97, tags: ['Otomasyon', 'API'], sample: true },
+    { id: 'p1', title: 'Topluluk Moderasyon Sistemi', category: 'Discord Bot', client: 'Oyun topluluğu', result: 'Moderatör iş yükünde belirgin azalma', tags: ['Moderasyon', 'Slash komutlar'], sample: true },
+    { id: 'p2', title: 'Kurumsal Tanıtım Sitesi', category: 'Web', client: 'Danışmanlık firması', result: 'Mobil uyumlu yeni site, hızlı yükleme', tags: ['Kurumsal', 'SEO'], sample: true },
+    { id: 'p3', title: 'Online Mağaza Altyapısı', category: 'Web', client: 'Butik giyim markası', result: 'Sipariş yönetimi tek panelde toplandı', tags: ['E-Ticaret', 'Yönetim paneli'], sample: true },
+    { id: 'p4', title: 'Müzik ve Ekonomi Botu', category: 'Discord Bot', client: 'Sosyal topluluk', result: 'Üye etkileşiminde artış', tags: ['Müzik', 'Ekonomi'], sample: true },
+    { id: 'p5', title: 'Oyun Sunucusu Altyapısı', category: 'Sunucu', client: 'Oyun sunucusu', result: 'Yedekleme ve izleme ile kesintisiz çalışma', tags: ['VPS', 'Yedekleme'], sample: true },
+    { id: 'p6', title: 'Sipariş Takip Otomasyonu', category: 'Yazılım', client: 'Lojistik firması', result: 'Manuel veri girişi otomatikleşti', tags: ['Otomasyon', 'API'], sample: true },
   ],
   portfolioCategories: ['Discord Bot', 'Web', 'Sunucu', 'Yazılım'],
 
-  // SAMPLE reviews: replace with real customer reviews. Set `verified: true` only for reviews you have
-  // confirmed with the customer; the “Doğrulanmış müşteri” badge is shown only for those.
-  reviews: [
-    { name: 'M. K.', role: 'Topluluk yöneticisi', rating: 5, product: 'Vexa Guard', text: 'Kurulum hızlıydı, komutlar tam istediğimiz gibi çalışıyor. Sorularımıza aynı gün dönüş yapıldı.', verified: false, sample: true },
-    { name: 'S. A.', role: 'E-ticaret girişimcisi', rating: 5, product: 'E-Ticaret Sitesi', text: 'Süreç boyunca ne yapıldığını net şekilde bildirdiler. Teslim tarihine uyuldu.', verified: false, sample: true },
-    { name: 'E. T.', role: 'Sunucu sahibi', rating: 5, product: 'Vexa Economy', text: 'Üyelerimiz ekonomi sistemini çok sevdi. İstediğimiz değişiklikler kısa sürede uygulandı.', verified: false, sample: true },
-  ],
 }

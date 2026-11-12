@@ -2,13 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import useProducts from '../hooks/useProducts.js'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 import { norm, productPath, priceLabel } from '../lib/format.js'
 
 const CATEGORY_LABEL = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 
 export default function SearchBox() {
   const products = useProducts()
+  const { serviceCards } = useSite()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -23,13 +24,13 @@ export default function SearchBox() {
       .filter((p) => norm([p.name, p.tagline, p.subCategory, p.category, ...(p.tags || []), ...(p.features || [])].join(' ')).includes(term))
       .map((p) => ({ key: p.slug, title: p.name, meta: CATEGORY_LABEL[p.category] || p.category, price: priceLabel(p), to: productPath(p) }))
 
-    const fromServices = siteConfig.serviceCards
+    const fromServices = serviceCards
       .filter((s) => norm(`${s.title} ${s.desc}`).includes(term))
       .filter((s) => !fromProducts.some((r) => r.to === s.to))
       .map((s) => ({ key: s.title, title: s.title, meta: 'Hizmet', price: '', to: s.to }))
 
     return [...fromProducts, ...fromServices].slice(0, 7)
-  }, [query, products])
+  }, [query, products, serviceCards])
 
   useEffect(() => {
     const onDown = (e) => {

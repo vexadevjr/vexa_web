@@ -14,7 +14,8 @@ export default function DiscordBots() {
 
   const bots = useMemo(() => products.filter((p) => p.category === 'discord-bot'), [products])
   const visible = filter === 'Tümü' ? bots : bots.filter((b) => b.subCategory === filter)
-  const chips = ['Tümü', ...siteConfig.botCategories]
+  // sub-categories come straight from the products, so editing a product's category in /admin updates this
+  const chips = ['Tümü', ...Array.from(new Set(bots.map((b) => b.subCategory).filter(Boolean)))]
   const count = (c) => (c === 'Tümü' ? bots.length : bots.filter((b) => b.subCategory === c).length)
 
   return (

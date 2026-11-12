@@ -1,35 +1,50 @@
 import { Box, Users, Star, ArrowRight } from 'lucide-react'
 import { DiscordIcon } from './Icons.jsx'
 import Shimmer from './Shimmer.jsx'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
+import { useStats } from '../hooks/useLive.js'
 import { external } from '../lib/scroll.js'
 
-const statIcons = [Box, Users, Star]
+const num = (n) => Number(n).toLocaleString('tr-TR')
 
+// Every figure here is computed by the server from real data: delivered orders, registered
+// customers and the stars on approved customer reviews. Nothing is typed in by hand.
 export function StatsGrid() {
+  const stats = useStats()
+  const ready = stats && stats.available
+  const dash = stats ? '—' : '…'
+
+  const items = [
+    { Icon: Box, value: ready ? num(stats.completedOrders) : dash, label: 'Teslim edilen sipariş' },
+    { Icon: Users, value: ready ? num(stats.customers) : dash, label: 'Kayıtlı müşteri' },
+    {
+      Icon: Star,
+      value: ready && stats.satisfaction != null ? `%${stats.satisfaction}` : dash,
+      label: ready && stats.reviewCount ? `Müşteri memnuniyeti (${num(stats.reviewCount)} yorum)` : 'Müşteri memnuniyeti (henüz yorum yok)',
+    },
+  ]
+
   return (
     <div className="grid grid-cols-3 gap-4 px-6 py-8 rounded-2xl bg-vx-card border border-vx-line">
-      {siteConfig.stats.map(({ value, label }, i) => {
-        const Icon = statIcons[i] || Star
-        return (
-          <div key={label} className="flex flex-col items-center text-center">
-            <Icon className="w-6 h-6 text-vx-accent-text" strokeWidth={1.8} />
-            <div className="mt-4 text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight">{value}</div>
-            <div className="mt-2 text-[12px] sm:text-[13px] text-vx-muted">{label}</div>
-          </div>
-        )
-      })}
+      {items.map(({ Icon, value, label }) => (
+        <div key={label} className="flex flex-col items-center text-center">
+          <Icon className="w-6 h-6 text-vx-accent-text" strokeWidth={1.8} />
+          <div className="mt-4 text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight">{value}</div>
+          <div className="mt-2 text-[12px] sm:text-[13px] text-vx-muted">{label}</div>
+        </div>
+      ))}
     </div>
   )
 }
 
 export default function StatsSection() {
+  const { links } = useSite()
   return (
     <div className="h-full flex flex-col gap-5">
       <StatsGrid />
 
       <a
-        href={siteConfig.links.discord}
+        href={links.discord}
         {...external}
         className="group relative overflow-hidden flex-1 flex items-center gap-5 p-6 rounded-2xl bg-gradient-to-r from-vx-accent/20 to-vx-card border border-vx-accent/40 hover:border-vx-accent-text/60 transition-colors duration-300"
       >

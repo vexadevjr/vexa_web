@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { Megaphone } from 'lucide-react'
 import Sidebar from './components/Sidebar.jsx'
 import Header from './components/Header.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -13,7 +14,11 @@ import Contact from './pages/Contact.jsx'
 import Panel from './pages/Panel.jsx'
 import NotFound from './pages/NotFound.jsx'
 import { useApp } from './context/AppContext.jsx'
+import { useSite } from './context/SiteContext.jsx'
 import { siteConfig } from './config/siteConfig.js'
+import { api } from './lib/api.js'
+
+const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'))
 
 const { routes } = siteConfig
 
@@ -34,18 +39,44 @@ function ScrollManager() {
   return null
 }
 
-export default function App() {
+// Counts one page view per navigation for the admin visitor statistics.
+function VisitTracker() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    api.track(pathname)
+  }, [pathname])
+  return null
+}
+
+function Announcement() {
+  const { announcement } = useSite()
+  if (!announcement || !announcement.enabled || !announcement.text) return null
+  const body = (
+    <>
+      <Megaphone className="w-4 h-4 shrink-0" />
+      <span>{announcement.text}</span>
+    </>
+  )
+  const cls = 'flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-vx-accent/20 border border-vx-accent/40 text-[13px] text-white'
+  if (announcement.link && announcement.link.startsWith('/')) return <Link to={announcement.link} className={cls}>{body}</Link>
+  if (announcement.link) return <a href={announcement.link} target="_blank" rel="noopener noreferrer" className={cls}>{body}</a>
+  return <div className={cls}>{body}</div>
+}
+
+function PublicApp() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { authOpen, orderProduct, closeOrder, demoProduct, closeDemo } = useApp()
 
   return (
     <div className="min-h-screen text-white">
       <ScrollManager />
+      <VisitTracker />
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
       {menuOpen && <div className="fixed inset-0 z-30 bg-black/70 lg:hidden" onClick={() => setMenuOpen(false)} />}
 
       <main className="lg:ml-[215px] px-4 sm:px-8 lg:px-12 py-8 space-y-6">
         <Header onMenu={() => setMenuOpen(true)} />
+        <Announcement />
         <Routes>
           <Route path={routes.home} element={<Home />} />
           <Route path={routes.bots} element={<DiscordBots />} />
@@ -62,4 +93,17 @@ export default function App() {
       {demoProduct && <DemoModal product={demoProduct} onClose={closeDemo} />}
     </div>
   )
+}
+
+export default function App() {
+  const { pathname } = useLocation()
+  // /admin is a separate, lazily loaded application: none of its code ships to normal visitors.
+  if (pathname === routes.admin || pathname.startsWith(`${routes.admin}/`)) {
+    return (
+      <Suspense fallback={<div className="min-h-screen grid place-items-center text-vx-muted text-sm">Yükleniyor…</div>}>
+        <AdminApp />
+      </Suspense>
+    )
+  }
+  return <PublicApp />
 }

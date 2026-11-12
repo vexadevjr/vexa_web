@@ -3,10 +3,11 @@ import { RotateCcw } from 'lucide-react'
 import Modal from './Modal.jsx'
 import Button from './Button.jsx'
 import { useApp } from '../context/AppContext.jsx'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 export default function DemoModal({ product, onClose }) {
   const { openOrder } = useApp()
+  const siteConfig = useSite()
   const lines = product.demo || []
   const [shown, setShown] = useState(0)
   const [run, setRun] = useState(0)

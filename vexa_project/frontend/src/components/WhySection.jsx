@@ -13,7 +13,7 @@ export default function WhySection() {
   return (
     <div className="h-full grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-10 p-8 rounded-2xl bg-vx-card border border-vx-line">
       <div>
-        <div className="text-[15px] font-semibold text-vx-accent-soft">Neden Vexa Development?</div>
+        <div className="text-[15px] font-semibold text-vx-accent-soft">Neden Vexstar Development?</div>
         <h2 className="mt-2 text-3xl font-bold tracking-tight text-white">Güvenilir Teknoloji Ortağınız</h2>
         <p className="mt-4 text-[14px] leading-relaxed text-vx-muted max-w-[470px]">
           Yılların deneyimi, profesyonel ekibimiz ve müşteri odaklı hizmet anlayışımızla projelerinizi bir üst seviyeye taşıyoruz.
