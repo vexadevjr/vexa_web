@@ -30,14 +30,14 @@ export const siteConfig = {
   contact: {
     email: 'destek@vexadevelopment.com',
     discord: 'Vexa Development Discord sunucusu',
-    hours: 'Destek kanalı 7/24 açıktır. Sipariş ve teklif yanıtları 09:00 – 24:00 arası verilir.',
+    hours: 'Destek kanalı 7/24 açıktır. Sipariş ve teklif yanıtları 18:00 – 24:00 arası verilir.',
     location: 'Türkiye',
   },
 
   links: {
-    discord: 'https://discord.gg', // PLACEHOLDER: community invite
-    demoServer: 'https://discord.gg', // PLACEHOLDER: server where bots can be tried live
-    support: 'https://discord.gg', // PLACEHOLDER: support channel
+    discord: 'https://discord.gg/RBkTVjUXY6', // PLACEHOLDER: community invite
+    demoServer: 'https://discord.gg/', // PLACEHOLDER: server where bots can be tried live
+    support: 'https://discord.gg/RBkTVjUXY6', // PLACEHOLDER: support channel
     payment: '', // PLACEHOLDER: payment / invoice link shown after an order (leave empty to hide)
     github: 'https://github.com',
     youtube: 'https://youtube.com',
@@ -63,9 +63,9 @@ export const siteConfig = {
   },
 
   stats: [
-    { value: '500+', label: 'Tamamlanan projeler' },
-    { value: '1K+', label: 'Müşteri Sayısı' },
-    { value: '%99.9', label: 'Müşteri Memnuniyeti' },
+    { value: '3', label: 'Tamamlanan projeler' },
+    { value: '2', label: 'Müşteri Sayısı' },
+    { value: '%95+', label: 'Müşteri Memnuniyeti' },
   ],
 
   // Cards on the home page
