@@ -1,8 +1,8 @@
 {
-  "name": "vexa-fullstack",
+  "name": "vexstar-fullstack",
   "version": "2.0.0",
   "private": true,
-  "description": "Vexa Development - React frontend + Express/MongoDB backend",
+  "description": "Vexstar Development - React frontend + Express/MongoDB backend",
   "scripts": {
     "build": "npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
     "start": "npm start --prefix backend",

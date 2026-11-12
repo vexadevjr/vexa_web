@@ -25,18 +25,33 @@ app.use(
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
         'img-src': ["'self'", 'data:'],
+        'connect-src': ["'self'"],
+        'frame-ancestors': ["'none'"],
+        'object-src': ["'none'"],
+        'form-action': ["'self'"],
       },
     },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   })
 )
+// the admin panel must never be indexed or cached
+app.use((req, res, next) => {
+  if (req.path === '/admin' || req.path.startsWith('/admin/') || req.path.startsWith('/api/admin')) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive')
+    res.setHeader('Cache-Control', 'no-store')
+  }
+  next()
+})
 app.use(
   cors({
     origin: config.corsOrigins.length ? config.corsOrigins : false,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 600,
   })
 )
+// admin content (FAQ, portfolio ...) can be larger than public form bodies
+app.use('/api/admin', express.json({ limit: '300kb' }))
 app.use(express.json({ limit: '20kb' }))
 app.use(mongoSanitize()) // strips $ and . operators from body/query/params (NoSQL injection)
 app.use('/api', limiters.api)
@@ -45,7 +60,7 @@ app.use('/api', limiters.api)
 app.get('/api/status', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'Vexa Backend API is active',
+    message: 'Vexstar Backend API is active',
     database: db.isConnected() ? 'connected' : 'unavailable',
   })
 })
@@ -53,6 +68,11 @@ app.use('/api/products', require('./routes/products'))
 app.use('/api/orders', require('./routes/orders'))
 app.use('/api/contact', require('./routes/contact'))
 app.use('/api/auth', require('./routes/auth'))
+app.use('/api/reviews', require('./routes/reviews'))
+app.use('/api/stats', require('./routes/stats'))
+app.use('/api/content', require('./routes/content'))
+app.use('/api/track', require('./routes/track'))
+app.use('/api/admin', require('./routes/admin'))
 
 app.use('/api', (req, res) => {
   res.status(404).json({ status: 'error', message: 'Not found' })
@@ -90,7 +110,7 @@ app.use((err, req, res, next) => {
 
 // ---- start ----
 const server = app.listen(config.port, () => {
-  console.log(`Vexa server listening on port ${config.port} (${config.env})`)
+  console.log(`Vexstar server listening on port ${config.port} (${config.env})`)
 })
 db.connectDb() // does not block startup; failures are logged and retried
 

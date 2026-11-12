@@ -1,8 +1,8 @@
 {
-  "name": "vexa-backend",
+  "name": "vexstar-backend",
   "version": "2.0.0",
   "private": true,
-  "description": "Vexa Development API (Express + MongoDB)",
+  "description": "Vexstar Development API (Express + MongoDB)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

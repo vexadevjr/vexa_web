@@ -1,7 +1,7 @@
 # Render Blueprint: one web service. Express serves /api/* and the built React app.
 services:
   - type: web
-    name: vexa-development
+    name: vexstar-development
     runtime: node
     plan: free
     buildCommand: npm run build
@@ -16,6 +16,24 @@ services:
         generateValue: true # Render creates a long random value
       - key: MONGODB_URI
         sync: false # paste your MongoDB Atlas connection string in the Render dashboard
+      # ---- admin panel (/admin) ----
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD # at least 12 characters, unique
+        sync: false
+      - key: ADMIN_TOTP_SECRET # optional but recommended (2-step verification, see README)
+        sync: false
+      # ---- public address + social login (optional) ----
+      - key: PUBLIC_URL # e.g. https://vexstar.com (falls back to RENDER_EXTERNAL_URL)
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
       # Optional: only when the frontend is hosted on a different origin than this service
       # - key: CORS_ORIGIN
       #   value: https://your-domain.com

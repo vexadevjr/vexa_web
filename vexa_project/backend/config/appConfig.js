@@ -25,6 +25,7 @@ if (!jwtSecret || jwtSecret.length < 16) {
 }
 
 const corsOrigins = list(process.env.CORS_ORIGIN)
+const publicUrl = (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173').replace(/\/+$/, '')
 
 module.exports = Object.freeze({
   env,
@@ -36,4 +37,17 @@ module.exports = Object.freeze({
   // Production serves the frontend and API from one origin, so CORS stays closed unless configured.
   corsOrigins: corsOrigins.length ? corsOrigins : isProd ? [] : ['http://localhost:5173'],
   bcryptRounds: 12,
+  timezone: process.env.ANALYTICS_TZ || 'Europe/Istanbul',
+  publicUrl,
+  // Admin identity lives ONLY in environment variables (never in the database, never in the frontend).
+  admin: {
+    email: (process.env.ADMIN_EMAIL || '').trim().toLowerCase(),
+    password: process.env.ADMIN_PASSWORD || '',
+    totpSecret: (process.env.ADMIN_TOTP_SECRET || '').replace(/\s+/g, '').toUpperCase(),
+    sessionMinutes: 120,
+  },
+  oauth: {
+    google: { id: process.env.GOOGLE_CLIENT_ID || '', secret: process.env.GOOGLE_CLIENT_SECRET || '' },
+    discord: { id: process.env.DISCORD_CLIENT_ID || '', secret: process.env.DISCORD_CLIENT_SECRET || '' },
+  },
 })
