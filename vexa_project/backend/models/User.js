@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 254 },
     // absent for accounts created through Google / Discord
     passwordHash: { type: String, select: false },
+    avatar: { type: String, default: '', maxlength: 500 }, // https image URL from Google / Discord
     emailVerified: { type: Boolean, default: false },
     googleId: { type: String, index: { unique: true, sparse: true } },
     discordId: { type: String, index: { unique: true, sparse: true } },

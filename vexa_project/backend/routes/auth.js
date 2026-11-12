@@ -3,6 +3,9 @@ const crypto = require('crypto')
 const router = require('express').Router()
 const bcrypt = require('bcryptjs')
 const User = require('../models/User')
+const Order = require('../models/Order')
+const Message = require('../models/Message')
+const Review = require('../models/Review')
 const config = require('../config/appConfig')
 const requireDb = require('../middleware/requireDb')
 const { sign, requireAuth } = require('../middleware/auth')
@@ -20,7 +23,16 @@ const loginRules = {
   password: { type: 'password', min: 1 },
 }
 
-const publicUser = (u) => ({ id: String(u._id), name: u.name, email: u.email, role: u.role })
+const publicUser = (u) => ({
+  id: String(u._id),
+  name: u.name,
+  email: u.email,
+  role: u.role,
+  avatar: u.avatar || '',
+  hasPassword: Boolean(u.passwordHash),
+  google: Boolean(u.googleId),
+  discord: Boolean(u.discordId),
+})
 
 // compared against when the e-mail is unknown (or the account has no password), so response time does not reveal it
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', config.bcryptRounds)
@@ -61,7 +73,7 @@ router.post('/login', requireDb, authLimiter, async (req, res, next) => {
 
 router.get('/me', requireDb, requireAuth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.auth.sub)
+    const user = await User.findById(req.auth.sub).select('+passwordHash')
     if (!user) return res.status(401).json({ message: 'Oturum geçersiz.' })
     res.json({ user: publicUser(user) })
   } catch (err) {
@@ -79,7 +91,7 @@ const PROVIDERS = {
     scope: 'openid email profile',
     extra: { prompt: 'select_account' },
     idField: 'googleId',
-    profile: (p) => ({ id: p.sub, email: p.email, verified: p.email_verified === true, name: p.name || p.given_name }),
+    profile: (p) => ({ id: p.sub, email: p.email, verified: p.email_verified === true, name: p.name || p.given_name, avatar: p.picture }),
   },
   discord: {
     authUrl: 'https://discord.com/oauth2/authorize',
@@ -88,7 +100,7 @@ const PROVIDERS = {
     scope: 'identify email',
     extra: { prompt: 'none' },
     idField: 'discordId',
-    profile: (p) => ({ id: p.id, email: p.email, verified: p.verified === true, name: p.global_name || p.username }),
+    profile: (p) => ({ id: p.id, email: p.email, verified: p.verified === true, name: p.global_name || p.username, avatar: p.avatar ? `https://cdn.discordapp.com/avatars/${p.id}/${p.avatar}.png?size=128` : '' }),
   },
 }
 
@@ -173,6 +185,10 @@ router.get('/:provider(google|discord)/callback', authLimiter, async (req, res) 
       }
     }
 
+    // keep the profile picture in sync with the provider (https URLs only)
+    const pic = typeof profile.avatar === 'string' && /^https:\/\/[^\s]{1,480}$/.test(profile.avatar) ? profile.avatar : ''
+    if (pic) await User.updateOne({ _id: user._id }, { $set: { avatar: pic } })
+
     const one = crypto.randomBytes(32).toString('hex')
     codes.set(one, { userId: String(user._id), exp: Date.now() + 60000 })
     for (const [k, v] of codes) if (v.exp < Date.now()) codes.delete(k)
@@ -190,9 +206,70 @@ router.post('/exchange', requireDb, authLimiter, async (req, res, next) => {
     const entry = codes.get(code)
     codes.delete(code)
     if (!entry || entry.exp < Date.now()) return res.status(400).json({ message: 'Giriş bağlantısının süresi doldu. Lütfen tekrar deneyin.' })
-    const user = await User.findById(entry.userId)
+    const user = await User.findById(entry.userId).select('+passwordHash')
     if (!user) return res.status(400).json({ message: 'Hesap bulunamadı.' })
     res.json({ token: sign(user), user: publicUser(user) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ───────────────────────── account settings ─────────────────────────
+
+router.patch('/profile', requireDb, authLimiter, requireAuth, async (req, res, next) => {
+  try {
+    const { value, errors, ok } = validate({ name: { required: true, min: 2, max: 80 } }, req.body)
+    if (!ok) return fail(res, errors)
+    const user = await User.findByIdAndUpdate(req.auth.sub, { $set: { name: value.name } }, { new: true }).select('+passwordHash')
+    if (!user) return res.status(401).json({ message: 'Oturum geçersiz.' })
+    res.json({ user: publicUser(user) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Change the password, or add one to an account created with Google / Discord.
+router.post('/password', requireDb, authLimiter, requireAuth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.auth.sub).select('+passwordHash')
+    if (!user) return res.status(401).json({ message: 'Oturum geçersiz.' })
+    const next1 = req.body && req.body.newPassword
+    if (typeof next1 !== 'string' || next1.length < 8 || next1.length > 128) {
+      return res.status(400).json({ message: 'Yeni şifre 8-128 karakter arasında olmalıdır.', errors: { newPassword: 'Şifre 8-128 karakter arasında olmalıdır.' } })
+    }
+    if (user.passwordHash) {
+      const cur = req.body.currentPassword
+      const okPass = typeof cur === 'string' && (await bcrypt.compare(cur, user.passwordHash))
+      if (!okPass) return res.status(400).json({ message: 'Mevcut şifre hatalı.', errors: { currentPassword: 'Mevcut şifre hatalı.' } })
+    }
+    user.passwordHash = await bcrypt.hash(next1, config.bcryptRounds)
+    await user.save()
+    res.json({ user: publicUser(user) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Delete the account. Orders / tickets are kept anonymously for accounting; reviews are removed.
+router.post('/account/delete', requireDb, authLimiter, requireAuth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.auth.sub).select('+passwordHash')
+    if (!user) return res.status(401).json({ message: 'Oturum geçersiz.' })
+    if (user.passwordHash) {
+      const pw = req.body && req.body.password
+      if (typeof pw !== 'string' || !(await bcrypt.compare(pw, user.passwordHash))) {
+        return res.status(400).json({ message: 'Şifre hatalı.' })
+      }
+    } else if (str(req.body && req.body.confirm, 254).toLowerCase() !== user.email) {
+      return res.status(400).json({ message: 'Onay için hesabınızın e-posta adresini yazın.' })
+    }
+    await Promise.all([
+      Order.updateMany({ user: user._id }, { $set: { user: null } }),
+      Message.updateMany({ user: user._id }, { $set: { user: null } }),
+      Review.deleteMany({ user: user._id }),
+    ])
+    await User.deleteOne({ _id: user._id })
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }
