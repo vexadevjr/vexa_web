@@ -278,6 +278,26 @@ router.delete('/products/:slug', async (req, res, next) => {
   }
 })
 
+// reorder the products of one category: body { category, order: [slug, ...] } (the new order of that category)
+router.post('/products-reorder', async (req, res, next) => {
+  try {
+    const category = req.body && req.body.category
+    const order = arr(req.body && req.body.order, 200, (s) => str(s, 60) || undefined)
+    if (!CATEGORIES.includes(category) || !order || !order.length) return res.status(400).json({ message: 'Geçersiz istek.' })
+    const all = await Product.find().sort({ sort: 1, createdAt: 1 }).select('slug category').lean()
+    const mine = new Set(all.filter((p) => p.category === category).map((p) => p.slug))
+    const wanted = order.filter((s) => mine.has(s))
+    const rest = [...mine].filter((s) => !wanted.includes(s))
+    const queue = [...wanted, ...rest]
+    // keep the category's slots, fill them in the new order, then renumber everything
+    const slugs = all.map((p) => (p.category === category ? queue.shift() : p.slug))
+    await Product.bulkWrite(slugs.map((slug, i) => ({ updateOne: { filter: { slug }, update: { $set: { sort: i } } } })))
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // rename a sub-category on every product at once
 router.post('/products-rename-sub', async (req, res, next) => {
   try {
