@@ -56,6 +56,10 @@ export const siteConfig = {
     portfolio: '/portfoy',
     contact: '/iletisim',
     panel: '/panel',
+    account: '/hesap',
+    orders: '/hesap/siparislerim',
+    tickets: '/hesap/destek',
+    settings: '/hesap/ayarlar',
     admin: '/admin',
   },
 

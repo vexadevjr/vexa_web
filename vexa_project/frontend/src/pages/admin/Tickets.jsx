@@ -88,7 +88,7 @@ function Detail({ ticketNo, onChanged, onGone }) {
         )}
         <Btn variant="danger" onClick={remove} className="ml-auto">Sil</Btn>
       </div>
-      <p className="text-[11px] text-slate-500">Yanıtlar e-posta ile gönderilmez; müşteri “Müşteri Paneli → Destek Taleplerim” veya İletişim sayfasındaki “Talebimi Takip Et” bölümünden görür. İsterseniz yanıtı ayrıca e-posta ile de iletebilirsiniz.</p>
+      <p className="text-[11px] text-slate-500">Yanıtlar e-posta ile gönderilmez; müşteri “Hesap menüsü → Destek Taleplerim” veya İletişim sayfasındaki “Talebimi Takip Et” bölümünden görür. İsterseniz yanıtı ayrıca e-posta ile de iletebilirsiniz.</p>
     </div>
   )
 }

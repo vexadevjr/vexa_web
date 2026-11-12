@@ -84,12 +84,12 @@ export function AppProvider({ children }) {
 
   const value = useMemo(
     () => ({
-      user, login, register, logout,
+      user, setUser, login, register, logout,
       authOpen, authTab, authNotice, openAuth, closeAuth,
       orderProduct, openOrder, closeOrder,
       demoProduct, openDemo, closeDemo,
     }),
-    [user, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, demoProduct, openDemo, closeDemo]
+    [user, setUser, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, demoProduct, openDemo, closeDemo]
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

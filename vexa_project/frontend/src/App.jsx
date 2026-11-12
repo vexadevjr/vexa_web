@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Megaphone } from 'lucide-react'
 import Sidebar from './components/Sidebar.jsx'
 import Header from './components/Header.jsx'
@@ -11,7 +11,7 @@ import DiscordBots from './pages/DiscordBots.jsx'
 import WebDev from './pages/WebDev.jsx'
 import Portfolio from './pages/Portfolio.jsx'
 import Contact from './pages/Contact.jsx'
-import Panel from './pages/Panel.jsx'
+import Account from './pages/Account.jsx'
 import NotFound from './pages/NotFound.jsx'
 import { useApp } from './context/AppContext.jsx'
 import { useSite } from './context/SiteContext.jsx'
@@ -83,7 +83,8 @@ function PublicApp() {
           <Route path={routes.web} element={<WebDev />} />
           <Route path={routes.portfolio} element={<Portfolio />} />
           <Route path={routes.contact} element={<Contact />} />
-          <Route path={routes.panel} element={<Panel />} />
+          <Route path={routes.panel} element={<Navigate to={routes.orders} replace />} />
+          <Route path={`${routes.account}/*`} element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

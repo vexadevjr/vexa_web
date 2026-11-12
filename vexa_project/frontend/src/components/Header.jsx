@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom'
-import { LogIn, Menu, User } from 'lucide-react'
+import { LogIn, Menu } from 'lucide-react'
+import UserMenu from './UserMenu.jsx'
 import SearchBox from './SearchBox.jsx'
 import { useApp } from '../context/AppContext.jsx'
-import { siteConfig } from '../config/siteConfig.js'
 
 const btn =
   'inline-flex items-center gap-2 h-12 px-5 rounded-xl text-[13px] font-semibold text-white bg-vx-accent hover:bg-vx-accent-hover transition-colors duration-300'
@@ -24,10 +23,7 @@ export default function Header({ onMenu }) {
 
       <div className="ml-auto flex items-center gap-4">
         {user ? (
-          <Link to={siteConfig.routes.panel} className={btn}>
-            <User className="w-4 h-4" />
-            <span className="max-w-[120px] truncate">{user.name}</span>
-          </Link>
+          <UserMenu />
         ) : (
           <button onClick={() => openAuth('login')} className={btn}>
             Giriş Yap
