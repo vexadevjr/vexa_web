@@ -43,13 +43,11 @@ export function StatsGrid() {
 export default function StatsSection() {
   const { links } = useSite()
   return (
-    <div className="h-full flex flex-col gap-5">
-      <StatsGrid />
-
+    <div className="">
       <a
         href={links.discord}
         {...external}
-        className="group relative overflow-hidden flex-1 flex items-center gap-5 p-6 rounded-2xl bg-gradient-to-r from-vx-accent/20 to-vx-card border border-vx-accent/40 hover:border-vx-accent-text/60 transition-colors duration-300"
+        className="group relative overflow-hidden flex items-center gap-5 p-7 rounded-2xl bg-gradient-to-r from-vx-accent/20 to-vx-card border border-vx-accent/40 hover:border-vx-accent-text/60 transition-colors duration-300"
       >
         <Shimmer />
         <DiscordIcon className="relative w-12 h-12 shrink-0 text-vx-accent-soft" />

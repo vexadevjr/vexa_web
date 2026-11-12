@@ -10,14 +10,14 @@ const icons = { discord: DiscordIcon, code: Code2, server: Server, settings: Set
 export default function ServiceCards() {
   const { serviceCards } = useSite()
   return (
-    <section id={idOf(siteConfig.sections.services)} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
+    <section id={idOf(siteConfig.sections.services)} className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
       {serviceCards.map(({ title, icon, desc, to }) => {
         const Icon = icons[icon] || Settings
         return (
           <Link
             key={title}
             to={to}
-            className="group h-full min-h-[190px] flex flex-col p-6 rounded-2xl bg-vx-card border border-vx-line transition-colors hover:border-vx-accent-text/40"
+            className="group h-full min-h-[170px] flex flex-col p-6 rounded-2xl bg-vx-card border border-vx-line transition-colors hover:border-vx-accent-text/40"
           >
             <div className="flex gap-4">
               <Icon className="w-9 h-9 shrink-0 text-vx-accent-text" strokeWidth={2} />

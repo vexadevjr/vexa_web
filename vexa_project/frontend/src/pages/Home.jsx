@@ -1,17 +1,19 @@
 import Hero from '../components/Hero.jsx'
 import ServiceCards from '../components/ServiceCards.jsx'
-import WhySection from '../components/WhySection.jsx'
+import Featured from '../components/Featured.jsx'
+import HowItWorks from '../components/HowItWorks.jsx'
+import HomeReviews from '../components/HomeReviews.jsx'
 import StatsSection from '../components/StatsSection.jsx'
 
 export default function Home() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <Hero />
       <ServiceCards />
-      <section className="grid grid-cols-1 xl:grid-cols-[1.35fr_1fr] gap-6 items-stretch">
-        <WhySection />
-        <StatsSection />
-      </section>
+      <Featured />
+      <HowItWorks />
+      <HomeReviews />
+      <StatsSection />
     </div>
   )
 }
