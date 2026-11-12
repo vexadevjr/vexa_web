@@ -14,7 +14,7 @@ export default function Portfolio() {
 
   return (
     <div className="space-y-10">
-      <PageHeader title="Portföy" description="Tamamladığımız projelerden seçmeler. Müşteri memnuniyeti oranımız, gerçek müşteri yorumlarının yıldızlarından hesaplanır." />
+      <PageHeader title="Portföy" description="Tamamladığımız projelerden seçmeler." />
 
       <StatsGrid />
 
@@ -40,7 +40,6 @@ export default function Portfolio() {
             <article key={p.id} className="flex flex-col h-full p-6 rounded-2xl bg-vx-card border border-vx-line hover:border-vx-accent-text/40 transition-colors">
               <div className="flex items-center justify-between gap-3">
                 <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-medium text-vx-accent-soft">{p.category}</span>
-                {p.sample && <span className="text-[11px] text-slate-500">Örnek içerik</span>}
               </div>
               <h3 className="mt-4 text-[18px] font-semibold text-white">{p.title}</h3>
               <div className="mt-1 text-[13px] text-vx-muted">{p.client}</div>

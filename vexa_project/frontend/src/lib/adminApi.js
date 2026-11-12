@@ -50,6 +50,7 @@ export const admin = {
   createProduct: (p) => call('POST', '/products', p),
   updateProduct: (slug, p) => call('PUT', `/products/${encodeURIComponent(slug)}`, p),
   deleteProduct: (slug) => call('DELETE', `/products/${encodeURIComponent(slug)}`),
+  reorderProducts: (category, order) => call('POST', '/products-reorder', { category, order }),
   renameSub: (payload) => call('POST', '/products-rename-sub', payload),
   content: () => call('GET', '/content'),
   saveContent: (key, value) => call('PUT', `/content/${key}`, { value }),

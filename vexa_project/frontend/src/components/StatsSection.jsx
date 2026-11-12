@@ -1,4 +1,5 @@
-import { Box, Users, Star, ArrowRight } from 'lucide-react'
+import { Box, Users, ArrowRight } from 'lucide-react'
+import StarBar from './StarBar.jsx'
 import { DiscordIcon } from './Icons.jsx'
 import Shimmer from './Shimmer.jsx'
 import { useSite } from '../context/SiteContext.jsx'
@@ -17,15 +18,10 @@ export function StatsGrid() {
   const items = [
     { Icon: Box, value: ready ? num(stats.completedOrders) : dash, label: 'Teslim edilen sipariş' },
     { Icon: Users, value: ready ? num(stats.customers) : dash, label: 'Kayıtlı müşteri' },
-    {
-      Icon: Star,
-      value: ready && stats.satisfaction != null ? `%${stats.satisfaction}` : dash,
-      label: ready && stats.reviewCount ? `Müşteri memnuniyeti (${num(stats.reviewCount)} yorum)` : 'Müşteri memnuniyeti (henüz yorum yok)',
-    },
   ]
 
   return (
-    <div className="grid grid-cols-3 gap-4 px-6 py-8 rounded-2xl bg-vx-card border border-vx-line">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 px-6 py-8 rounded-2xl bg-vx-card border border-vx-line">
       {items.map(({ Icon, value, label }) => (
         <div key={label} className="flex flex-col items-center text-center">
           <Icon className="w-6 h-6 text-vx-accent-text" strokeWidth={1.8} />
@@ -33,6 +29,13 @@ export function StatsGrid() {
           <div className="mt-2 text-[12px] sm:text-[13px] text-vx-muted">{label}</div>
         </div>
       ))}
+      <div className="col-span-2 flex flex-col items-center text-center pt-6 border-t border-vx-line">
+        <StarBar value={ready && stats.reviewCount ? stats.average : 0} className="w-8 h-8 sm:w-9 sm:h-9" />
+        <div className="mt-3 text-3xl sm:text-4xl font-black text-white tracking-tight">{ready && stats.reviewCount ? stats.average.toFixed(1) : dash}</div>
+        <div className="mt-1 text-[12px] sm:text-[13px] text-vx-muted">
+          {ready && stats.reviewCount ? `Müşteri memnuniyeti (${num(stats.reviewCount)} yorum)` : 'Müşteri memnuniyeti (henüz yorum yok)'}
+        </div>
+      </div>
     </div>
   )
 }

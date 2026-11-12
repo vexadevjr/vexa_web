@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Star, BadgeCheck } from 'lucide-react'
 import Button from './Button.jsx'
+import StarBar from './StarBar.jsx'
 import { inputCls } from './Field.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { useReviews } from '../hooks/useLive.js'
@@ -46,7 +47,7 @@ function ReviewForm({ onDone }) {
   if (!user) {
     return (
       <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-vx-surface border border-vx-line">
-        <p className="text-[14px] text-vx-muted">Yorum yazabilmek için giriş yapmanız gerekir. Yorumlar yalnızca gerçek müşterilerimizden gelir.</p>
+        <p className="text-[14px] text-vx-muted">Yorum yazabilmek için giriş yapmanız gerekir.</p>
         <Button size="sm" onClick={() => openAuth('login')}>
           Giriş yap ve yorum yaz
         </Button>
@@ -117,9 +118,9 @@ export default function Reviews() {
         <h2 className="text-2xl font-bold tracking-tight text-white">Müşteri Yorumları</h2>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-3 text-[13px] text-vx-muted">
-            <Stars value={stats.average} />
+            <StarBar value={stats.average} className="w-5 h-5" />
             <span>
-              <strong className="text-white">{stats.average}</strong> / 5 · <strong className="text-white">%{stats.satisfaction}</strong> memnuniyet · {stats.count} yorum
+              <strong className="text-white">{stats.average.toFixed(1)}</strong> / 5 · {stats.count} yorum
             </span>
           </div>
         )}

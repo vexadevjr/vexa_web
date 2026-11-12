@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import Modal from '../../components/Modal.jsx'
 import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, useLoad, useToast, confirmDo } from './ui.jsx'
@@ -163,6 +163,7 @@ function RenameSub({ products, onDone, push }) {
 
 export default function Products() {
   const { data, error, loading, reload } = useLoad(() => admin.products(), [])
+  const [filter, setFilter] = useState('')
   const [editing, setEditing] = useState(undefined) // undefined = closed, null = new, object = edit
   const [toast, push] = useToast()
   const products = data ? data.products : []
@@ -173,6 +174,20 @@ export default function Products() {
     try {
       await admin.deleteProduct(p.slug)
       push('Ürün silindi.')
+      reload()
+    } catch (e) {
+      push(e.message, 'err')
+    }
+  }
+  // moves a product up/down among the products of its own category (the order visitors see)
+  async function move(p, dir) {
+    const list = products.filter((x) => x.category === p.category).map((x) => x.slug)
+    const i = list.indexOf(p.slug)
+    const j = i + dir
+    if (j < 0 || j >= list.length) return
+    ;[list[i], list[j]] = [list[j], list[i]]
+    try {
+      await admin.reorderProducts(p.category, list)
       reload()
     } catch (e) {
       push(e.message, 'err')
@@ -191,6 +206,11 @@ export default function Products() {
     <div className="space-y-6">
       {toast}
       <Card title={`Ürünler & Fiyatlar${data ? ` (${products.length})` : ''}`} actions={<Btn onClick={() => setEditing(null)}><Plus className="w-4 h-4" /> Yeni Ekle</Btn>}>
+        <div className="mb-4 flex flex-wrap gap-2">
+          {[['', 'Tümü'], ...catOptions].map(([v, l]) => (
+            <Btn key={v || 'all'} variant={filter === v ? 'primary' : 'ghost'} onClick={() => setFilter(v)}>{l}</Btn>
+          ))}
+        </div>
         {error && <p className="text-[13px] text-rose-400">{error}</p>}
         {loading && !data && <Empty>Yükleniyor…</Empty>}
         {data && products.length === 0 && <Empty>Henüz ürün yok.</Empty>}
@@ -206,7 +226,7 @@ export default function Products() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {products.filter((p) => !filter || p.category === filter).map((p) => (
                 <tr key={p.slug} className="border-b border-vx-line/60 last:border-0">
                   <td className="py-2.5 pr-3">
                     <div className="font-semibold text-white">{p.name}</div>
@@ -222,6 +242,8 @@ export default function Products() {
                     {p.popular && <Badge tone="blue">Popüler</Badge>}
                   </td>
                   <td className="py-2.5 text-right whitespace-nowrap space-x-2">
+                    <Btn variant="ghost" onClick={() => move(p, -1)} aria-label="Yukarı taşı"><ArrowUp className="w-3.5 h-3.5" /></Btn>
+                    <Btn variant="ghost" onClick={() => move(p, 1)} aria-label="Aşağı taşı"><ArrowDown className="w-3.5 h-3.5" /></Btn>
                     <Btn variant="ghost" onClick={() => setEditing(p)}><Pencil className="w-3.5 h-3.5" /> Düzenle</Btn>
                     <Btn variant="danger" onClick={() => remove(p)} aria-label="Sil"><Trash2 className="w-3.5 h-3.5" /></Btn>
                   </td>
@@ -230,7 +252,7 @@ export default function Products() {
             </tbody>
           </table>
         </div>
-        <p className="mt-4 text-[11px] text-slate-500">Fiyat kutusuna yazıp Enter’a basmanız yeterlidir. Siparişlerde fiyat her zaman sunucudaki bu değerden alınır.</p>
+        <p className="mt-4 text-[11px] text-slate-500">Oklar ürünü kendi kategorisi içinde (Discord botları, Web siteleri…) yukarı/aşağı taşır ve sitedeki sırayı değiştirir. Fiyat kutusuna yazıp Enter’a basmanız yeterlidir. Siparişlerde fiyat her zaman sunucudaki bu değerden alınır.</p>
       </Card>
 
       {data && <RenameSub products={products} onDone={reload} push={push} />}
