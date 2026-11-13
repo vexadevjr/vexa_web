@@ -17,6 +17,27 @@ const app = express()
 app.set('trust proxy', 1)
 
 // ---- security middleware ----
+// ---- canonical URLs: https, no "www.", no trailing slash ----
+const siteHost = new URL(config.siteUrl).hostname
+app.use((req, res, next) => {
+  if (config.isProd && (req.hostname === siteHost || req.hostname === `www.${siteHost}`)) {
+    const insecure = req.headers['x-forwarded-proto'] === 'http'
+    if (insecure || req.hostname !== siteHost) return res.redirect(301, `${config.siteUrl}${req.originalUrl}`)
+  }
+  if (req.path.length > 1 && req.path.endsWith('/') && !req.path.startsWith('/api')) {
+    const q = req.originalUrl.slice(req.path.length)
+    return res.redirect(301, req.path.replace(/\/+$/, '') + q)
+  }
+  next()
+})
+
+// gzip/brotli-less compression for HTML, JS, CSS and JSON (faster pages = better ranking)
+try {
+  app.use(require('compression')())
+} catch (e) {
+  console.warn('[server] "compression" is not installed; run npm install in backend/')
+}
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -83,6 +104,10 @@ const distPath = path.join(__dirname, '..', 'frontend', 'dist')
 const indexHtml = path.join(distPath, 'index.html')
 
 if (fs.existsSync(indexHtml)) {
+  const seo = require('./seo/render')
+  const template = fs.readFileSync(indexHtml, 'utf8')
+  app.get('/robots.txt', seo.robots)
+  app.get('/sitemap.xml', seo.sitemap)
   app.use(
     express.static(distPath, {
       index: false,
@@ -92,10 +117,18 @@ if (fs.existsSync(indexHtml)) {
       },
     })
   )
-  // client-side routes (/discord-botlari, /portfoy, ...)
-  app.get('*', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache')
-    res.sendFile(indexHtml)
+  // every page request gets its own SEO tags + structured data + crawlable text (see seo/render.js)
+  app.get('*', async (req, res, next) => {
+    try {
+      const { status, html } = await seo.renderPage(template, req.path)
+      res.status(status)
+      res.setHeader('Content-Type', 'text/html; charset=utf-8')
+      res.setHeader('Content-Language', 'tr')
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+      res.send(html)
+    } catch (err) {
+      next(err)
+    }
   })
 }
 
