@@ -7,7 +7,7 @@ import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField,
 const CATEGORY = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 const catOptions = Object.entries(CATEGORY)
 
-const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', priceFrom: false, period: 'tek seferlik', deliveryDays: '', popular: false, active: true, demo: '' }
+const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', priceFrom: false, period: 'tek seferlik', deliveryDays: '', popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
@@ -16,7 +16,6 @@ const toForm = (p) => ({
   deliveryDays: p.deliveryDays == null ? '' : String(p.deliveryDays),
   features: (p.features || []).join('\n'),
   tags: (p.tags || []).join(', '),
-  demo: (p.demo || []).map((d) => `${d.who}: ${d.text}`).join('\n'),
 })
 
 function toPayload(f, creating) {
@@ -35,12 +34,6 @@ function toPayload(f, creating) {
     deliveryDays: f.deliveryDays === '' ? null : Number(f.deliveryDays),
     popular: f.popular,
     active: f.active,
-    demo: lines(f.demo)
-      .map((l) => {
-        const m = l.match(/^(user|bot)\s*:\s*(.+)$/i)
-        return m ? { who: m[1].toLowerCase(), text: m[2] } : null
-      })
-      .filter(Boolean),
   }
   if (creating) body.slug = f.slug
   return body
@@ -88,11 +81,6 @@ function Editor({ product, subs, onClose, onSaved }) {
         </div>
         <div className="sm:col-span-2"><AreaField label="Özellikler (her satıra bir özellik)" value={f.features} onChange={set('features')} rows={5} max={3000} /></div>
         <div className="sm:col-span-2"><TextField label="Arama etiketleri (virgülle ayırın)" value={f.tags} onChange={set('tags')} max={300} /></div>
-        {f.category === 'discord-bot' && (
-          <div className="sm:col-span-2">
-            <AreaField label="Demo konuşması" hint="Her satır: user: mesaj  veya  bot: mesaj" value={f.demo} onChange={set('demo')} rows={4} max={3000} />
-          </div>
-        )}
       </div>
       {error && <p role="alert" className="mt-4 text-[13px] text-rose-400">{error}</p>}
       <div className="mt-6 flex gap-3">

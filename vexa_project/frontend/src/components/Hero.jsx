@@ -1,52 +1,35 @@
-import { useEffect, useState } from 'react'
-import { Bot, Globe, Play, Check } from 'lucide-react'
+import { Bot, Globe, Check, Zap, Headphones, BadgeCheck } from 'lucide-react'
 import Button from './Button.jsx'
 import StarBar from './StarBar.jsx'
-import useProducts from '../hooks/useProducts.js'
-import { useApp } from '../context/AppContext.jsx'
-import { useStats } from '../hooks/useLive.js'
 import { siteConfig } from '../config/siteConfig.js'
+import { useStats } from '../hooks/useLive.js'
+import vLogo from '../assets/vexstar-logo.png'
 
 const points = ['Net fiyat, gizli ücret yok', 'Teslimat süresi baştan belli', 'Teslim sonrası ücretsiz hata düzeltme']
 
-// Animated Discord-style chat taken from a real bot product, with a button that opens the full demo.
-function DemoCard() {
-  const products = useProducts()
-  const { openDemo } = useApp()
-  const bot = products.find((p) => p.category === 'discord-bot' && p.demo && p.demo.length)
-  const lines = bot ? bot.demo.slice(0, 4) : []
-  const [shown, setShown] = useState(0)
+const floaters = [
+  { icon: Zap, title: 'Hızlı teslimat', sub: 'Süre baştan net', pos: 'top-6 left-0' },
+  { icon: Headphones, title: '7/24 destek', sub: 'Her zaman yanınızda', pos: 'top-1/2 -right-2 -translate-y-1/2' },
+  { icon: BadgeCheck, title: 'Hata düzeltme', sub: 'Teslim sonrası ücretsiz', pos: 'bottom-6 left-6' },
+]
 
-  useEffect(() => {
-    if (!lines.length) return undefined
-    setShown(0)
-    let i = 0
-    const id = setInterval(() => {
-      i += 1
-      setShown(i)
-      if (i >= lines.length) clearInterval(id)
-    }, 1100)
-    return () => clearInterval(id)
-  }, [bot && bot.slug]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!bot) return null
+// Brand visual: the Vexstar mark with a soft glow, orbit rings and three floating promise cards.
+function BrandVisual() {
   return (
-    <div className="rounded-2xl bg-vx-surface/90 border border-vx-line shadow-2xl shadow-black/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 h-11 border-b border-vx-line text-[12px] text-vx-muted">
-        <span className="flex gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-rose-400/70" /><i className="w-2.5 h-2.5 rounded-full bg-amber-400/70" /><i className="w-2.5 h-2.5 rounded-full bg-emerald-400/70" /></span>
-        <span className="ml-2"># {bot.name.toLowerCase().replace(/\s+/g, '-')}-demo</span>
-      </div>
-      <div className="p-4 space-y-3 min-h-[190px]">
-        {lines.slice(0, shown).map((l, i) => (
-          <div key={i} className={`max-w-[88%] rounded-xl px-3.5 py-2.5 text-[13px] leading-snug ${l.who === 'bot' ? 'bg-vx-accent/20 border border-vx-accent/40 text-white' : 'bg-vx-card border border-vx-line text-slate-200 ml-auto'}`}>
-            <div className="text-[10px] mb-0.5 text-vx-muted">{l.who === 'bot' ? bot.name : 'Üye'}</div>
-            {l.text}
-          </div>
-        ))}
-      </div>
-      <button onClick={() => openDemo(bot)} className="w-full h-12 flex items-center justify-center gap-2 border-t border-vx-line text-[13px] font-semibold text-vx-accent-soft hover:text-white hover:bg-vx-accent transition-colors">
-        <Play className="w-4 h-4" /> {bot.name} demosunu dene
-      </button>
+    <div className="relative mx-auto w-full max-w-[460px] aspect-square">
+      <div className="absolute inset-[8%] rounded-full border border-vx-accent/30" />
+      <div className="absolute inset-[22%] rounded-full border border-vx-accent/20" />
+      <div className="absolute inset-[18%] rounded-full bg-vx-accent/30 blur-3xl" />
+      <img src={vLogo} alt="" aria-hidden="true" className="absolute inset-[14%] w-[72%] h-[72%] object-contain drop-shadow-[0_0_50px_rgba(124,58,237,0.65)]" />
+      {floaters.map(({ icon: Icon, title, sub, pos }) => (
+        <div key={title} className={`absolute ${pos} flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-2xl bg-vx-surface/85 backdrop-blur border border-vx-line shadow-xl shadow-black/40`}>
+          <span className="grid place-items-center w-9 h-9 rounded-xl bg-vx-accent/25 text-vx-accent-soft"><Icon className="w-[18px] h-[18px]" /></span>
+          <span>
+            <span className="block text-[13px] font-semibold text-white leading-tight">{title}</span>
+            <span className="block text-[11px] text-vx-muted">{sub}</span>
+          </span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -63,10 +46,7 @@ export default function Hero() {
     >
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 items-center px-8 py-12 sm:px-12 sm:py-14">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 h-8 rounded-full bg-vx-surface/80 border border-vx-line text-[12px] text-vx-accent-soft">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Yeni projeler için siparişler açık
-          </div>
-          <h1 className="mt-5 text-4xl sm:text-5xl xl:text-[58px] font-extrabold tracking-tight leading-[1.06] text-white">
+          <h1 className="text-4xl sm:text-5xl xl:text-[58px] font-extrabold tracking-tight leading-[1.06] text-white">
             Sunucunuz ve markanız için{' '}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">Discord botu ve web sitesi.</span>
           </h1>
@@ -93,7 +73,7 @@ export default function Hero() {
           )}
         </div>
 
-        <div className="hidden lg:block"><DemoCard /></div>
+        <div className="hidden lg:block"><BrandVisual /></div>
       </div>
     </section>
   )

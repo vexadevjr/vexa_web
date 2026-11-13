@@ -5,7 +5,6 @@ import Sidebar from './components/Sidebar.jsx'
 import Header from './components/Header.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import OrderModal from './components/OrderModal.jsx'
-import DemoModal from './components/DemoModal.jsx'
 import Home from './pages/Home.jsx'
 import DiscordBots from './pages/DiscordBots.jsx'
 import WebDev from './pages/WebDev.jsx'
@@ -17,6 +16,9 @@ import { useApp } from './context/AppContext.jsx'
 import { useSite } from './context/SiteContext.jsx'
 import { siteConfig } from './config/siteConfig.js'
 import { api } from './lib/api.js'
+import { hasConsent } from './lib/consent.js'
+import CookieBanner from './components/CookieBanner.jsx'
+import vLogo from './assets/vexstar-logo.png'
 
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'))
 
@@ -40,12 +42,27 @@ function ScrollManager() {
 }
 
 // Counts one page view per navigation for the admin visitor statistics.
+// Only runs with the visitor's analytics consent (cookie preferences).
 function VisitTracker() {
   const { pathname } = useLocation()
+  const [consentTick, setConsentTick] = useState(0)
   useEffect(() => {
-    api.track(pathname)
-  }, [pathname])
+    const bump = () => setConsentTick((t) => t + 1)
+    window.addEventListener('vx-consent', bump)
+    return () => window.removeEventListener('vx-consent', bump)
+  }, [])
+  useEffect(() => {
+    if (hasConsent('analytics')) api.track(pathname)
+  }, [pathname, consentTick])
   return null
+}
+
+function Splash() {
+  return (
+    <div className="min-h-screen grid place-items-center">
+      <img src={vLogo} alt="Vexstar" className="w-24 h-auto animate-pulse" />
+    </div>
+  )
 }
 
 function Announcement() {
@@ -65,7 +82,11 @@ function Announcement() {
 
 function PublicApp() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { authOpen, orderProduct, closeOrder, demoProduct, closeDemo } = useApp()
+  const { authOpen, orderProduct, closeOrder } = useApp()
+  const { ready } = useSite()
+
+  // wait for the real content (or last visit's cache) so the default text never flashes
+  if (!ready) return <Splash />
 
   return (
     <div className="min-h-screen text-white">
@@ -89,9 +110,9 @@ function PublicApp() {
         </Routes>
       </main>
 
+      <CookieBanner />
       {authOpen && <AuthModal />}
       {orderProduct && <OrderModal product={orderProduct} onClose={closeOrder} />}
-      {demoProduct && <DemoModal product={demoProduct} onClose={closeDemo} />}
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { siteConfig } from '../config/siteConfig.js'
 const { routes } = siteConfig
 
 export default function UserMenu() {
-  const { user, openAuth, logout } = useApp()
+  const { user, checking, openAuth, logout } = useApp()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const navigate = useNavigate()
@@ -24,6 +24,8 @@ export default function UserMenu() {
       document.removeEventListener('keydown', onKey)
     }
   }, [open])
+
+  if (!user && checking) return <span aria-hidden="true" className="w-11 h-11 rounded-full bg-vx-card border border-vx-line animate-pulse" />
 
   if (!user) {
     return (

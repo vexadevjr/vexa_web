@@ -4,6 +4,7 @@ import { DiscordIcon, GithubIcon, YoutubeIcon, XIcon } from './Icons.jsx'
 import vLogo from '../assets/vexstar-logo.png'
 import { siteConfig } from '../config/siteConfig.js'
 import { useSite } from '../context/SiteContext.jsx'
+import { openConsentSettings } from '../lib/consent.js'
 import { external } from '../lib/scroll.js'
 
 const { routes } = siteConfig
@@ -82,6 +83,9 @@ export default function Sidebar({ open, onClose }) {
           <br />
           Tüm hakları saklıdır.
         </div>
+        <button type="button" onClick={openConsentSettings} className="mt-2 text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">
+          Çerez Tercihleri
+        </button>
         <div className="flex items-center gap-5 mt-4 text-vx-muted">
           {socials.map(({ label, Icon, href }) => (
             <a key={label} href={href} {...external} aria-label={label} className="hover:text-white transition-colors">

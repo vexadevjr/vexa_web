@@ -1,29 +1,6 @@
-import { useEffect, useState } from 'react'
-import { api } from '../lib/api.js'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
-let cache = null
-
-// Starts with the catalog from siteConfig (no loading flash), then swaps in the API/database copy.
+// Products come from SiteContext: the database copy (or the cached copy of the last visit), never a flash of defaults.
 export default function useProducts() {
-  const [products, setProducts] = useState(cache || siteConfig.catalog)
-
-  useEffect(() => {
-    if (cache) return undefined
-    let alive = true
-    api
-      .products()
-      .then((data) => {
-        if (alive && Array.isArray(data.products) && data.products.length) {
-          cache = data.products
-          setProducts(data.products)
-        }
-      })
-      .catch(() => {})
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  return products
+  return useSite().products
 }

@@ -38,7 +38,6 @@ export const siteConfig = {
 
   links: {
     discord: 'https://discord.gg', // PLACEHOLDER: community invite
-    demoServer: 'https://discord.gg', // PLACEHOLDER: server where bots can be tried live
     support: 'https://discord.gg', // PLACEHOLDER: support channel
     payment: '', // PLACEHOLDER: payment / invoice link shown after an order (leave empty to hide)
     github: 'https://github.com',
@@ -95,12 +94,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 2,
       popular: false,
-      demo: [
-        { who: 'user', text: '/uyar @kullanici sebep:Spam' },
-        { who: 'bot', text: '@kullanici uyarıldı. Toplam uyarı: 2/3' },
-        { who: 'user', text: '/temizle 20' },
-        { who: 'bot', text: '20 mesaj silindi. İşlem log kanalına kaydedildi.' },
-      ],
     },
     {
       slug: 'vexstar-shield',
@@ -116,12 +109,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 3,
       popular: true,
-      demo: [
-        { who: 'bot', text: 'Son 10 saniyede 14 yeni hesap katıldı. Raid koruması aktif.' },
-        { who: 'bot', text: 'Sunucu doğrulama seviyesi yükseltildi, davet bağlantıları duraklatıldı.' },
-        { who: 'user', text: '/koruma durum' },
-        { who: 'bot', text: 'Raid koruması: Açık · Kanal koruması: Açık · Rol koruması: Açık' },
-      ],
     },
     {
       slug: 'vexstar-music',
@@ -137,12 +124,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 2,
       popular: false,
-      demo: [
-        { who: 'user', text: '/cal sarki:lofi hip hop' },
-        { who: 'bot', text: 'Sıraya eklendi: lofi hip hop radio (Sıra: 1)' },
-        { who: 'user', text: '/ses 60' },
-        { who: 'bot', text: 'Ses seviyesi %60 olarak ayarlandı.' },
-      ],
     },
     {
       slug: 'vexstar-economy',
@@ -158,12 +139,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 3,
       popular: false,
-      demo: [
-        { who: 'user', text: '/gunluk' },
-        { who: 'bot', text: 'Günlük ödülünüz: 250 Vexstar Coin. Serin: 4 gün' },
-        { who: 'user', text: '/bakiye' },
-        { who: 'bot', text: 'Cüzdan: 1.840 · Banka: 5.200' },
-      ],
     },
     {
       slug: 'vexstar-market',
@@ -179,12 +154,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 4,
       popular: false,
-      demo: [
-        { who: 'user', text: '/market' },
-        { who: 'bot', text: '1) VIP Rolü – 5.000 · 2) Özel Renk – 1.500 · 3) Ekstra Çekiliş Hakkı – 800' },
-        { who: 'user', text: '/satinal urun:2' },
-        { who: 'bot', text: 'Özel Renk satın alındı. Kalan bakiye: 340' },
-      ],
     },
     {
       slug: 'vexstar-register',
@@ -200,11 +169,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 2,
       popular: false,
-      demo: [
-        { who: 'bot', text: 'Hoş geldin @yeniuye! Kayıt olmak için aşağıdaki butona tıkla.' },
-        { who: 'user', text: '[Kayıt Ol] butonuna tıkladı' },
-        { who: 'bot', text: 'Kayıt tamamlandı. @Üye rolü verildi, #genel kanalı açıldı.' },
-      ],
     },
 
     {
@@ -221,7 +185,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 10,
       popular: false,
-      demo: [],
     },
     {
       slug: 'web-eticaret',
@@ -237,7 +200,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 21,
       popular: true,
-      demo: [],
     },
     {
       slug: 'web-ozel-script',
@@ -254,7 +216,6 @@ export const siteConfig = {
       period: 'tek seferlik',
       deliveryDays: 5,
       popular: false,
-      demo: [],
     },
 
     {
@@ -271,7 +232,6 @@ export const siteConfig = {
       period: 'teklife göre',
       deliveryDays: null,
       popular: false,
-      demo: [],
     },
     {
       slug: 'ozel-yazilim',
@@ -287,7 +247,6 @@ export const siteConfig = {
       period: 'teklife göre',
       deliveryDays: null,
       popular: false,
-      demo: [],
     },
   ],
 
@@ -328,7 +287,6 @@ export const siteConfig = {
     { q: 'Teslim süreleri nelerdir?', a: 'Her paketin kartında tahmini teslim süresi yazar. Özel istekler için süre, planlama aşamasında yazılı olarak bildirilir.' },
     { q: 'Teslimattan sonra destek alabilir miyim?', a: 'Evet. Garanti süresi boyunca hatalar ücretsiz düzeltilir. Sonrasında bakım ve destek için ayrı bir plan sunulabilir.' },
     { q: 'Özel bir bot veya yazılım yaptırabilir miyim?', a: 'Evet. İletişim formundan ihtiyacınızı anlatın, size kapsam ve fiyat teklifi hazırlayalım.' },
-    { q: 'Botları satın almadan deneyebilir miyim?', a: 'Her botun kartında bulunan “Demo Dene” seçeneği ile komutların nasıl çalıştığını görebilir, demo sunucumuza katılarak canlı deneyebilirsiniz.' },
   ],
 
   // SAMPLE portfolio entries: replace with real projects. Remove `sample: true` once real.

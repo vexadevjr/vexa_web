@@ -21,7 +21,6 @@ const SECTIONS = [
   ] },
   { key: 'links', label: 'Bağlantılar', kind: 'object', hint: 'Yalnızca https:// ile başlayan adresler kabul edilir. Boş bırakılan bağlantı sitede gizlenir.', fields: [
     { k: 'discord', l: 'Discord davet bağlantısı' },
-    { k: 'demoServer', l: 'Demo sunucusu' },
     { k: 'support', l: 'Destek kanalı' },
     { k: 'payment', l: 'Ödeme / fatura bağlantısı' },
     { k: 'github', l: 'GitHub' },

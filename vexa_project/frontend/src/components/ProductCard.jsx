@@ -1,13 +1,12 @@
-import { Check, Clock, Play } from 'lucide-react'
+import { Check, Clock } from 'lucide-react'
 import Button from './Button.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
 import { priceLabel, deliveryLabel } from '../lib/format.js'
 
 export default function ProductCard({ product, large = false }) {
-  const { openOrder, openDemo } = useApp()
+  const { openOrder } = useApp()
   const quote = product.price == null
-  const hasDemo = Array.isArray(product.demo) && product.demo.length > 0
 
   return (
     <article
@@ -56,11 +55,6 @@ export default function ProductCard({ product, large = false }) {
           ) : (
             <Button onClick={() => openOrder(product)} className="flex-1">
               Sipariş Ver
-            </Button>
-          )}
-          {hasDemo && (
-            <Button variant="secondary" onClick={() => openDemo(product)} aria-label={`${product.name} demo`}>
-              <Play className="w-4 h-4" /> Demo
             </Button>
           )}
         </div>

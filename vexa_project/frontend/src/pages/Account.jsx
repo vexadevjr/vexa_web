@@ -274,9 +274,10 @@ function SettingsTab() {
 }
 
 export default function Account() {
-  const { user, openAuth } = useApp()
+  const { user, checking, openAuth } = useApp()
   const { pathname } = useLocation()
 
+  if (!user && checking) return null
   if (!user) {
     return (
       <div className={`${card} p-8 max-w-md`}>

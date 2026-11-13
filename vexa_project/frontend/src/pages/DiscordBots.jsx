@@ -22,7 +22,7 @@ export default function DiscordBots() {
     <div className="space-y-10">
       <PageHeader
         title="Discord Botları"
-        description="Sunucunuzun ihtiyacına göre hazırlanan, özel isim ve avatarla teslim edilen botlar. Satın almadan önce demo ile komutları görebilirsiniz."
+        description="Sunucunuzun ihtiyacına göre hazırlanan, özel isim ve avatarla teslim edilen botlar."
       />
 
       <section>

@@ -2,15 +2,33 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { api, tokenStore } from '../lib/api.js'
 
 const AppContext = createContext(null)
+const USER_KEY = 'vexstar_user'
+
+// the signed-in user is remembered next to the session token, so a reload shows the avatar immediately
+function readUser() {
+  try {
+    return tokenStore.get() ? JSON.parse(localStorage.getItem(USER_KEY)) : null
+  } catch (e) {
+    return null
+  }
+}
+function writeUser(user) {
+  try {
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user))
+    else localStorage.removeItem(USER_KEY)
+  } catch (e) {
+    /* storage unavailable */
+  }
+}
 
 export const useApp = () => useContext(AppContext)
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(readUser)
+  const [checking, setChecking] = useState(() => Boolean(tokenStore.get()) && !readUser())
   const [authOpen, setAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState('login')
   const [orderProduct, setOrderProduct] = useState(null)
-  const [demoProduct, setDemoProduct] = useState(null)
   const [authNotice, setAuthNotice] = useState('')
 
   // restore an existing session
@@ -20,9 +38,17 @@ export function AppProvider({ children }) {
       .me()
       .then((data) => setUser(data.user))
       .catch((err) => {
-        if (err.status === 401) tokenStore.set(null)
+        if (err.status === 401) {
+          tokenStore.set(null)
+          setUser(null)
+        }
       })
+      .finally(() => setChecking(false))
   }, [])
+
+  useEffect(() => {
+    writeUser(user)
+  }, [user])
 
   const finishAuth = useCallback((data) => {
     tokenStore.set(data.token)
@@ -74,22 +100,16 @@ export function AppProvider({ children }) {
   }, [])
   const closeAuth = useCallback(() => setAuthOpen(false), [])
 
-  const openOrder = useCallback((product) => {
-    setDemoProduct(null)
-    setOrderProduct(product)
-  }, [])
+  const openOrder = useCallback((product) => setOrderProduct(product), [])
   const closeOrder = useCallback(() => setOrderProduct(null), [])
-  const openDemo = useCallback((product) => setDemoProduct(product), [])
-  const closeDemo = useCallback(() => setDemoProduct(null), [])
 
   const value = useMemo(
     () => ({
-      user, setUser, login, register, logout,
+      user, setUser, checking, login, register, logout,
       authOpen, authTab, authNotice, openAuth, closeAuth,
       orderProduct, openOrder, closeOrder,
-      demoProduct, openDemo, closeDemo,
     }),
-    [user, setUser, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, demoProduct, openDemo, closeDemo]
+    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder]
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
