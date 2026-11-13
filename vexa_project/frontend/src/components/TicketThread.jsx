@@ -30,7 +30,7 @@ export default function TicketThread({ ticket, onReply }) {
   }
 
   const bubble = (from, body, at, key) => (
-    <div key={key} className={`max-w-[88%] rounded-xl px-4 py-3 text-[13px] leading-relaxed ${from === 'admin' ? 'bg-vx-accent/20 border border-vx-accent/40 text-white' : 'bg-vx-surface border border-vx-line text-slate-200 ml-auto'}`}>
+    <div key={key} className={`max-w-[88%] rounded-xl px-4 py-3 text-[13px] leading-relaxed ${from === 'admin' ? 'bg-vx-accent/20 border border-vx-accent/40 text-white' : 'bg-vx-surface border border-vx-line text-zinc-100 ml-auto'}`}>
       <div className="text-[11px] mb-1 text-vx-muted">
         {from === 'admin' ? 'Vexstar Destek' : 'Siz'} · {when(at)}
       </div>

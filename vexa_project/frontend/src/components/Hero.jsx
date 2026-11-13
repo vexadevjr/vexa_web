@@ -20,7 +20,7 @@ function BrandVisual() {
       <div className="absolute inset-[8%] rounded-full border border-vx-accent/30" />
       <div className="absolute inset-[22%] rounded-full border border-vx-accent/20" />
       <div className="absolute inset-[18%] rounded-full bg-vx-accent/30 blur-3xl" />
-      <img src={vLogo} alt="" aria-hidden="true" className="absolute inset-[14%] w-[72%] h-[72%] object-contain drop-shadow-[0_0_50px_rgba(124,58,237,0.65)]" />
+      <img src={vLogo} alt="" aria-hidden="true" className="absolute inset-[14%] w-[72%] h-[72%] object-contain drop-shadow-[0_0_40px_rgba(124,58,237,0.5)]" />
       {floaters.map(({ icon: Icon, title, sub, pos }) => (
         <div key={title} className={`absolute ${pos} flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-2xl bg-vx-surface/85 backdrop-blur border border-vx-line shadow-xl shadow-black/40`}>
           <span className="grid place-items-center w-9 h-9 rounded-xl bg-vx-accent/25 text-vx-accent-soft"><Icon className="w-[18px] h-[18px]" /></span>
@@ -42,21 +42,21 @@ export default function Hero() {
     <section
       id="home"
       className="relative overflow-hidden rounded-3xl border border-vx-line bg-vx-card"
-      style={{ backgroundImage: 'radial-gradient(55% 80% at 90% 30%, rgba(99,102,241,0.30), transparent 70%)' }}
+      style={{ backgroundImage: 'radial-gradient(55% 80% at 90% 30%, rgba(124,58,237,0.22), transparent 70%)' }}
     >
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 items-center px-8 py-12 sm:px-12 sm:py-14">
         <div>
           <h1 className="text-4xl sm:text-5xl xl:text-[58px] font-extrabold tracking-tight leading-[1.06] text-white">
             Sunucunuz ve markanız için{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">Discord botu ve web sitesi.</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-violet-300">Discord botu ve web sitesi.</span>
           </h1>
-          <p className="mt-5 max-w-[540px] text-[16px] leading-relaxed text-slate-300">
+          <p className="mt-5 max-w-[540px] text-[16px] leading-relaxed text-zinc-200">
             Hazır paketlerle hemen sipariş verin ya da ihtiyacınıza özel teklif alın. Kurulumdan teslimata kadar her adımda yanınızdayız.
           </p>
 
           <ul className="mt-6 space-y-2.5">
             {points.map((p) => (
-              <li key={p} className="flex items-center gap-2.5 text-[14px] text-slate-200"><Check className="w-4 h-4 text-vx-accent-text" /> {p}</li>
+              <li key={p} className="flex items-center gap-2.5 text-[14px] text-zinc-100"><Check className="w-4 h-4 text-vx-accent-text" /> {p}</li>
             ))}
           </ul>
 

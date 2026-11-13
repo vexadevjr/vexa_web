@@ -29,7 +29,7 @@ export default function ProductCard({ product, large = false }) {
 
       <ul className="mt-5 space-y-2.5">
         {product.features.slice(0, large ? 6 : 5).map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-[13px] text-slate-200">
+          <li key={f} className="flex items-start gap-2.5 text-[13px] text-zinc-100">
             <Check className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" />
             {f}
           </li>

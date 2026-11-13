@@ -27,7 +27,7 @@ export default function HomeReviews() {
         {reviews.slice(0, 3).map((r) => (
           <figure key={`${r.name}${r.createdAt}`} className="flex flex-col p-6 rounded-2xl bg-vx-card border border-vx-line">
             <StarBar value={r.rating} className="w-4 h-4" />
-            <blockquote className="mt-4 text-[14px] leading-relaxed text-slate-200 break-words line-clamp-5">“{r.text}”</blockquote>
+            <blockquote className="mt-4 text-[14px] leading-relaxed text-zinc-100 break-words line-clamp-5">“{r.text}”</blockquote>
             <figcaption className="mt-auto pt-5 flex items-center justify-between gap-2 text-[13px]">
               <span className="font-semibold text-white">{r.name}</span>
               {r.verified && <span className="inline-flex items-center gap-1 text-[11px] text-vx-accent-soft"><BadgeCheck className="w-4 h-4" /> Doğrulanmış müşteri</span>}

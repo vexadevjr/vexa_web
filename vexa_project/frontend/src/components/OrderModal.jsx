@@ -55,7 +55,7 @@ export default function OrderModal({ product, onClose }) {
             <div className="text-lg font-bold tracking-wide text-white">{done.orderNo}</div>
           </div>
         </div>
-        <p className="mt-5 text-[14px] leading-relaxed text-slate-300">
+        <p className="mt-5 text-[14px] leading-relaxed text-zinc-200">
           {done.productName} siparişiniz bize ulaştı. En geç 24 saat içinde {form.email} adresinden sizinle iletişime geçeceğiz.
           Ödeme bu aşamada alınmadı; talebiniz onaylandıktan sonra ödeme bilgileri iletilir.
         </p>
@@ -124,7 +124,7 @@ export default function OrderModal({ product, onClose }) {
           <Button type="submit" disabled={busy} className="min-w-[180px]">
             {busy ? 'Gönderiliyor…' : 'Siparişi Gönder'}
           </Button>
-          <span className="text-[12px] text-slate-500">Bu adımda ödeme alınmaz.</span>
+          <span className="text-[12px] text-zinc-400">Bu adımda ödeme alınmaz.</span>
         </div>
       </form>
     </Modal>

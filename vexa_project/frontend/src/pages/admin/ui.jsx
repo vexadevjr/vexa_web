@@ -40,9 +40,9 @@ export function Btn({ variant = 'primary', className = '', type = 'button', ...r
 
 const Label = ({ label, hint, children }) => (
   <label className="block">
-    {label && <span className="block mb-1.5 text-[12px] font-medium text-slate-300">{label}</span>}
+    {label && <span className="block mb-1.5 text-[12px] font-medium text-zinc-200">{label}</span>}
     {children}
-    {hint && <span className="block mt-1 text-[11px] text-slate-500">{hint}</span>}
+    {hint && <span className="block mt-1 text-[11px] text-zinc-400">{hint}</span>}
   </label>
 )
 
@@ -71,14 +71,14 @@ export const SelectField = ({ label, value, onChange, options, className = '' })
 )
 
 export const CheckField = ({ label, checked, onChange }) => (
-  <label className="inline-flex items-center gap-2 text-[13px] text-slate-200 cursor-pointer select-none">
-    <input type="checkbox" className="w-4 h-4 accent-indigo-500" checked={Boolean(checked)} onChange={(e) => onChange(e.target.checked)} />
+  <label className="inline-flex items-center gap-2 text-[13px] text-zinc-100 cursor-pointer select-none">
+    <input type="checkbox" className="w-4 h-4 accent-violet-500" checked={Boolean(checked)} onChange={(e) => onChange(e.target.checked)} />
     {label}
   </label>
 )
 
 const TONES = {
-  gray: 'bg-vx-surface border-vx-line text-slate-300',
+  gray: 'bg-vx-surface border-vx-line text-zinc-200',
   blue: 'bg-vx-accent/20 border-vx-accent/40 text-vx-accent-soft',
   green: 'bg-emerald-600/20 border-emerald-500/40 text-emerald-300',
   red: 'bg-rose-600/20 border-rose-500/40 text-rose-300',

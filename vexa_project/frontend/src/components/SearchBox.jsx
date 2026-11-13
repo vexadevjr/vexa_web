@@ -66,7 +66,7 @@ export default function SearchBox() {
             if (e.key === 'Enter' && results[0]) go(results[0].to)
             if (e.key === 'Escape') setOpen(false)
           }}
-          className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-slate-500"
+          className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-zinc-400"
         />
       </label>
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogIn, Package, Settings, LifeBuoy, LogOut } from 'lucide-react'
+import { ChevronDown, Package, Settings, LifeBuoy, LogOut } from 'lucide-react'
 import Avatar from './Avatar.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
@@ -29,13 +29,20 @@ export default function UserMenu() {
 
   if (!user) {
     return (
-      <button
-        onClick={() => openAuth('login')}
-        className="inline-flex items-center gap-2 h-12 px-5 rounded-xl text-[13px] font-semibold text-white bg-vx-accent hover:bg-vx-accent-hover transition-colors duration-300"
-      >
-        Giriş Yap
-        <LogIn className="w-4 h-4" />
-      </button>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={() => openAuth('login')}
+          className="h-11 px-4 sm:px-5 rounded-xl text-[14px] font-semibold text-white border border-vx-line hover:border-vx-accent-text/60 hover:bg-vx-card transition-colors"
+        >
+          Giriş Yap
+        </button>
+        <button
+          onClick={() => openAuth('register')}
+          className="h-11 px-4 sm:px-5 rounded-xl text-[14px] font-semibold text-white bg-vx-accent hover:bg-vx-accent-hover transition-colors"
+        >
+          Kayıt Ol
+        </button>
+      </div>
     )
   }
 
@@ -47,8 +54,16 @@ export default function UserMenu() {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} aria-label="Hesap menüsü" className="rounded-full ring-2 ring-vx-line hover:ring-vx-accent-text/60 transition-shadow">
-        <Avatar user={user} className="w-11 h-11 text-[17px]" />
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Hesap menüsü"
+        className={`flex items-center gap-2.5 h-12 pl-1.5 pr-3 sm:pr-4 rounded-full border transition-colors ${open ? 'bg-vx-card border-vx-accent-text/60' : 'bg-vx-surface border-vx-line hover:border-vx-accent-text/50 hover:bg-vx-card'}`}
+      >
+        <Avatar user={user} className="w-9 h-9 text-[15px]" />
+        <span className="hidden sm:block max-w-[150px] truncate text-[14px] font-semibold text-white">{user.name}</span>
+        <ChevronDown className={`w-4 h-4 text-vx-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
@@ -62,7 +77,7 @@ export default function UserMenu() {
           </div>
           <div className="p-2">
             {items.map(({ label, icon: Icon, to }) => (
-              <Link key={to} to={to} role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 h-11 px-3 rounded-xl text-[14px] text-slate-200 hover:text-white hover:bg-vx-surface transition-colors">
+              <Link key={to} to={to} role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 h-11 px-3 rounded-xl text-[14px] text-zinc-100 hover:text-white hover:bg-vx-surface transition-colors">
                 <Icon className="w-[18px] h-[18px] text-vx-accent-text" /> {label}
               </Link>
             ))}

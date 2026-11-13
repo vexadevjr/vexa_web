@@ -220,7 +220,7 @@ export default function Products() {
                     <div className="font-semibold text-white">{p.name}</div>
                     <div className="text-[11px] text-vx-muted">{p.slug}</div>
                   </td>
-                  <td className="py-2.5 pr-3 text-slate-200">
+                  <td className="py-2.5 pr-3 text-zinc-100">
                     {CATEGORY[p.category]}
                     {p.subCategory && <span className="text-vx-muted"> · {p.subCategory}</span>}
                   </td>
@@ -240,7 +240,7 @@ export default function Products() {
             </tbody>
           </table>
         </div>
-        <p className="mt-4 text-[11px] text-slate-500">Oklar ürünü kendi kategorisi içinde (Discord botları, Web siteleri…) yukarı/aşağı taşır ve sitedeki sırayı değiştirir. Fiyat kutusuna yazıp Enter’a basmanız yeterlidir. Siparişlerde fiyat her zaman sunucudaki bu değerden alınır.</p>
+        <p className="mt-4 text-[11px] text-zinc-400">Oklar ürünü kendi kategorisi içinde (Discord botları, Web siteleri…) yukarı/aşağı taşır ve sitedeki sırayı değiştirir. Fiyat kutusuna yazıp Enter’a basmanız yeterlidir. Siparişlerde fiyat her zaman sunucudaki bu değerden alınır.</p>
       </Card>
 
       {data && <RenameSub products={products} onDone={reload} push={push} />}

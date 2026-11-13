@@ -83,7 +83,7 @@ function ReviewForm({ onDone }) {
       <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button key={n} type="button" aria-label={`${n} yıldız`} onMouseEnter={() => setHover(n)} onClick={() => setRating(n)}>
-            <Star className={`w-7 h-7 transition-colors ${n <= (hover || rating) ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-slate-600'}`} />
+            <Star className={`w-7 h-7 transition-colors ${n <= (hover || rating) ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-zinc-500'}`} />
           </button>
         ))}
       </div>
@@ -135,7 +135,7 @@ export default function Reviews() {
           {reviews.slice(0, 9).map((r) => (
             <figure key={`${r.name}${r.createdAt}`} className="flex flex-col p-6 rounded-2xl bg-vx-card border border-vx-line">
               <Stars value={r.rating} />
-              <blockquote className="mt-4 text-[14px] leading-relaxed text-slate-200 break-words">“{r.text}”</blockquote>
+              <blockquote className="mt-4 text-[14px] leading-relaxed text-zinc-100 break-words">“{r.text}”</blockquote>
               <figcaption className="mt-auto pt-5 flex items-center justify-between gap-3">
                 <div>
                   <div className="text-[14px] font-semibold text-white">{r.name}</div>

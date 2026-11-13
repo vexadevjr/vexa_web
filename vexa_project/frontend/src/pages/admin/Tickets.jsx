@@ -88,7 +88,7 @@ function Detail({ ticketNo, onChanged, onGone }) {
         )}
         <Btn variant="danger" onClick={remove} className="ml-auto">Sil</Btn>
       </div>
-      <p className="text-[11px] text-slate-500">Yanıtlar e-posta ile gönderilmez; müşteri “Hesap menüsü → Destek Taleplerim” veya İletişim sayfasındaki “Talebimi Takip Et” bölümünden görür. İsterseniz yanıtı ayrıca e-posta ile de iletebilirsiniz.</p>
+      <p className="text-[11px] text-zinc-400">Yanıtlar e-posta ile gönderilmez; müşteri “Hesap menüsü → Destek Taleplerim” veya İletişim sayfasındaki “Talebimi Takip Et” bölümünden görür. İsterseniz yanıtı ayrıca e-posta ile de iletebilirsiniz.</p>
     </div>
   )
 }
@@ -136,8 +136,8 @@ export default function Tickets() {
                     <Badge tone={STATUS[t.status][1]}>{STATUS[t.status][0]}</Badge>
                   </div>
                   <div className="mt-1 text-[12px] text-vx-muted truncate">{t.name} · {t.email}</div>
-                  <div className="text-[12px] text-slate-400 truncate">{t.message}</div>
-                  <div className="mt-1 text-[11px] text-slate-500">{t.ticketNo} · {fmtDate(t.updatedAt)}</div>
+                  <div className="text-[12px] text-zinc-300 truncate">{t.message}</div>
+                  <div className="mt-1 text-[11px] text-zinc-400">{t.ticketNo} · {fmtDate(t.updatedAt)}</div>
                 </button>
               </li>
             ))}

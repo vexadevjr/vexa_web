@@ -73,7 +73,7 @@ function Orders() {
                 {STEPS.map(([k, label], i) => (
                   <li key={k} className="text-center">
                     <div className={`h-1.5 rounded-full ${i <= idx ? 'bg-vx-accent' : 'bg-vx-line'}`} />
-                    <div className={`mt-2 text-[11px] sm:text-[12px] ${i === idx ? 'font-semibold text-white' : i < idx ? 'text-vx-accent-soft' : 'text-slate-500'}`}>{label}</div>
+                    <div className={`mt-2 text-[11px] sm:text-[12px] ${i === idx ? 'font-semibold text-white' : i < idx ? 'text-vx-accent-soft' : 'text-zinc-400'}`}>{label}</div>
                   </li>
                 ))}
               </ol>
@@ -139,8 +139,8 @@ function Tickets() {
                   </span>
                   <span className="text-[11px] text-vx-accent-soft shrink-0">{statusLabel(t.status)}</span>
                 </div>
-                <div className="mt-1 text-[12px] text-slate-400 truncate">{t.replies.length ? t.replies[t.replies.length - 1].text : t.message}</div>
-                <div className="mt-0.5 text-[11px] text-slate-500">{t.ticketNo} · {dateLabel(t.updatedAt)}</div>
+                <div className="mt-1 text-[12px] text-zinc-300 truncate">{t.replies.length ? t.replies[t.replies.length - 1].text : t.message}</div>
+                <div className="mt-0.5 text-[11px] text-zinc-400">{t.ticketNo} · {dateLabel(t.updatedAt)}</div>
               </button>
             </li>
           ))}
@@ -227,8 +227,8 @@ function SettingsTab() {
           <div className="text-[12px] text-vx-muted leading-relaxed">
             {user.avatar ? 'Profil fotoğrafınız bağlı hesabınızdan (Google / Discord) alınır.' : 'Fotoğraf yoksa adınızın baş harfi gösterilir. Google veya Discord ile giriş yaparsanız fotoğrafınız otomatik gelir.'}
             <div className="mt-2 flex gap-2">
-              {user.google && <span className="inline-flex items-center gap-1.5 px-2 h-6 rounded-md bg-vx-surface border border-vx-line text-[11px] text-slate-200"><GoogleIcon className="w-3.5 h-3.5" /> Google bağlı</span>}
-              {user.discord && <span className="inline-flex items-center gap-1.5 px-2 h-6 rounded-md bg-vx-surface border border-vx-line text-[11px] text-slate-200"><DiscordIcon className="w-3.5 h-3.5" /> Discord bağlı</span>}
+              {user.google && <span className="inline-flex items-center gap-1.5 px-2 h-6 rounded-md bg-vx-surface border border-vx-line text-[11px] text-zinc-100"><GoogleIcon className="w-3.5 h-3.5" /> Google bağlı</span>}
+              {user.discord && <span className="inline-flex items-center gap-1.5 px-2 h-6 rounded-md bg-vx-surface border border-vx-line text-[11px] text-zinc-100"><DiscordIcon className="w-3.5 h-3.5" /> Discord bağlı</span>}
             </div>
           </div>
         </div>

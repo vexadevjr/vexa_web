@@ -44,7 +44,7 @@ export default function Portfolio() {
               </div>
               <h3 className="mt-4 text-[18px] font-semibold text-white">{p.title}</h3>
               <div className="mt-1 text-[13px] text-vx-muted">{p.client}</div>
-              <p className="mt-4 text-[14px] leading-relaxed text-slate-200">{p.result}</p>
+              <p className="mt-4 text-[14px] leading-relaxed text-zinc-100">{p.result}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(p.tags || []).map((t) => (
                   <span key={t} className="px-2.5 h-6 inline-flex items-center rounded-md border border-vx-line text-[11px] text-vx-muted">

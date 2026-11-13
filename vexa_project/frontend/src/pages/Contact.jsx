@@ -122,17 +122,17 @@ function ContactPage({ topic }) {
         <aside className="space-y-5">
           <div className="p-6 rounded-2xl bg-vx-card border border-vx-line space-y-5">
             <h2 className="text-lg font-semibold text-white">İletişim Bilgileri</h2>
-            <div className="flex gap-3 text-[14px] text-slate-200">
+            <div className="flex gap-3 text-[14px] text-zinc-100">
               <Mail className="w-5 h-5 shrink-0 text-vx-accent-text" />
               <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-white break-all">
                 {siteConfig.contact.email}
               </a>
             </div>
-            <div className="flex gap-3 text-[14px] text-slate-200">
+            <div className="flex gap-3 text-[14px] text-zinc-100">
               <Clock className="w-5 h-5 shrink-0 text-vx-accent-text" />
               <span>{siteConfig.contact.hours}</span>
             </div>
-            <div className="flex gap-3 text-[14px] text-slate-200">
+            <div className="flex gap-3 text-[14px] text-zinc-100">
               <MapPin className="w-5 h-5 shrink-0 text-vx-accent-text" />
               <span>{siteConfig.contact.location}</span>
             </div>

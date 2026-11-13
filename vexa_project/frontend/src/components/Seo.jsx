@@ -26,12 +26,7 @@ export default function Seo() {
     const noindex = !page || NOINDEX.some((p) => path === p || path.startsWith(`${p}/`))
     const title = page ? page.title : path.startsWith('/hesap') || path === '/panel' ? 'Hesabım | Vexstar' : 'Sayfa bulunamadı | Vexstar'
     const desc = page ? page.description : seo.pages['/'].description
-    // Preserve the canonical origin chosen by the server (SITE_URL on Render), rather than
-    // overwriting it with a potentially stale build-time domain from siteConfig.js.
-    const serverCanonical = document.querySelector('link[rel="canonical"]')?.href
-    let canonicalOrigin = seo.siteUrl
-    try { if (serverCanonical) canonicalOrigin = new URL(serverCanonical).origin } catch { /* keep configured fallback */ }
-    const url = `${canonicalOrigin}${path === '/' ? '/' : path}`
+    const url = `${seo.siteUrl}${path === '/' ? '/' : path}`
 
     document.title = title
     meta('description', desc)

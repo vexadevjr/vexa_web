@@ -44,7 +44,7 @@ export default function Solutions() {
             <p className="mt-2 text-[14px] leading-relaxed text-vx-muted">{text}</p>
             <ul className="mt-5 space-y-2.5">
               {bullets.map((b) => (
-                <li key={b} className="flex items-center gap-2.5 text-[13px] text-slate-200"><Check className="w-4 h-4 text-vx-accent-text" /> {b}</li>
+                <li key={b} className="flex items-center gap-2.5 text-[13px] text-zinc-100"><Check className="w-4 h-4 text-vx-accent-text" /> {b}</li>
               ))}
             </ul>
             <div className="mt-auto pt-7 flex items-center justify-between gap-4">

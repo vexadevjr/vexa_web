@@ -5,16 +5,16 @@
 /* Defaults mirror siteConfig.brand.colors; src/lib/brand.js overrides them at start-up. */
 :root {
   color-scheme: dark;
-  --vx-bg: 8 9 15;
-  --vx-bg-end: 15 16 26;
-  --vx-surface: 12 13 20;
-  --vx-card: 19 20 34;
-  --vx-line: 32 27 58;
-  --vx-accent: 79 70 229;
-  --vx-accent-hover: 67 56 202;
-  --vx-accent-soft: 165 180 252;
-  --vx-accent-text: 129 140 248;
-  --vx-muted: 148 163 184;
+  --vx-bg: 14 14 17;
+  --vx-bg-end: 21 20 26;
+  --vx-surface: 22 21 27;
+  --vx-card: 29 28 36;
+  --vx-line: 55 53 63;
+  --vx-accent: 124 58 237;
+  --vx-accent-hover: 109 40 217;
+  --vx-accent-soft: 216 204 255;
+  --vx-accent-text: 183 156 255;
+  --vx-muted: 180 180 194;
 }
 
 html, body, #root { min-height: 100%; }
@@ -25,14 +25,14 @@ body {
   background: rgb(var(--vx-bg));
   background-image: linear-gradient(180deg, rgb(var(--vx-bg)) 0%, rgb(var(--vx-bg-end)) 100%);
   background-attachment: fixed;
-  color: #ffffff;
+  color: #f7f7fa;
   -webkit-font-smoothing: antialiased;
 }
 [id] { scroll-margin-top: 1.5rem; }
-::selection { background: rgba(99, 102, 241, 0.4); }
+::selection { background: rgba(124, 58, 237, 0.45); }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: rgb(var(--vx-bg)); }
-::-webkit-scrollbar-thumb { background: #2a2b45; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #403d4a; border-radius: 8px; }
 
 /* Shared shimmer: a slanted, soft-edged white line that enters fully hidden on the left,
    crosses the whole element, exits fully hidden on the right, then restarts instantly. */
@@ -59,3 +59,12 @@ body {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
 }
+
+/* Readability: small utility sizes are a bit larger and every muted/secondary text is brighter. */
+[class*="text-[10px]"] { font-size: 11.5px !important; }
+[class*="text-[11px]"] { font-size: 12.5px !important; }
+[class*="text-[12px]"] { font-size: 13.5px !important; }
+[class*="text-[13px]"] { font-size: 14.5px !important; }
+[class*="text-[14px]"] { font-size: 15.5px !important; }
+[class*="text-[15px]"] { font-size: 16px !important; }
+p, li, dd, blockquote { line-height: 1.65; }

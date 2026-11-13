@@ -6,7 +6,7 @@ export default function StarBar({ value = 0, className = 'w-7 h-7' }) {
   const row = (fill) => (
     <div className="flex gap-1">
       {[0, 1, 2, 3, 4].map((i) => (
-        <Star key={i} className={`${className} shrink-0 ${fill ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-slate-600'}`} strokeWidth={1.6} />
+        <Star key={i} className={`${className} shrink-0 ${fill ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-zinc-500'}`} strokeWidth={1.6} />
       ))}
     </div>
   )

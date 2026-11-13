@@ -66,13 +66,13 @@ export default function DiscordBots() {
             <tbody>
               {siteConfig.botComparison.map((row) => (
                 <tr key={row.label} className="border-b border-vx-line last:border-0">
-                  <td className="px-5 py-3.5 text-slate-200">{row.label}</td>
+                  <td className="px-5 py-3.5 text-zinc-100">{row.label}</td>
                   {bots.map((b) => (
                     <td key={b.slug} className="px-3 py-3.5 text-center">
                       {row.slugs.includes(b.slug) ? (
                         <Check className="w-4 h-4 mx-auto text-vx-accent-text" aria-label="Var" />
                       ) : (
-                        <Minus className="w-4 h-4 mx-auto text-slate-600" aria-label="Yok" />
+                        <Minus className="w-4 h-4 mx-auto text-zinc-500" aria-label="Yok" />
                       )}
                     </td>
                   ))}

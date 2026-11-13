@@ -207,7 +207,7 @@ export default function Content() {
           }}
         />
       )}
-      <p className="text-[12px] text-slate-500">Ürünler, kategoriler ve fiyatlar için “Ürünler & Fiyatlar” sekmesini kullanın. Hero metinleri ve renkler <code>frontend/src/config/siteConfig.js</code> dosyasındadır.</p>
+      <p className="text-[12px] text-zinc-400">Ürünler, kategoriler ve fiyatlar için “Ürünler & Fiyatlar” sekmesini kullanın. Hero metinleri ve renkler <code>frontend/src/config/siteConfig.js</code> dosyasındadır.</p>
     </div>
   )
 }

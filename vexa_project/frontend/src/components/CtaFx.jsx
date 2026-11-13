@@ -7,7 +7,7 @@ export default function CtaFx() {
       <Shimmer />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-indigo-300/50 opacity-0 group-hover:animate-cta-ring"
+        className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-violet-300/50 opacity-0 group-hover:animate-cta-ring"
       />
     </>
   )

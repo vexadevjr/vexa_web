@@ -40,7 +40,7 @@ export default function Featured() {
             <p className="mt-1.5 text-[13px] leading-relaxed text-vx-muted">{p.tagline}</p>
             <ul className="mt-4 space-y-2">
               {(p.features || []).slice(0, 3).map((f) => (
-                <li key={f} className="flex items-start gap-2 text-[13px] text-slate-200">
+                <li key={f} className="flex items-start gap-2 text-[13px] text-zinc-100">
                   <Check className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" /> {f}
                 </li>
               ))}

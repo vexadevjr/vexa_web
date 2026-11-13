@@ -52,10 +52,10 @@ export function Orders() {
                   <div className="font-semibold text-white">{o.productName}</div>
                   <div className="text-[11px] text-vx-muted">{o.orderNo} · {fmtDate(o.createdAt)}</div>
                 </td>
-                <td className="py-3 pr-3 text-slate-200">
+                <td className="py-3 pr-3 text-zinc-100">
                   {o.customer.name}
                   <div className="text-[11px] text-vx-muted break-all">{o.customer.email}{o.customer.discord ? ` · Discord: ${o.customer.discord}` : ''}</div>
-                  {o.note && <div className="mt-1 text-[12px] text-slate-400 max-w-[280px] whitespace-pre-wrap">“{o.note}”</div>}
+                  {o.note && <div className="mt-1 text-[12px] text-zinc-300 max-w-[280px] whitespace-pre-wrap">“{o.note}”</div>}
                 </td>
                 <td className="py-3 pr-3 font-bold text-white whitespace-nowrap">{formatPrice(o.price)}</td>
                 <td className="py-3">
@@ -69,7 +69,7 @@ export function Orders() {
         </table>
       </div>
       {data && <Pager page={page} total={data.total} perPage={data.perPage} onPage={setPage} />}
-      <p className="mt-4 text-[11px] text-slate-500">“Teslim edildi” durumu, müşteri memnuniyeti istatistiğindeki tamamlanan sipariş sayısına ve yorumlardaki “Doğrulanmış müşteri” rozetine yansır.</p>
+      <p className="mt-4 text-[11px] text-zinc-400">“Teslim edildi” durumu, müşteri memnuniyeti istatistiğindeki tamamlanan sipariş sayısına ve yorumlardaki “Doğrulanmış müşteri” rozetine yansır.</p>
     </Card>
   )
 }
@@ -121,14 +121,14 @@ export function Reviews() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-3">
                 <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`w-4 h-4 ${n <= r.rating ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-slate-600'}`} />)}
+                  {[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`w-4 h-4 ${n <= r.rating ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-zinc-500'}`} />)}
                 </div>
                 <b className="text-[13px] text-white">{r.name}</b>
                 {r.verified && <span className="inline-flex items-center gap-1 text-[11px] text-vx-accent-soft"><BadgeCheck className="w-4 h-4" /> Doğrulanmış müşteri</span>}
               </div>
               <Badge tone={REVIEW_STATUS[r.status][1]}>{REVIEW_STATUS[r.status][0]}</Badge>
             </div>
-            <p className="mt-3 text-[13px] leading-relaxed text-slate-200 whitespace-pre-wrap break-words">{r.text}</p>
+            <p className="mt-3 text-[13px] leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">{r.text}</p>
             <div className="mt-2 text-[11px] text-vx-muted">{r.email} · {r.product || 'Hizmet seçilmedi'} · {fmtDate(r.createdAt)}</div>
             <div className="mt-3 flex flex-wrap gap-2">
               {r.status !== 'approved' && <Btn variant="success" onClick={() => set(r.id, 'approved')}>Yayınla</Btn>}
@@ -138,7 +138,7 @@ export function Reviews() {
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-[11px] text-slate-500">Memnuniyet yüzdesi, yayındaki yorumların yıldızlarından hesaplanır (toplam yıldız ÷ en yüksek olası yıldız). Yalnızca spam, hakaret veya sahte içerikleri reddetmeniz önerilir; olumsuz ama gerçek yorumları gizlemek güveni zedeler.</p>
+      <p className="mt-4 text-[11px] text-zinc-400">Memnuniyet yüzdesi, yayındaki yorumların yıldızlarından hesaplanır (toplam yıldız ÷ en yüksek olası yıldız). Yalnızca spam, hakaret veya sahte içerikleri reddetmeniz önerilir; olumsuz ama gerçek yorumları gizlemek güveni zedeler.</p>
     </Card>
   )
 }

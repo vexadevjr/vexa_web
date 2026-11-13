@@ -34,7 +34,7 @@ function Chart({ series }) {
           const v = (nice / 4) * g
           return (
             <g key={g}>
-              <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="#201b3a" strokeWidth="1" />
+              <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="#37353f" strokeWidth="1" />
               <text x={pad.l - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">
                 {Math.round(v)}
               </text>
@@ -43,7 +43,7 @@ function Chart({ series }) {
         })}
         {series.map((s, i) => (
           <g key={s.label + i}>
-            <rect x={x(i) - Math.min(step * 0.7, 28) / 2} y={y(s.views)} width={Math.min(step * 0.7, 28)} height={Math.max(0, pad.t + ih - y(s.views))} rx="3" fill="#4f46e5" opacity="0.85">
+            <rect x={x(i) - Math.min(step * 0.7, 28) / 2} y={y(s.views)} width={Math.min(step * 0.7, 28)} height={Math.max(0, pad.t + ih - y(s.views))} rx="3" fill="#7c3aed" opacity="0.85">
               <title>{`${s.label}: ${s.views} görüntülenme, ${s.unique} tekil ziyaretçi`}</title>
             </rect>
             {i % every === 0 && (
@@ -53,9 +53,9 @@ function Chart({ series }) {
             )}
           </g>
         ))}
-        <polyline points={line} fill="none" stroke="#a5b4fc" strokeWidth="2.2" strokeLinejoin="round" />
+        <polyline points={line} fill="none" stroke="#c4b5fd" strokeWidth="2.2" strokeLinejoin="round" />
         {series.map((s, i) => (
-          <circle key={`c${i}`} cx={x(i)} cy={y(s.unique)} r="3" fill="#a5b4fc" />
+          <circle key={`c${i}`} cx={x(i)} cy={y(s.unique)} r="3" fill="#c4b5fd" />
         ))}
       </svg>
       <div className="mt-2 flex items-center gap-5 text-[12px] text-vx-muted">
@@ -140,8 +140,8 @@ function VisitorTable({ range }) {
                   <td className="py-2.5 pr-3">{r.pageCount}</td>
                   <td className="py-2.5 pr-3 text-vx-muted whitespace-nowrap">{fmtDate(r.firstSeen)}</td>
                   <td className="py-2.5 pr-3 text-vx-muted whitespace-nowrap">{fmtDate(r.lastSeen)}</td>
-                  <td className="py-2.5 pr-3 text-slate-200">{r.lastPath}</td>
-                  <td className="py-2.5 text-[11px] text-slate-500 max-w-[220px] truncate" title={r.ua}>
+                  <td className="py-2.5 pr-3 text-zinc-100">{r.lastPath}</td>
+                  <td className="py-2.5 text-[11px] text-zinc-400 max-w-[220px] truncate" title={r.ua}>
                     {r.ua || '—'}
                   </td>
                 </tr>
@@ -152,7 +152,7 @@ function VisitorTable({ range }) {
         {loading && !data && <Empty>Yükleniyor…</Empty>}
       </div>
       {data && <Pager page={page} total={data.total} perPage={data.perPage} onPage={setPage} />}
-      <p className="mt-4 text-[11px] text-slate-500">IP kayıtları 400 gün sonra otomatik silinir. Kişisel veri sayıldığı için gizlilik politikanızda belirtmeniz önerilir (KVKK).</p>
+      <p className="mt-4 text-[11px] text-zinc-400">IP kayıtları 400 gün sonra otomatik silinir. Kişisel veri sayıldığı için gizlilik politikanızda belirtmeniz önerilir (KVKK).</p>
     </Card>
   )
 }
@@ -199,7 +199,7 @@ export default function Dashboard() {
             {data &&
               data.topPages.map((p) => (
                 <li key={p.path} className="flex items-center justify-between gap-3 text-[13px]">
-                  <span className="truncate text-slate-200">{p.path}</span>
+                  <span className="truncate text-zinc-100">{p.path}</span>
                   <Badge tone="blue">{nf(p.views)}</Badge>
                 </li>
               ))}
