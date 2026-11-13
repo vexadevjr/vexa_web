@@ -42,7 +42,7 @@ const validators = {
     const o = obj(v)
     if (!o) return undefined
     const out = {}
-    for (const k of ['discord', 'demoServer', 'support', 'payment', 'github', 'youtube', 'x']) {
+    for (const k of ['discord', 'support', 'payment', 'github', 'youtube', 'x']) {
       const u = url(o[k])
       if (u === null) return undefined // reject the whole block: only https links are allowed
       out[k] = u

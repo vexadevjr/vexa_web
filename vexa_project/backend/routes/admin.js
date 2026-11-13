@@ -221,13 +221,6 @@ function productInput(b, { creating }) {
     const n = num(o.sort, { min: 0, max: 10000, int: true })
     set('sort', n, Number.isNaN(n))
   }
-  if ('demo' in o) {
-    out.demo =
-      arr(o.demo, 10, (d) => {
-        const t = d && text(d.text, 300)
-        return t && ['user', 'bot'].includes(d.who) ? { who: d.who, text: t } : undefined
-      }) || []
-  }
   return { out, errors }
 }
 

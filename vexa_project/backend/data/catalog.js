@@ -20,4 +20,18 @@ async function loadCatalog() {
   return cache
 }
 
-module.exports = { loadCatalog }
+let configCache = null
+// the whole siteConfig (defaults for SEO, FAQ, links, portfolio ...)
+async function loadSiteConfig() {
+  if (configCache) return configCache
+  try {
+    const mod = await import(pathToFileURL(FILE).href)
+    configCache = mod.siteConfig || {}
+  } catch (err) {
+    console.error('[config] could not load siteConfig.js:', err.message)
+    configCache = {}
+  }
+  return configCache
+}
+
+module.exports = { loadCatalog, loadSiteConfig }

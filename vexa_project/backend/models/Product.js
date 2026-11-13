@@ -1,11 +1,6 @@
 'use strict'
 const mongoose = require('mongoose')
 
-const demoLine = new mongoose.Schema(
-  { who: { type: String, enum: ['user', 'bot'], required: true }, text: { type: String, required: true, maxlength: 300 } },
-  { _id: false }
-)
-
 const productSchema = new mongoose.Schema(
   {
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, match: /^[a-z0-9-]+$/ },
@@ -22,7 +17,6 @@ const productSchema = new mongoose.Schema(
     period: { type: String, default: 'tek seferlik' },
     deliveryDays: { type: Number, default: null, min: 0 },
     popular: { type: Boolean, default: false },
-    demo: { type: [demoLine], default: [] },
     active: { type: Boolean, default: true },
     sort: { type: Number, default: 0 },
   },

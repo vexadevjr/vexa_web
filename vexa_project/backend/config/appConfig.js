@@ -39,6 +39,10 @@ module.exports = Object.freeze({
   bcryptRounds: 12,
   timezone: process.env.ANALYTICS_TZ || 'Europe/Istanbul',
   publicUrl,
+  // canonical public address used in SEO tags, sitemap and structured data
+  siteUrl: (process.env.SITE_URL || 'https://vexstar.com.tr').replace(/\/+$/, ''),
+  googleVerification: process.env.GOOGLE_SITE_VERIFICATION || '',
+  bingVerification: process.env.BING_SITE_VERIFICATION || '',
   // Admin identity lives ONLY in environment variables (never in the database, never in the frontend).
   admin: {
     email: (process.env.ADMIN_EMAIL || '').trim().toLowerCase(),
