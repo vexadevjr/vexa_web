@@ -21,7 +21,7 @@ export default function DiscordBots() {
   return (
     <div className="space-y-10">
       <PageHeader
-        title="Discord Botları"
+        title={siteConfig.seo.pages[siteConfig.routes.bots].h1}
         description="Sunucunuzun ihtiyacına göre hazırlanan, özel isim ve avatarla teslim edilen botlar."
       />
 

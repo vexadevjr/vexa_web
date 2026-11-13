@@ -13,7 +13,7 @@ export default function WebDev() {
   return (
     <div className="space-y-10">
       <PageHeader
-        title="Web Geliştirme"
+        title={siteConfig.seo.pages[siteConfig.routes.web].h1}
         description="Şeffaf fiyatlar ve net teslim süreleri. Her paket, kapsamı ve teslim tarihi yazılı olarak onaylandıktan sonra başlar."
       />
 

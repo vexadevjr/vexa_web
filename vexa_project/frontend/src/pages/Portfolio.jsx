@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PageHeader from '../components/PageHeader.jsx'
+import { siteConfig as seoConfig } from '../config/siteConfig.js'
 import Button from '../components/Button.jsx'
 import Reviews from '../components/Reviews.jsx'
 import { StatsGrid } from '../components/StatsSection.jsx'
@@ -14,7 +15,7 @@ export default function Portfolio() {
 
   return (
     <div className="space-y-10">
-      <PageHeader title="Portföy" description="Tamamladığımız projelerden seçmeler." />
+      <PageHeader title={seoConfig.seo.pages[seoConfig.routes.portfolio].h1} description="Tamamladığımız projelerden seçmeler." />
 
       <StatsGrid />
 

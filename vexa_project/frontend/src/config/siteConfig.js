@@ -11,6 +11,53 @@
 // !! Replace every PLACEHOLDER with your real information before going live.
 // ─────────────────────────────────────────────────────────────────────────────
 export const siteConfig = {
+  // SEO: used by the server (meta tags, sitemap, structured data) and by the client on page changes.
+  seo: {
+    siteUrl: 'https://vexstar.com.tr',
+    siteName: 'Vexstar',
+    legalName: 'Vexstar Development',
+    locale: 'tr_TR',
+    image: '/og-image.jpg',
+    imageAlt: 'Vexstar: Discord botu ve web sitesi yaptırma',
+    pages: {
+      '/': {
+        title: 'Vexstar | Discord Bot Yaptırma ve Web Sitesi Tasarımı',
+        description: 'Discord botu ve web sitesi yaptırın. Moderasyon, ekonomi, müzik, ticket botları ile kurumsal ve e-ticaret siteleri. Net fiyat, hızlı teslimat, 7/24 destek.',
+        h1: 'Sunucunuz ve markanız için Discord botu ve web sitesi.',
+        changefreq: 'weekly',
+        priority: '1.0',
+      },
+      '/discord-botlari': {
+        title: 'Discord Bot Yaptırma | Moderasyon, Müzik, Ekonomi Botu – Vexstar',
+        description: 'Sunucunuza özel Discord botları: moderasyon, ticket, müzik, ekonomi ve özel komutlar. Hazır paketler, net fiyat, hızlı teslimat ve teslim sonrası ücretsiz hata düzeltme.',
+        h1: 'Discord Bot Yaptırma: Hazır Bot Paketleri',
+        changefreq: 'weekly',
+        priority: '0.9',
+      },
+      '/web-gelistirme': {
+        title: 'Web Sitesi Yaptırma | Kurumsal ve E-Ticaret Web Tasarım – Vexstar',
+        description: 'Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ile e-ticaret web siteleri. Hazır paketler, net fiyat ve profesyonel teslimat.',
+        h1: 'Web Sitesi Yaptırma: Kurumsal ve E-Ticaret Paketleri',
+        changefreq: 'weekly',
+        priority: '0.9',
+      },
+      '/portfoy': {
+        title: 'Projeler ve Referanslar | Discord Bot & Web Siteleri – Vexstar',
+        description: 'Vexstar’ın tamamladığı Discord botu, web sitesi ve sunucu projelerinden seçmeler.',
+        h1: 'Projeler ve Referanslar',
+        changefreq: 'monthly',
+        priority: '0.6',
+      },
+      '/iletisim': {
+        title: 'İletişim ve Destek | Ücretsiz Teklif Al – Vexstar',
+        description: 'Discord botu veya web sitesi için ücretsiz teklif alın, sipariş ve teknik destek taleplerinizi iletin. Taleplere 24 saat içinde dönüş yapılır.',
+        h1: 'İletişim ve Destek',
+        changefreq: 'monthly',
+        priority: '0.7',
+      },
+    },
+  },
+
   brand: {
     name: 'Vexstar Development',
     // Applied as CSS variables at start-up (see src/lib/brand.js) and used by Tailwind (`bg-vx-card`, ...).

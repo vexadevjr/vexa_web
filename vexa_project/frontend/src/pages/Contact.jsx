@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Mail, Clock, MapPin, Check } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
+import { siteConfig as seoConfig } from '../config/siteConfig.js'
 import Field, { inputCls } from '../components/Field.jsx'
 import Button from '../components/Button.jsx'
 import Faq from '../components/Faq.jsx'
@@ -63,7 +64,7 @@ function ContactPage({ topic }) {
 
   return (
     <div className="space-y-10">
-      <PageHeader title="İletişim & Destek" description="Sipariş, teknik destek veya teklif talepleriniz için formu doldurun. Talebiniz bir destek kaydı olarak oluşturulur." />
+      <PageHeader title={seoConfig.seo.pages[seoConfig.routes.contact].h1} description="Sipariş, teknik destek veya teklif talepleriniz için formu doldurun. Talebiniz bir destek kaydı olarak oluşturulur." />
 
       <section className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-6 items-start">
         <div className="p-6 sm:p-8 rounded-2xl bg-vx-card border border-vx-line">
