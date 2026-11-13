@@ -3,6 +3,5 @@ Allow: /
 Disallow: /api/
 Disallow: /hesap
 Disallow: /panel
-Disallow: /admin
 
 Sitemap: https://vexstar.com.tr/sitemap.xml
