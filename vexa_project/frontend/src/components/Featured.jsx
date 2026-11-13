@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Check, Clock } from 'lucide-react'
 import Button from './Button.jsx'
@@ -10,22 +11,25 @@ import { priceLabel, deliveryLabel, productPath } from '../lib/format.js'
 export default function Featured() {
   const products = useProducts()
   const { openOrder } = useApp()
-  const picks = [...products].sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular))).slice(0, 3)
-  if (!picks.length) return null
+  const [tab, setTab] = useState('discord-bot')
+  const picks = products.filter((p) => p.category === tab).sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular))).slice(0, 3)
 
   return (
     <section>
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Öne Çıkan Hizmetler</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Popüler Paketler</h2>
           <p className="mt-1 text-[14px] text-vx-muted">En çok tercih edilenler, net fiyatlarla.</p>
         </div>
-        <Link to={siteConfig.routes.bots} className="hidden sm:inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
-          Tümünü gör <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex items-center gap-2">
+          {[['discord-bot', 'Discord Botları'], ['web', 'Web Siteleri']].map(([id, l]) => (
+            <button key={id} onClick={() => setTab(id)} className={`h-10 px-4 rounded-xl text-[13px] font-semibold border transition-colors ${tab === id ? 'bg-vx-accent border-vx-accent text-white' : 'bg-vx-card border-vx-line text-vx-muted hover:text-white'}`}>{l}</button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-5">
+        {picks.length === 0 && <p className="text-[14px] text-vx-muted">Bu kategoride şu an paket yok.</p>}
         {picks.map((p) => (
           <article key={p.slug} className={`flex flex-col p-6 rounded-2xl bg-vx-card border transition-colors hover:border-vx-accent-text/40 ${p.popular ? 'border-vx-accent/60' : 'border-vx-line'}`}>
             <div className="flex items-center gap-2">
@@ -60,6 +64,11 @@ export default function Featured() {
             </div>
           </article>
         ))}
+      </div>
+          <div className="mt-5 text-center">
+        <Link to={tab === 'web' ? siteConfig.routes.web : siteConfig.routes.bots} className="inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
+          Tüm {tab === 'web' ? 'web paketlerini' : 'botları'} gör <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </section>
   )

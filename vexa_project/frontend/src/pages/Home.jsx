@@ -1,19 +1,23 @@
 import Hero from '../components/Hero.jsx'
-import ServiceCards from '../components/ServiceCards.jsx'
+import Solutions from '../components/Solutions.jsx'
 import Featured from '../components/Featured.jsx'
 import HowItWorks from '../components/HowItWorks.jsx'
+import WhyUs from '../components/WhyUs.jsx'
 import HomeReviews from '../components/HomeReviews.jsx'
-import StatsSection from '../components/StatsSection.jsx'
+import Faq from '../components/Faq.jsx'
+import FinalCta from '../components/FinalCta.jsx'
 
 export default function Home() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <Hero />
-      <ServiceCards />
+      <Solutions />
       <Featured />
       <HowItWorks />
+      <WhyUs />
       <HomeReviews />
-      <StatsSection />
+      <Faq />
+      <FinalCta />
     </div>
   )
 }
