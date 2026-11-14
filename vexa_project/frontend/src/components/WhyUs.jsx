@@ -8,7 +8,8 @@ export default function WhyUs() {
   if (!guarantees.length) return null
   return (
     <section>
-      <h2 className="text-2xl font-bold tracking-tight text-white">Neden Vexstar Development?</h2>
+      <span className="vx-eyebrow">Güvence</span>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Neden Vexstar Development?</h2>
       <p className="mt-1 text-[14px] text-vx-muted">Sipariş vermeden önce bilmeniz gereken taahhütlerimiz.</p>
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {guarantees.map(({ icon, title, text }) => {

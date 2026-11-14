@@ -11,6 +11,7 @@ import WebDev from './pages/WebDev.jsx'
 import Portfolio from './pages/Portfolio.jsx'
 import Contact from './pages/Contact.jsx'
 import Account from './pages/Account.jsx'
+import CookiePolicy from './pages/CookiePolicy.jsx'
 import NotFound from './pages/NotFound.jsx'
 import { useApp } from './context/AppContext.jsx'
 import { useSite } from './context/SiteContext.jsx'
@@ -85,6 +86,7 @@ function PublicApp() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { authOpen, orderProduct, closeOrder } = useApp()
   const { ready } = useSite()
+  const { pathname } = useLocation()
 
   // wait for the real content (or last visit's cache) so the default text never flashes
   if (!ready) return <Splash />
@@ -100,16 +102,19 @@ function PublicApp() {
       <main className="lg:ml-[215px] px-4 sm:px-8 lg:px-12 py-8 space-y-6">
         <Header onMenu={() => setMenuOpen(true)} />
         <Announcement />
+        <div key={pathname} className="vx-rise space-y-6">
         <Routes>
           <Route path={routes.home} element={<Home />} />
           <Route path={routes.bots} element={<DiscordBots />} />
           <Route path={routes.web} element={<WebDev />} />
           <Route path={routes.portfolio} element={<Portfolio />} />
           <Route path={routes.contact} element={<Contact />} />
+          <Route path={routes.cookies} element={<CookiePolicy />} />
           <Route path={routes.panel} element={<Navigate to={routes.orders} replace />} />
           <Route path={`${routes.account}/*`} element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
       </main>
 
       <CookieBanner />

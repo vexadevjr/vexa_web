@@ -48,6 +48,13 @@ export const siteConfig = {
         changefreq: 'monthly',
         priority: '0.6',
       },
+      '/cerez-politikasi': {
+        title: 'Çerez Politikası | Vexstar',
+        description: 'Vexstar web sitesinde kullanılan çerezler, saklama süreleri, amaçları ve tercihlerinizi nasıl yönetebileceğiniz.',
+        h1: 'Çerez Politikası',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
       '/iletisim': {
         title: 'İletişim ve Destek | Ücretsiz Teklif Al – Vexstar',
         description: 'Discord botu veya web sitesi için ücretsiz teklif alın, sipariş ve teknik destek taleplerinizi iletin. Taleplere 24 saat içinde dönüş yapılır.',
@@ -107,6 +114,7 @@ export const siteConfig = {
     tickets: '/hesap/destek',
     settings: '/hesap/ayarlar',
     admin: '/admin',
+    cookies: '/cerez-politikasi',
   },
 
   // In-page anchors on the home page

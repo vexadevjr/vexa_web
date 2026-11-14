@@ -42,8 +42,9 @@ export default function Hero() {
     <section
       id="home"
       className="relative overflow-hidden rounded-3xl border border-vx-line bg-vx-card"
-      style={{ backgroundImage: 'radial-gradient(55% 80% at 90% 30%, rgba(124,58,237,0.22), transparent 70%)' }}
+      style={{ backgroundImage: 'radial-gradient(55% 80% at 90% 30%, rgba(124,58,237,0.26), transparent 70%)' }}
     >
+      <div aria-hidden="true" className="vx-grid pointer-events-none absolute inset-0 opacity-60" />
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 items-center px-8 py-12 sm:px-12 sm:py-14">
         <div>
           <h1 className="text-4xl sm:text-5xl xl:text-[58px] font-extrabold tracking-tight leading-[1.06] text-white">

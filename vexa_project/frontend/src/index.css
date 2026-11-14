@@ -68,3 +68,41 @@ body {
 [class*="text-[14px]"] { font-size: 15.5px !important; }
 [class*="text-[15px]"] { font-size: 16px !important; }
 p, li, dd, blockquote { line-height: 1.65; }
+
+/* ───── 2026 look: ambient light, soft glass cards, rise-in motion ───── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(124, 58, 237, 0.16), transparent 65%),
+    radial-gradient(800px 480px at 100% 105%, rgba(168, 85, 247, 0.10), transparent 60%);
+}
+[class~="bg-vx-card"] {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 18px 40px -26px rgba(0, 0, 0, 0.9);
+}
+article[class~="bg-vx-card"], figure[class~="bg-vx-card"], a[class~="bg-vx-card"] {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s, box-shadow 0.35s;
+}
+article[class~="bg-vx-card"]:hover, figure[class~="bg-vx-card"]:hover {
+  transform: translateY(-4px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 28px 50px -24px rgba(124, 58, 237, 0.45);
+}
+.rounded-2xl { border-radius: 1.375rem; }
+.rounded-3xl { border-radius: 1.875rem; }
+h1, h2, h3 { letter-spacing: -0.025em; text-wrap: balance; }
+aside { background-color: rgba(14, 14, 17, 0.82); backdrop-filter: blur(18px); }
+:focus-visible { outline: 2px solid rgb(var(--vx-accent-text)); outline-offset: 3px; border-radius: 10px; }
+.vx-eyebrow { display: block; margin-bottom: 0.5rem; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(var(--vx-accent-text)); }
+.vx-grid { background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: radial-gradient(ellipse at 70% 30%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse at 70% 30%, #000 0%, transparent 70%); }
+@keyframes vx-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.vx-rise { animation: vx-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.vx-rise > * { animation: vx-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.vx-rise > *:nth-child(2) { animation-delay: 0.06s; }
+.vx-rise > *:nth-child(3) { animation-delay: 0.12s; }
+.vx-rise > *:nth-child(4) { animation-delay: 0.18s; }
+.vx-rise > *:nth-child(n+5) { animation-delay: 0.24s; }
+@media (prefers-reduced-motion: reduce) { .vx-rise, .vx-rise > * { animation: none; } }

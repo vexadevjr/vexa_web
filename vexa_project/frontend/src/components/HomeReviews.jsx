@@ -13,6 +13,7 @@ export default function HomeReviews() {
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
+          <span className="vx-eyebrow">Yorumlar</span>
           <h2 className="text-2xl font-bold tracking-tight text-white">Müşterilerimiz Ne Diyor?</h2>
           <div className="mt-3 flex items-center gap-3">
             <StarBar value={stats.average} className="w-6 h-6" />

@@ -83,9 +83,10 @@ export default function Sidebar({ open, onClose }) {
           <br />
           Tüm hakları saklıdır.
         </div>
-        <button type="button" onClick={openConsentSettings} className="mt-2 text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">
-          Çerez Tercihleri
-        </button>
+        <div className="mt-2 flex flex-col items-start gap-1">
+          <Link to={routes.cookies} onClick={onClose} className="text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">Çerez Politikası</Link>
+          <button type="button" onClick={openConsentSettings} className="text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">Çerez Tercihleri</button>
+        </div>
         <div className="flex items-center gap-5 mt-4 text-vx-muted">
           {socials.map(({ label, Icon, href }) => (
             <a key={label} href={href} {...external} aria-label={label} className="hover:text-white transition-colors">

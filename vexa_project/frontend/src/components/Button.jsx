@@ -7,7 +7,7 @@ const base =
 const variants = {
   // solid indigo with the shared infinite shimmer
   primary:
-    'group relative overflow-hidden text-white bg-vx-accent hover:bg-vx-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40 active:translate-y-0',
+    'group relative overflow-hidden text-white bg-gradient-to-b from-violet-500 to-violet-700 ring-1 ring-inset ring-white/20 shadow-[0_12px_30px_-12px_rgba(124,58,237,0.9)] hover:from-violet-400 hover:to-violet-600 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-12px_rgba(124,58,237,1)] active:translate-y-0',
   secondary: 'group text-white border border-vx-accent/40 hover:bg-vx-card hover:border-vx-accent-text/50 hover:-translate-y-0.5',
   quiet: 'group text-white bg-vx-surface border border-vx-line hover:bg-vx-accent hover:border-vx-accent',
   flat: 'group text-white bg-vx-accent hover:bg-vx-accent-hover',
