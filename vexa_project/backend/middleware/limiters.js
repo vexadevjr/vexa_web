@@ -1,5 +1,6 @@
 'use strict'
 const rateLimit = require('express-rate-limit')
+const { clientIp } = require('../utils/clientIp')
 
 const make = (windowMs, limit, message, extra = {}) =>
   rateLimit({
@@ -7,6 +8,8 @@ const make = (windowMs, limit, message, extra = {}) =>
     limit,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: (req) => clientIp(req), // per real visitor, not per proxy
+    validate: { ip: false, trustProxy: false, xForwardedForHeader: false },
     message: { message },
     ...extra,
   })

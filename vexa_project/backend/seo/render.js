@@ -217,10 +217,15 @@ async function renderPage(template, rawPath) {
       page = { title: 'Sayfa bulunamadı | Vexstar', description: 'Aradığınız sayfa taşınmış veya kaldırılmış olabilir.' }
     }
   }
-  const html = template
-    .replace(/<!--seo:fallback-->[\s\S]*?<!--\/seo:fallback-->/, '')
-    .replace('<!--seo:head-->', head(d, path, page, indexable))
-    .replace('<!--seo:body-->', known ? snapshot(d, path, page) : '')
+  const stripped = template
+    .replace(/<title\b[^>]*data-seo[^>]*>[\s\S]*?<\/title>/gi, '')
+    .replace(/<(?:meta|link)\b[^>]*data-seo[^>]*>/gi, '')
+    .replace(/<script\b[^>]*data-seo[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<link\b[^>]*rel="manifest"[^>]*>/gi, '')
+  const snap = known ? snapshot(d, path, page) : ''
+  const html = stripped
+    .replace('</head>', () => `    ${head(d, path, page, indexable)}\n  </head>`)
+    .replace(/<div id="root">\s*<\/div>/, () => `<div id="root">${snap}</div>`)
   return { status, html }
 }
 

@@ -8,7 +8,7 @@ const { str } = require('../utils/validate')
 const BOT = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|headless|monitor|uptime|curl|wget|python-requests|render\//i
 const recent = new Map() // ip|path -> timestamp (drops accidental double beacons)
 
-const cleanIp = (ip) => String(ip || '').replace(/^::ffff:/, '').slice(0, 64)
+const { clientIp } = require('../utils/clientIp')
 
 router.post('/', limiter, async (req, res) => {
   try {
@@ -17,7 +17,7 @@ router.post('/', limiter, async (req, res) => {
     let path = str(req.body && req.body.path, 200).split('?')[0].split('#')[0]
     if (!path.startsWith('/') || path.startsWith('/admin') || BOT.test(ua)) return res.status(204).end()
 
-    const ip = cleanIp(req.ip)
+    const ip = clientIp(req)
     const key = `${ip}|${path}`
     const now = Date.now()
     if (now - (recent.get(key) || 0) < 20000) return res.status(204).end()

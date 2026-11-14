@@ -25,7 +25,7 @@ router.use((req, res, next) => {
 router.post('/login', limiters.adminLogin, async (req, res, next) => {
   try {
     if (!adminAuth.enabled) return res.status(404).json({ message: 'Not found' })
-    const ip = String(req.ip || '')
+    const ip = require('../utils/clientIp').clientIp(req)
     const result = await adminAuth.checkCredentials(req.body || {}, ip)
     if (result === 'locked') return res.status(429).json({ message: 'Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin.' })
     if (!result) return res.status(401).json({ message: 'Giriş bilgileri hatalı.' }) // same message for every failure
