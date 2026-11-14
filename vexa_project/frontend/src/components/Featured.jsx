@@ -5,7 +5,9 @@ import Button from './Button.jsx'
 import useProducts from '../hooks/useProducts.js'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
-import { priceLabel, deliveryLabel, productPath } from '../lib/format.js'
+import PriceBlock from './PriceBlock.jsx'
+import Gallery from './Gallery.jsx'
+import { deliveryLabel, productPath } from '../lib/format.js'
 
 // Home page shop window: the popular products first, so a visitor sees real prices without clicking around.
 export default function Featured() {
@@ -33,6 +35,7 @@ export default function Featured() {
         {picks.length === 0 && <p className="text-[14px] text-vx-muted">Bu kategoride şu an paket yok.</p>}
         {picks.map((p) => (
           <article key={p.slug} className={`flex flex-col p-6 rounded-2xl bg-vx-card border transition-colors hover:border-vx-accent-text/40 ${p.popular ? 'border-vx-accent/60' : 'border-vx-line'}`}>
+            {(p.images || []).length > 0 && <Gallery images={p.images} alt={p.name} aspect="aspect-[16/9]" className="mb-4" />}
             <div className="flex items-center gap-2">
               <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-medium text-vx-accent-soft">{p.subCategory || 'Hizmet'}</span>
               {p.popular && <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white">Popüler</span>}
@@ -47,12 +50,9 @@ export default function Featured() {
               ))}
             </ul>
             <div className="mt-auto pt-6">
-              <div className="flex items-end justify-between border-t border-vx-line pt-4">
-                <div>
-                  <div className="text-2xl font-black tracking-tight text-white">{priceLabel(p)}</div>
-                  <div className="text-[12px] text-vx-muted">{p.period}</div>
-                </div>
-                <div className="flex items-center gap-1.5 text-[12px] text-vx-muted"><Clock className="w-4 h-4" /> {deliveryLabel(p)}</div>
+              <div className="border-t border-vx-line pt-4">
+                <PriceBlock product={p} />
+                <div className="mt-3 flex items-center gap-1.5 text-[13px] text-vx-muted"><Clock className="w-4 h-4 shrink-0" /> Teslim: <span className="text-zinc-100">{deliveryLabel(p)}</span></div>
               </div>
               <div className="mt-4 flex gap-3">
                 {p.price == null ? (

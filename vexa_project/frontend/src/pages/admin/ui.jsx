@@ -151,3 +151,89 @@ export function useToast() {
 
 // guards a destructive action behind a confirmation
 export const confirmDo = (message) => window.confirm(message)
+
+// ───── photo uploader: resizes in the browser (max 1600px, WebP) and stores the file on the server ─────
+async function shrink(file) {
+  const bmp = await createImageBitmap(file)
+  const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height))
+  const c = document.createElement('canvas')
+  c.width = Math.round(bmp.width * scale)
+  c.height = Math.round(bmp.height * scale)
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
+  let blob = null
+  for (const q of [0.84, 0.72, 0.6, 0.48]) {
+    blob = await new Promise((r) => c.toBlob(r, 'image/webp', q))
+    if (blob && blob.size < 1300000) break
+  }
+  if (!blob) throw new Error('Görsel işlenemedi.')
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader()
+    fr.onload = () => resolve(String(fr.result).split(',')[1])
+    fr.onerror = () => reject(new Error('Dosya okunamadı.'))
+    fr.readAsDataURL(blob)
+  })
+}
+
+export function ImageUploader({ label = 'Fotoğraflar', value = [], onChange, max = 6, upload }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const input = useRef(null)
+
+  async function pick(e) {
+    const files = Array.from(e.target.files || []).slice(0, max - value.length)
+    e.target.value = ''
+    if (!files.length) return
+    setBusy(true)
+    setError('')
+    const added = []
+    try {
+      for (const f of files) {
+        if (!/^image\/(jpeg|png|webp|gif)$/.test(f.type)) throw new Error('Yalnızca JPG, PNG veya WebP seçin.')
+        const data = await shrink(f)
+        const r = await upload(data)
+        added.push(r.url)
+      }
+    } catch (err) {
+      setError(err.message || 'Yükleme başarısız.')
+    } finally {
+      if (added.length) onChange([...value, ...added])
+      setBusy(false)
+    }
+  }
+  const move = (i, d) => {
+    const j = i + d
+    if (j < 0 || j >= value.length) return
+    const next = value.slice()
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
+
+  return (
+    <div>
+      <span className="block mb-1.5 text-[12px] font-medium text-slate-300">{label} <span className="text-slate-500">({value.length}/{max})</span></span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {value.map((src, i) => (
+          <div key={src} className="relative rounded-lg overflow-hidden border border-vx-line bg-vx-surface">
+            <img src={src} alt="" className="w-full aspect-video object-cover" />
+            <div className="absolute inset-x-0 bottom-0 flex justify-between p-1.5 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="flex gap-1">
+                <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className="w-7 h-7 rounded bg-black/60 text-white text-[13px] disabled:opacity-30" aria-label="Sola taşı">←</button>
+                <button type="button" onClick={() => move(i, 1)} disabled={i === value.length - 1} className="w-7 h-7 rounded bg-black/60 text-white text-[13px] disabled:opacity-30" aria-label="Sağa taşı">→</button>
+              </div>
+              <button type="button" onClick={() => onChange(value.filter((_, n) => n !== i))} className="w-7 h-7 rounded bg-rose-600/80 text-white text-[13px]" aria-label="Kaldır">✕</button>
+            </div>
+            {i === 0 && <span className="absolute top-1.5 left-1.5 px-1.5 h-5 inline-flex items-center rounded bg-vx-accent text-[10px] font-semibold text-white">Kapak</span>}
+          </div>
+        ))}
+        {value.length < max && (
+          <button type="button" onClick={() => input.current && input.current.click()} disabled={busy} className="aspect-video rounded-lg border border-dashed border-vx-line text-[12px] text-vx-muted hover:text-white hover:border-vx-accent-text/60 transition-colors disabled:opacity-60">
+            {busy ? 'Yükleniyor…' : '+ Fotoğraf ekle'}
+          </button>
+        )}
+      </div>
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={pick} />
+      {error && <p className="mt-2 text-[12px] text-rose-400">{error}</p>}
+      <p className="mt-1.5 text-[11px] text-slate-500">Fotoğraflar otomatik küçültülür. İlk fotoğraf kapak olur; sıralamayı oklarla değiştirebilirsiniz.</p>
+    </div>
+  )
+}

@@ -360,15 +360,7 @@ export const siteConfig = {
     { q: 'Özel bir bot veya yazılım yaptırabilir miyim?', a: 'Evet. İletişim formundan ihtiyacınızı anlatın, size kapsam ve fiyat teklifi hazırlayalım.' },
   ],
 
-  // SAMPLE portfolio entries: replace with real projects. Remove `sample: true` once real.
-  portfolio: [
-    { id: 'p1', title: 'Topluluk Moderasyon Sistemi', category: 'Discord Bot', client: 'Oyun topluluğu', result: 'Moderatör iş yükünde belirgin azalma', tags: ['Moderasyon', 'Slash komutlar'], sample: true },
-    { id: 'p2', title: 'Kurumsal Tanıtım Sitesi', category: 'Web', client: 'Danışmanlık firması', result: 'Mobil uyumlu yeni site, hızlı yükleme', tags: ['Kurumsal', 'SEO'], sample: true },
-    { id: 'p3', title: 'Online Mağaza Altyapısı', category: 'Web', client: 'Butik giyim markası', result: 'Sipariş yönetimi tek panelde toplandı', tags: ['E-Ticaret', 'Yönetim paneli'], sample: true },
-    { id: 'p4', title: 'Müzik ve Ekonomi Botu', category: 'Discord Bot', client: 'Sosyal topluluk', result: 'Üye etkileşiminde artış', tags: ['Müzik', 'Ekonomi'], sample: true },
-    { id: 'p5', title: 'Oyun Sunucusu Altyapısı', category: 'Sunucu', client: 'Oyun sunucusu', result: 'Yedekleme ve izleme ile kesintisiz çalışma', tags: ['VPS', 'Yedekleme'], sample: true },
-    { id: 'p6', title: 'Sipariş Takip Otomasyonu', category: 'Yazılım', client: 'Lojistik firması', result: 'Manuel veri girişi otomatikleşti', tags: ['Otomasyon', 'API'], sample: true },
-  ],
-  portfolioCategories: ['Discord Bot', 'Web', 'Sunucu', 'Yazılım'],
+  // Real projects are added from the admin panel (/admin -> Portföy).
+  portfolio: [],
 
 }

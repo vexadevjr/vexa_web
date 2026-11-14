@@ -7,7 +7,7 @@ import TrustBadges from './TrustBadges.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
 import { useSite } from '../context/SiteContext.jsx'
-import { formatPrice, deliveryLabel } from '../lib/format.js'
+import { formatPrice, deliveryLabel, discountInfo } from '../lib/format.js'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -81,7 +81,8 @@ export default function OrderModal({ product, onClose }) {
           <div className="text-[12px] text-vx-muted">Tahmini teslim: {deliveryLabel(product)}</div>
         </div>
         <div className="text-right">
-          <div className="text-xl font-black text-white">{formatPrice(product.price)}</div>
+          {discountInfo(product) && <div className="text-[13px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70 decoration-2">{formatPrice(product.oldPrice)}</div>}
+          <div className="text-2xl font-black tabular-nums text-white">{formatPrice(product.price)}</div>
           <div className="text-[12px] text-vx-muted">{product.priceFrom ? 'başlangıç fiyatı' : product.period}</div>
         </div>
       </div>

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LayoutDashboard, Package, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Package, Images, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { AdminContext, Btn, TextField, Card } from './ui.jsx'
 import Dashboard from './Dashboard.jsx'
 import Products from './Products.jsx'
 import Content from './Content.jsx'
+import PortfolioAdmin from './PortfolioAdmin.jsx'
 import Tickets from './Tickets.jsx'
 import { Orders, Reviews, Customers } from './Lists.jsx'
 import logo from '../../assets/vexstar-logo.png'
@@ -12,13 +13,14 @@ import logo from '../../assets/vexstar-logo.png'
 const TABS = [
   { id: 'dashboard', label: 'Genel Bakış', icon: LayoutDashboard },
   { id: 'products', label: 'Ürünler & Fiyatlar', icon: Package },
+  { id: 'portfolio', label: 'Portföy', icon: Images },
   { id: 'content', label: 'Site İçeriği & SSS', icon: FileText },
   { id: 'tickets', label: 'Destek Talepleri', icon: MessageSquare, badge: 'openTickets' },
   { id: 'orders', label: 'Siparişler', icon: ShoppingBag, badge: 'newOrders' },
   { id: 'reviews', label: 'Yorumlar', icon: Star, badge: 'pendingReviews' },
   { id: 'users', label: 'Müşteriler', icon: Users },
 ]
-const SCREENS = { dashboard: Dashboard, products: Products, content: Content, tickets: Tickets, orders: Orders, reviews: Reviews, users: Customers }
+const SCREENS = { dashboard: Dashboard, products: Products, portfolio: PortfolioAdmin, content: Content, tickets: Tickets, orders: Orders, reviews: Reviews, users: Customers }
 
 function Login({ onDone }) {
   const [cfg, setCfg] = useState(null)

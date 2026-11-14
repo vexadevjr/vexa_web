@@ -31,14 +31,6 @@ const SECTIONS = [
     { k: 'q', l: 'Soru', max: 200 },
     { k: 'a', l: 'Cevap', t: 'area', max: 2000 },
   ] },
-  { key: 'portfolio', label: 'Portföy', kind: 'list', blank: { title: '', category: 'Discord Bot', client: '', result: '', tags: [], sample: false }, title: (i) => i.title, fields: [
-    { k: 'title', l: 'Proje adı', max: 120 },
-    { k: 'category', l: 'Kategori', max: 40 },
-    { k: 'client', l: 'Müşteri', max: 120 },
-    { k: 'result', l: 'Sonuç', t: 'area', max: 400 },
-    { k: 'tags', l: 'Etiketler (virgülle)', t: 'tags' },
-    { k: 'sample', l: '“Örnek içerik” etiketi göster', t: 'bool' },
-  ] },
   { key: 'serviceCards', label: 'Ana Sayfa Hizmet Kartları', kind: 'list', blank: { title: '', icon: 'settings', to: '/iletisim', desc: '' }, title: (i) => i.title, fields: [
     { k: 'title', l: 'Başlık', max: 80 },
     { k: 'icon', l: 'Simge', t: 'select', options: SERVICE_ICONS },

@@ -1,12 +1,15 @@
 import { Check, Clock } from 'lucide-react'
 import Button from './Button.jsx'
+import Gallery from './Gallery.jsx'
+import PriceBlock from './PriceBlock.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
-import { priceLabel, deliveryLabel } from '../lib/format.js'
+import { deliveryLabel } from '../lib/format.js'
 
 export default function ProductCard({ product, large = false }) {
   const { openOrder } = useApp()
   const quote = product.price == null
+  const images = product.images || []
 
   return (
     <article
@@ -15,6 +18,8 @@ export default function ProductCard({ product, large = false }) {
         product.popular ? 'border-vx-accent/60' : 'border-vx-line'
       } ${large ? 'p-8' : 'p-6'}`}
     >
+      {images.length > 0 && <Gallery images={images} alt={product.name} aspect="aspect-[16/9]" className="mb-5" />}
+
       <div className="flex items-center gap-2">
         <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-medium text-vx-accent-soft">
           {product.subCategory}
@@ -37,13 +42,10 @@ export default function ProductCard({ product, large = false }) {
       </ul>
 
       <div className="mt-auto pt-6">
-        <div className="flex items-end justify-between gap-3 border-t border-vx-line pt-5">
-          <div>
-            <div className={`font-black tracking-tight text-white ${large ? 'text-3xl' : 'text-2xl'}`}>{priceLabel(product)}</div>
-            <div className="text-[12px] text-vx-muted">{product.period}</div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[12px] text-vx-muted">
-            <Clock className="w-4 h-4" /> {deliveryLabel(product)}
+        <div className="border-t border-vx-line pt-5">
+          <PriceBlock product={product} large={large} />
+          <div className="mt-3 flex items-center gap-1.5 text-[13px] text-vx-muted">
+            <Clock className="w-4 h-4 shrink-0" /> Teslim: <span className="text-zinc-100">{deliveryLabel(product)}</span>
           </div>
         </div>
 

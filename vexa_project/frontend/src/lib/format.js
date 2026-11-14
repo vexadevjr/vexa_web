@@ -12,9 +12,17 @@ export function priceLabel(product) {
   return `${product.priceFrom ? 'Başlangıç ' : ''}${formatPrice(product.price)}`
 }
 
+// free text from the admin ("5-7 iş günü"); older products fall back to their numeric day count
 export function deliveryLabel(product) {
-  if (!product.deliveryDays) return 'Kapsama göre'
-  return `${product.deliveryDays} iş günü`
+  if (product.delivery) return product.delivery
+  if (product.deliveryDays) return `${product.deliveryDays} iş günü`
+  return 'Kapsama göre'
+}
+
+// { old, pct } when the product is on sale (old price must be higher than the current one)
+export function discountInfo(product) {
+  if (product.price == null || !product.oldPrice || product.oldPrice <= product.price) return null
+  return { old: product.oldPrice, pct: Math.round((1 - product.price / product.oldPrice) * 100) }
 }
 
 // accent/case-insensitive text for searching ("muzik" matches "Müzik")

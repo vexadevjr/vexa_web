@@ -52,6 +52,7 @@ export const admin = {
   deleteProduct: (slug) => call('DELETE', `/products/${encodeURIComponent(slug)}`),
   reorderProducts: (category, order) => call('POST', '/products-reorder', { category, order }),
   renameSub: (payload) => call('POST', '/products-rename-sub', payload),
+  uploadMedia: (data) => call('POST', '/media', { data }),
   content: () => call('GET', '/content'),
   saveContent: (key, value) => call('PUT', `/content/${key}`, { value }),
   resetContent: (key) => call('DELETE', `/content/${key}`),

@@ -2,18 +2,20 @@ import { useMemo, useState } from 'react'
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import Modal from '../../components/Modal.jsx'
-import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, useLoad, useToast, confirmDo } from './ui.jsx'
+import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, ImageUploader, useLoad, useToast, confirmDo } from './ui.jsx'
 
 const CATEGORY = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 const catOptions = Object.entries(CATEGORY)
 
-const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', priceFrom: false, period: 'tek seferlik', deliveryDays: '', popular: false, active: true }
+const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
   ...p,
   price: p.price == null ? '' : String(p.price),
-  deliveryDays: p.deliveryDays == null ? '' : String(p.deliveryDays),
+  oldPrice: p.oldPrice == null ? '' : String(p.oldPrice),
+  delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
+  images: p.images || [],
   features: (p.features || []).join('\n'),
   tags: (p.tags || []).join(', '),
 })
@@ -31,11 +33,14 @@ function toPayload(f, creating) {
     price: f.price === '' ? null : Number(f.price),
     priceFrom: f.priceFrom,
     period: f.period,
-    deliveryDays: f.deliveryDays === '' ? null : Number(f.deliveryDays),
+    oldPrice: f.oldPrice === '' ? null : Number(f.oldPrice),
+    delivery: f.delivery,
+    deliveryDays: null,
+    images: f.images,
+    slug: f.slug,
     popular: f.popular,
     active: f.active,
   }
-  if (creating) body.slug = f.slug
   return body
 }
 
@@ -65,20 +70,22 @@ function Editor({ product, subs, onClose, onSaved }) {
     <Modal title={creating ? 'Yeni Ürün / Hizmet' : `Düzenle: ${product.name}`} onClose={onClose} wide>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField label="Ad" value={f.name} onChange={set('name')} max={120} />
-        <TextField label="Kısa ad (slug)" hint={creating ? 'Küçük harf, rakam ve tire. Sonradan değiştirilemez.' : 'Değiştirilemez.'} value={f.slug} onChange={(v) => set('slug')(v.toLowerCase().replace(/[^a-z0-9-]/g, ''))} max={60} disabled={!creating} />
+        <TextField label="Kısa ad (slug)" hint={creating ? 'Küçük harf, rakam ve tire.' : 'Değiştirirseniz ürünün sayfa bağlantısı (#...) değişir.'} value={f.slug} onChange={(v) => set('slug')(v.toLowerCase().replace(/[^a-z0-9-]/g, ''))} max={60} />
         <SelectField label="Ana kategori" value={f.category} onChange={set('category')} options={catOptions} />
         <TextField label="Alt kategori" list="sub-list" value={f.subCategory} onChange={set('subCategory')} max={40} hint="Yeni bir ad yazarak yeni alt kategori oluşturabilirsiniz." />
         <datalist id="sub-list">{subs.map((s) => <option key={s} value={s} />)}</datalist>
         <div className="sm:col-span-2"><TextField label="Kısa açıklama" value={f.tagline} onChange={set('tagline')} max={200} /></div>
         <div className="sm:col-span-2"><AreaField label="Açıklama" value={f.description} onChange={set('description')} rows={3} max={1000} /></div>
-        <TextField label="Fiyat (₺)" type="number" value={f.price} onChange={set('price')} max={10} hint="Boş bırakırsanız “Teklif İste” olarak görünür." />
+        <TextField label="Satış fiyatı (₺)" type="number" value={f.price} onChange={set('price')} max={10} hint="Müşterinin ödeyeceği fiyat. Boş bırakırsanız “Teklif alın” görünür." />
+        <TextField label="Eski fiyat (₺) — indirim için" type="number" value={f.oldPrice} onChange={set('oldPrice')} max={10} hint="Dolu ve satış fiyatından yüksekse üstü çizili görünür, %indirim rozeti eklenir. İndirimi kaldırmak için boşaltın." />
         <TextField label="Dönem etiketi" value={f.period} onChange={set('period')} max={40} placeholder="tek seferlik" />
-        <TextField label="Teslim süresi (iş günü)" type="number" value={f.deliveryDays} onChange={set('deliveryDays')} max={4} />
+        <TextField label="Teslim süresi" value={f.delivery} onChange={set('delivery')} max={60} placeholder="5-7 iş günü" hint="Serbest yazın: “5-7 iş günü”, “24 saat içinde”, “Kapsama göre” ..." />
         <div className="flex flex-col justify-end gap-3 pb-1">
-          <CheckField label="“Başlangıç fiyatı” olarak göster" checked={f.priceFrom} onChange={set('priceFrom')} />
+          <CheckField label="“Başlangıç” etiketi göster (fiyat bu tutardan başlar)" checked={f.priceFrom} onChange={set('priceFrom')} />
           <CheckField label="“En çok tercih edilen” rozeti" checked={f.popular} onChange={set('popular')} />
           <CheckField label="Sitede yayında" checked={f.active} onChange={set('active')} />
         </div>
+        <div className="sm:col-span-2"><ImageUploader label="Örnek fotoğraflar" value={f.images} onChange={set('images')} max={6} upload={admin.uploadMedia} /></div>
         <div className="sm:col-span-2"><AreaField label="Özellikler (her satıra bir özellik)" value={f.features} onChange={set('features')} rows={5} max={3000} /></div>
         <div className="sm:col-span-2"><TextField label="Arama etiketleri (virgülle ayırın)" value={f.tags} onChange={set('tags')} max={300} /></div>
       </div>
@@ -228,6 +235,8 @@ export default function Products() {
                   <td className="py-2.5 pr-3 space-x-1">
                     <button onClick={() => toggle(p)} title="Yayın durumunu değiştir"><Badge tone={p.active ? 'green' : 'gray'}>{p.active ? 'Yayında' : 'Gizli'}</Badge></button>
                     {p.popular && <Badge tone="blue">Popüler</Badge>}
+                    {p.oldPrice > p.price && p.price != null && <Badge tone="red">İndirimli</Badge>}
+                    {(p.images || []).length > 0 && <Badge>📷 {p.images.length}</Badge>}
                   </td>
                   <td className="py-2.5 text-right whitespace-nowrap space-x-2">
                     <Btn variant="ghost" onClick={() => move(p, -1)} aria-label="Yukarı taşı"><ArrowUp className="w-3.5 h-3.5" /></Btn>
