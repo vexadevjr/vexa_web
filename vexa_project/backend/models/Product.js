@@ -12,10 +12,13 @@ const productSchema = new mongoose.Schema(
     features: { type: [String], default: [] },
     tags: { type: [String], default: [] },
     price: { type: Number, default: null, min: 0 }, // null = "teklif al"
+    oldPrice: { type: Number, default: null, min: 0 }, // original price shown struck-through when discounted
     priceFrom: { type: Boolean, default: false },
     currency: { type: String, default: 'TRY' },
     period: { type: String, default: 'tek seferlik' },
-    deliveryDays: { type: Number, default: null, min: 0 },
+    deliveryDays: { type: Number, default: null, min: 0 }, // legacy
+    delivery: { type: String, trim: true, default: '', maxlength: 60 }, // free text, e.g. "5-7 iş günü"
+    images: { type: [String], default: [] }, // /api/media/<id>
     popular: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     sort: { type: Number, default: 0 },

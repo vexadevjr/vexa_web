@@ -75,7 +75,7 @@ function productNode(d, p, pagePath) {
     description: p.description || p.tagline,
     category: p.category === 'web' ? 'Web sitesi hizmeti' : 'Discord bot hizmeti',
     brand: { '@type': 'Brand', name: d.seo.siteName || 'Vexstar' },
-    image: abs(d.seo.image || '/og-image.jpg'),
+    image: abs((p.images && p.images[0]) || d.seo.image || '/og-image.jpg'),
     url: `${SITE}${pagePath}#${p.slug}`,
   }
   if (p.price != null) {

@@ -4,6 +4,7 @@ const { text, url, internalPath, bool, arr } = require('./sanitize')
 
 const ICONS = ['lock', 'shield', 'clock', 'refresh']
 const SERVICE_ICONS = ['discord', 'code', 'server', 'settings']
+const MEDIA_URL = /^\/api\/media\/[a-f0-9]{24}$/
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null)
 
 const validators = {
@@ -16,19 +17,21 @@ const validators = {
     }),
 
   portfolio: (v) =>
-    arr(v, 40, (i, idx) => {
+    arr(v, 60, (i) => {
       const o = obj(i)
       if (!o) return undefined
       const title = text(o.title, 120)
       if (!title) return undefined
+      const link = o.link ? url(o.link) : ''
       return {
         id: text(o.id, 30) || `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
         title,
         category: text(o.category, 40),
         client: text(o.client, 120),
-        result: text(o.result, 400),
+        result: text(o.result, 600, true),
         tags: arr(o.tags, 8, (t) => text(t, 30) || undefined) || [],
-        sample: bool(o.sample),
+        images: arr(o.images, 8, (m) => (typeof m === 'string' && MEDIA_URL.test(m) ? m : undefined)) || [],
+        link: link || '',
       }
     }),
 
@@ -86,4 +89,4 @@ const validators = {
 
 const CONTENT_KEYS = Object.keys(validators)
 
-module.exports = { validators, CONTENT_KEYS }
+module.exports = { validators, CONTENT_KEYS, MEDIA_URL }

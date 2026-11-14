@@ -12,7 +12,8 @@ const requireDb = require('../middleware/requireDb')
 const limiters = require('../middleware/limiters')
 const adminAuth = require('../middleware/adminAuth')
 const { seedCatalogIfNeeded } = require('../services/products')
-const { validators, CONTENT_KEYS } = require('../utils/contentSchema')
+const Media = require('../models/Media')
+const { validators, CONTENT_KEYS, MEDIA_URL } = require('../utils/contentSchema')
 const { text, bool, num, arr } = require('../utils/sanitize')
 const { str } = require('../utils/validate')
 
@@ -191,7 +192,7 @@ function productInput(b, { creating }) {
   const errors = []
   const set = (k, v, bad) => (bad ? errors.push(k) : (out[k] = v))
 
-  if (creating) {
+  if (creating || 'slug' in o) {
     const slug = str(o.slug, 60).toLowerCase()
     set('slug', slug, !/^[a-z0-9-]{2,60}$/.test(slug))
   }
@@ -209,6 +210,13 @@ function productInput(b, { creating }) {
     const n = num(o.price, { min: 0, max: 10000000, nullable: true })
     set('price', n, Number.isNaN(n))
   }
+  if ('oldPrice' in o) {
+    const n = num(o.oldPrice, { min: 0, max: 10000000, nullable: true })
+    set('oldPrice', n, Number.isNaN(n))
+  }
+  if (out.oldPrice != null && out.price != null && out.oldPrice <= out.price) errors.push('oldPrice (eski fiyat, satış fiyatından yüksek olmalı)')
+  if ('delivery' in o) out.delivery = text(o.delivery, 60)
+  if ('images' in o) out.images = arr(o.images, 6, (m) => (typeof m === 'string' && MEDIA_URL.test(m) ? m : undefined)) || []
   if ('priceFrom' in o) out.priceFrom = bool(o.priceFrom)
   if ('period' in o) out.period = text(o.period, 40)
   if ('deliveryDays' in o) {
@@ -253,6 +261,7 @@ router.put('/products/:slug', async (req, res, next) => {
     const slug = str(req.params.slug, 60)
     const { out, errors } = productInput(req.body, { creating: false })
     if (errors.length) return res.status(400).json({ message: `Geçersiz alan: ${errors.join(', ')}` })
+    if (out.slug && out.slug !== slug && (await Product.exists({ slug: out.slug }))) return res.status(409).json({ message: 'Bu kısa ad (slug) başka bir üründe kullanılıyor.' })
     const r = await Product.updateOne({ slug }, { $set: out }, { runValidators: true })
     if (!r.matchedCount) return res.status(404).json({ message: 'Ürün bulunamadı.' })
     res.json({ ok: true })
@@ -300,6 +309,30 @@ router.post('/products-rename-sub', async (req, res, next) => {
     if (!CATEGORIES.includes(category) || !from || !to) return res.status(400).json({ message: 'Geçersiz istek.' })
     const r = await Product.updateMany({ category, subCategory: from }, { $set: { subCategory: to } })
     res.json({ updated: r.modifiedCount })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ───────── photo uploads ─────────
+function sniff(buf) {
+  if (buf.length > 12 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg'
+  if (buf.length > 12 && buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png'
+  if (buf.length > 12 && buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') return 'image/webp'
+  return null
+}
+
+router.post('/media', async (req, res, next) => {
+  try {
+    const raw = req.body && req.body.data
+    if (typeof raw !== 'string' || raw.length < 100 || raw.length > 2200000 || !/^[A-Za-z0-9+/=]+$/.test(raw)) return res.status(400).json({ message: 'Geçersiz görsel.' })
+    const buf = Buffer.from(raw, 'base64')
+    if (buf.length > 1600000) return res.status(400).json({ message: 'Görsel çok büyük (en fazla 1,5 MB).' })
+    const mime = sniff(buf) // type comes from the file's real bytes, never from the client
+    if (!mime) return res.status(400).json({ message: 'Yalnızca JPG, PNG veya WebP yüklenebilir.' })
+    if ((await Media.estimatedDocumentCount()) > 600) return res.status(400).json({ message: 'Görsel depolama sınırına ulaşıldı.' })
+    const doc = await Media.create({ data: buf, mime, size: buf.length })
+    res.status(201).json({ url: `/api/media/${doc._id}` })
   } catch (err) {
     next(err)
   }
