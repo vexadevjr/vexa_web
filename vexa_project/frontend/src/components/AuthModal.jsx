@@ -4,6 +4,8 @@ import Button from './Button.jsx'
 import Field, { inputCls } from './Field.jsx'
 import TrustBadges from './TrustBadges.jsx'
 import { DiscordIcon, GoogleIcon } from './Icons.jsx'
+import { Link } from 'react-router-dom'
+import { siteConfig } from '../config/siteConfig.js'
 import { useApp } from '../context/AppContext.jsx'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -119,6 +121,13 @@ export default function AuthModal() {
           <GoogleIcon className="w-5 h-5" /> Google ile {isRegister ? 'kayıt ol' : 'giriş yap'}
         </a>
       </div>
+      <p className="mt-5 text-center text-[12px] leading-relaxed text-vx-muted">
+        Devam ederek{' '}
+        <Link to={siteConfig.routes.terms} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">Kullanım Şartları</Link>
+        {' '}ve{' '}
+        <Link to={siteConfig.routes.privacy} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">Gizlilik Politikası</Link>
+        ’nı kabul etmiş olursunuz.
+      </p>
     </Modal>
   )
 }

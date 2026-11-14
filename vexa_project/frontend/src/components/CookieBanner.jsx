@@ -79,7 +79,7 @@ export default function CookieBanner() {
         <h2 className="mt-3 text-[17px] font-semibold text-white">Çerez tercihleriniz</h2>
         <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-vx-muted">
           Siteyi çalıştırmak için zorunlu çerezleri, deneyimi hızlandırmak ve ziyaretleri anlamak için isteğe bağlı olanları kullanıyoruz. Ayrıntılar için{' '}
-          <Link to={siteConfig.routes.cookies} className="font-semibold text-vx-accent-text underline underline-offset-2 hover:text-white">Çerez Politikası</Link>’nı inceleyin.
+          <Link to={siteConfig.routes.cookies} className="font-semibold text-vx-accent-text underline underline-offset-2 hover:text-white">Çerez Politikası</Link>’nı ve <Link to={siteConfig.routes.privacy} className="font-semibold text-vx-accent-text underline underline-offset-2 hover:text-white">Gizlilik Politikası</Link>’nı inceleyin.
         </p>
 
         {manage && (

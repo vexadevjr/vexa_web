@@ -1,10 +1,9 @@
-import { Link, NavLink } from 'react-router-dom'
-import { Home, Code2, LayoutGrid, Mail, ChevronRight, Headphones, X } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import { Home, Code2, LayoutGrid, Mail, ChevronRight, X } from 'lucide-react'
 import { DiscordIcon, GithubIcon, YoutubeIcon, XIcon } from './Icons.jsx'
 import vLogo from '../assets/vexstar-logo.png'
 import { siteConfig } from '../config/siteConfig.js'
 import { useSite } from '../context/SiteContext.jsx'
-import { openConsentSettings } from '../lib/consent.js'
 import { external } from '../lib/scroll.js'
 
 const { routes } = siteConfig
@@ -63,29 +62,11 @@ export default function Sidebar({ open, onClose }) {
         ))}
       </nav>
 
-      <div className="h-10" />
-
-      <Link
-        to={routes.contact}
-        onClick={onClose}
-        className="mx-4 flex items-center gap-3 p-4 rounded-xl bg-vx-card border border-vx-line hover:border-vx-accent-text/40 transition-colors"
-      >
-        <Headphones className="w-6 h-6 text-vx-accent-text shrink-0" />
-        <div>
-          <div className="text-[14px] font-semibold leading-tight text-white">7/24 Destek</div>
-          <div className="text-[11px] text-vx-muted mt-0.5">Her zaman yanınızdayız.</div>
-        </div>
-      </Link>
-
       <div className="mt-auto px-6 pb-6">
         <div className="text-[11px] text-vx-muted leading-relaxed">
           © 2026 Vexstar Development
           <br />
           Tüm hakları saklıdır.
-        </div>
-        <div className="mt-2 flex flex-col items-start gap-1">
-          <Link to={routes.cookies} onClick={onClose} className="text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">Çerez Politikası</Link>
-          <button type="button" onClick={openConsentSettings} className="text-[11px] text-vx-muted underline underline-offset-2 hover:text-white transition-colors">Çerez Tercihleri</button>
         </div>
         <div className="flex items-center gap-5 mt-4 text-vx-muted">
           {socials.map(({ label, Icon, href }) => (

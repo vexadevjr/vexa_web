@@ -48,6 +48,20 @@ export const siteConfig = {
         changefreq: 'monthly',
         priority: '0.6',
       },
+      '/gizlilik-politikasi': {
+        title: 'Gizlilik Politikası ve KVKK Aydınlatma Metni | Vexstar',
+        description: 'Vexstar’ın hangi kişisel verileri hangi amaçla işlediği, nasıl koruduğu ve KVKK kapsamındaki haklarınız.',
+        h1: 'Gizlilik Politikası',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
+      '/kullanim-sartlari': {
+        title: 'Kullanım Şartları ve Hizmet Koşulları | Vexstar',
+        description: 'Vexstar Discord botu ve web sitesi hizmetlerinin sipariş, ödeme, teslimat, iptal ve iade koşulları ile kullanım şartları.',
+        h1: 'Kullanım Şartları',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
       '/cerez-politikasi': {
         title: 'Çerez Politikası | Vexstar',
         description: 'Vexstar web sitesinde kullanılan çerezler, saklama süreleri, amaçları ve tercihlerinizi nasıl yönetebileceğiniz.',
@@ -115,6 +129,8 @@ export const siteConfig = {
     settings: '/hesap/ayarlar',
     admin: '/admin',
     cookies: '/cerez-politikasi',
+    privacy: '/gizlilik-politikasi',
+    terms: '/kullanim-sartlari',
   },
 
   // In-page anchors on the home page
