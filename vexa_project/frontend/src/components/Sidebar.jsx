@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { Home, Code2, LayoutGrid, Mail, ChevronRight, X } from 'lucide-react'
 import { DiscordIcon, GithubIcon, YoutubeIcon, XIcon } from './Icons.jsx'
 import vLogo from '../assets/vexstar-logo.png'
