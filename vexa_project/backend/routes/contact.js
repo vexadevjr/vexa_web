@@ -20,6 +20,7 @@ const rules = {
 // what a customer is allowed to see of a ticket
 const view = (t) => ({
   ticketNo: t.ticketNo,
+  orderNo: t.orderNo || '',
   subject: t.subject,
   message: t.message,
   status: t.status,

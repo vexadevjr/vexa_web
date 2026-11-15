@@ -465,8 +465,14 @@ router.get('/orders', async (req, res, next) => {
 router.patch('/orders/:orderNo', async (req, res, next) => {
   try {
     if (!ORDER_STATUS.includes(req.body && req.body.status)) return res.status(400).json({ message: 'Geçersiz durum.' })
-    const r = await Order.updateOne({ orderNo: str(req.params.orderNo, 40) }, { $set: { status: req.body.status } })
-    if (!r.matchedCount) return res.status(404).json({ message: 'Sipariş bulunamadı.' })
+    const order = await Order.findOne({ orderNo: str(req.params.orderNo, 40) })
+    if (!order) return res.status(404).json({ message: 'Sipariş bulunamadı.' })
+    if (order.status !== req.body.status) {
+      order.status = req.body.status
+      order.history.push({ status: req.body.status })
+      if (req.body.status === 'iptal' && !order.cancelledBy) order.cancelledBy = 'admin'
+      await order.save()
+    }
     res.json({ ok: true })
   } catch (err) {
     next(err)

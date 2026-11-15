@@ -16,7 +16,7 @@ const make = (windowMs, limit, message, extra = {}) =>
 
 module.exports = {
   // every /api request
-  api: make(15 * 60 * 1000, 300, 'Çok fazla istek gönderdiniz. Lütfen biraz sonra tekrar deneyin.'),
+  api: make(15 * 60 * 1000, 300, 'Çok fazla istek gönderdiniz. Lütfen biraz sonra tekrar deneyin.', { skip: (req) => req.originalUrl.startsWith('/api/media/') }),
   // login / register: brute-force protection
   auth: make(15 * 60 * 1000, 20, 'Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.'),
   // orders + contact + reviews: spam protection

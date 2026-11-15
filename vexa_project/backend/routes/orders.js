@@ -5,7 +5,7 @@ const requireDb = require('../middleware/requireDb')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
 const { form: formLimiter } = require('../middleware/limiters')
 const { findProductBySlug } = require('../services/products')
-const { validate, fail } = require('../utils/validate')
+const { validate, fail, str } = require('../utils/validate')
 const { makeNo } = require('../utils/ids')
 
 const rules = {
@@ -38,6 +38,8 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
       currency: product.currency || 'TRY',
       customer: { name: value.name, email: value.email, discord: value.discord || '' },
       note: value.note || '',
+      delivery: product.delivery || (product.deliveryDays ? `${product.deliveryDays} iş günü` : ''),
+      history: [{ status: 'yeni' }],
     })
 
     res.status(201).json({
@@ -60,9 +62,38 @@ router.get('/mine', requireDb, requireAuth, async (req, res, next) => {
     const orders = await Order.find({ user: req.auth.sub })
       .sort({ createdAt: -1 })
       .limit(50)
-      .select('orderNo productName price currency status createdAt -_id')
+      .select('orderNo productSlug productName price currency status note delivery history cancelReason cancelledBy createdAt updatedAt -_id')
       .lean()
     res.json({ orders })
+  } catch (err) {
+    next(err)
+  }
+})
+
+const CANCELLABLE = ['yeni', 'onaylandi']
+
+// The customer cancels their own order while work has not started yet.
+router.post('/:orderNo/cancel', requireDb, formLimiter, requireAuth, async (req, res, next) => {
+  try {
+    const orderNo = str(req.params.orderNo, 40).toUpperCase()
+    const order = await Order.findOne({ orderNo, user: req.auth.sub })
+    if (!order) return res.status(404).json({ message: 'Sipariş bulunamadı.' })
+    if (order.status === 'iptal') return res.status(400).json({ message: 'Bu sipariş zaten iptal edilmiş.' })
+    if (!CANCELLABLE.includes(order.status)) {
+      return res.status(400).json({ message: 'Çalışma başladığı veya sipariş teslim edildiği için iptal için lütfen destek talebi oluşturun.' })
+    }
+    order.status = 'iptal'
+    order.cancelledBy = 'customer'
+    order.cancelReason = str(req.body && req.body.reason, 300, true)
+    order.history.push({ status: 'iptal' })
+    await order.save()
+    res.json({
+      order: {
+        orderNo: order.orderNo, productSlug: order.productSlug, productName: order.productName, price: order.price, currency: order.currency,
+        status: order.status, note: order.note, delivery: order.delivery, history: order.history, cancelReason: order.cancelReason,
+        cancelledBy: order.cancelledBy, createdAt: order.createdAt, updatedAt: order.updatedAt,
+      },
+    })
   } catch (err) {
     next(err)
   }

@@ -15,6 +15,10 @@ const orderSchema = new mongoose.Schema(
       discord: { type: String, default: '', maxlength: 40 },
     },
     note: { type: String, default: '', maxlength: 1000 },
+    delivery: { type: String, default: '', maxlength: 60 }, // delivery estimate at the time of ordering
+    history: { type: [new mongoose.Schema({ status: String, at: { type: Date, default: Date.now } }, { _id: false })], default: [] },
+    cancelReason: { type: String, default: '', maxlength: 300 },
+    cancelledBy: { type: String, enum: ['customer', 'admin', ''], default: '' },
     status: { type: String, enum: ['yeni', 'onaylandi', 'hazirlaniyor', 'teslim-edildi', 'iptal'], default: 'yeni' },
   },
   { timestamps: true }
