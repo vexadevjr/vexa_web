@@ -115,7 +115,7 @@ export default function Reviews() {
   return (
     <section id="yorumlar">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-white">Müşteri Yorumları</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Müşteri Yorumları</h2>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-3 text-[13px] text-vx-muted">
             <StarBar value={stats.average} className="w-5 h-5" />

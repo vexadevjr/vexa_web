@@ -9,7 +9,8 @@ export default function Faq() {
 
   return (
     <section>
-      <h2 className="text-2xl font-bold tracking-tight text-white">Sık Sorulan Sorular</h2>
+      <span className="vx-eyebrow">Destek</span>
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Sık Sorulan Sorular</h2>
       <div className="mt-5 rounded-2xl bg-vx-card border border-vx-line divide-y divide-vx-line">
         {faq.map((item, i) => {
           const isOpen = open === i

@@ -51,7 +51,7 @@ export default function Sidebar({ open, onClose }) {
             onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 h-12 px-4 rounded-xl text-[14px] font-medium transition-colors ${
-                isActive ? 'bg-vx-accent text-white' : 'text-vx-muted hover:text-white hover:bg-vx-card'
+                isActive ? 'bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.9)]' : 'text-vx-muted hover:text-white hover:bg-vx-card hover:translate-x-0.5'
               }`
             }
           >

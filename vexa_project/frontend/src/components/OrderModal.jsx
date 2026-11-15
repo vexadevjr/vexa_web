@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Check, Package } from 'lucide-react'
 import Modal from './Modal.jsx'
 import Button from './Button.jsx'
 import Field, { inputCls } from './Field.jsx'
@@ -13,6 +14,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export default function OrderModal({ product, onClose }) {
   const { user } = useApp()
+  const navigate = useNavigate()
   const siteConfig = useSite()
   const [form, setForm] = useState({ name: user ? user.name : '', email: user ? user.email : '', discord: '', note: '' })
   const [errors, setErrors] = useState({})
@@ -59,7 +61,19 @@ export default function OrderModal({ product, onClose }) {
           {done.productName} siparişiniz bize ulaştı. En geç 24 saat içinde {form.email} adresinden sizinle iletişime geçeceğiz.
           Ödeme bu aşamada alınmadı; talebiniz onaylandıktan sonra ödeme bilgileri iletilir.
         </p>
+        {!user && <p className="mt-3 text-[13px] text-vx-muted">Siparişlerinizi hesabınızdan adım adım takip etmek için bir sonraki siparişte giriş yaparak devam edin.</p>}
         <div className="mt-6 flex flex-wrap gap-3">
+          {user && (
+            <Button
+              size="sm"
+              onClick={() => {
+                onClose()
+                navigate(siteConfig.routes.orders)
+              }}
+            >
+              <Package className="w-4 h-4" /> Siparişlerime git
+            </Button>
+          )}
           {siteConfig.links.payment && (
             <Button size="sm" href={siteConfig.links.payment} external>
               Ödeme bilgileri

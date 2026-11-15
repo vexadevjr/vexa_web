@@ -4,7 +4,8 @@ export default function HowItWorks() {
   const { steps } = useSite()
   return (
     <section className="p-8 rounded-2xl bg-vx-card border border-vx-line">
-      <h2 className="text-2xl font-bold tracking-tight text-white">Nasıl Çalışır?</h2>
+      <span className="vx-eyebrow">Süreç</span>
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Nasıl Çalışır?</h2>
       <p className="mt-2 text-[14px] text-vx-muted">Talepten teslime dört net adım.</p>
 
       <ol className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">

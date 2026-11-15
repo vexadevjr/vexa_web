@@ -21,7 +21,7 @@ export default function Featured() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <span className="vx-eyebrow">Paketler</span>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Popüler Paketler</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Popüler Paketler</h2>
           <p className="mt-1 text-[14px] text-vx-muted">En çok tercih edilenler, net fiyatlarla.</p>
         </div>
         <div className="flex items-center gap-2">

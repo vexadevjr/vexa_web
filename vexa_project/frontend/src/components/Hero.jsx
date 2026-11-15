@@ -22,7 +22,7 @@ function BrandVisual() {
       <div className="absolute inset-[18%] rounded-full bg-vx-accent/30 blur-3xl" />
       <img src={vLogo} alt="" aria-hidden="true" className="absolute inset-[14%] w-[72%] h-[72%] object-contain drop-shadow-[0_0_40px_rgba(124,58,237,0.5)]" />
       {floaters.map(({ icon: Icon, title, sub, pos }) => (
-        <div key={title} className={`absolute ${pos} flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-2xl bg-vx-surface/85 backdrop-blur border border-vx-line shadow-xl shadow-black/40`}>
+        <div key={title} style={{ animationDelay: `${floaters.findIndex((f) => f.title === title) * 0.9}s` }} className={`vx-float absolute ${pos} flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-2xl bg-vx-surface/85 backdrop-blur border border-vx-line shadow-xl shadow-black/40`}>
           <span className="grid place-items-center w-9 h-9 rounded-xl bg-vx-accent/25 text-vx-accent-soft"><Icon className="w-[18px] h-[18px]" /></span>
           <span>
             <span className="block text-[13px] font-semibold text-white leading-tight">{title}</span>

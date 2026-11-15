@@ -124,3 +124,14 @@ img, svg, video { max-width: 100%; }
   h1 { overflow-wrap: anywhere; }
 }
 aside { overscroll-behavior: contain; }
+
+/* ───── polish: reveal-on-scroll, floating cards, richer hover, selection ───── */
+.vx-reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
+.vx-reveal.is-in { opacity: 1; transform: none; will-change: auto; }
+@keyframes vx-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.vx-float { animation: vx-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .vx-float { animation: none; } .vx-reveal { opacity: 1; transform: none; transition: none; } }
+a, button { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: 0.2s; }
+[class~="bg-vx-card"]:is(article, figure, section):hover { border-color: rgba(167, 139, 250, 0.35); }
+::placeholder { color: rgb(var(--vx-muted) / 0.7); }
+input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-text)) !important; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25); outline: none; }

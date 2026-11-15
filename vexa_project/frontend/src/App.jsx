@@ -22,6 +22,7 @@ import { api } from './lib/api.js'
 import { hasConsent } from './lib/consent.js'
 import CookieBanner from './components/CookieBanner.jsx'
 import Seo from './components/Seo.jsx'
+import ScrollUi from './components/ScrollUi.jsx'
 import vLogo from './assets/vexstar-logo.png'
 
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'))
@@ -104,6 +105,7 @@ function PublicApp() {
   return (
     <div className="min-h-screen text-white">
       <Seo />
+      <ScrollUi />
       <ScrollManager />
       <VisitTracker />
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
