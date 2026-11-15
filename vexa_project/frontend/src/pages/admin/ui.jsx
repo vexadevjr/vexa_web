@@ -160,9 +160,12 @@ async function shrink(file) {
   c.width = Math.round(bmp.width * scale)
   c.height = Math.round(bmp.height * scale)
   c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
+  const toBlob = (type, q) => new Promise((r) => c.toBlob(r, type, q))
+  const probe = await toBlob('image/webp', 0.8)
+  const type = probe && probe.type === 'image/webp' ? 'image/webp' : 'image/jpeg' // older Safari cannot encode WebP
   let blob = null
-  for (const q of [0.84, 0.72, 0.6, 0.48]) {
-    blob = await new Promise((r) => c.toBlob(r, 'image/webp', q))
+  for (const q of [0.84, 0.72, 0.6, 0.48, 0.38]) {
+    blob = await toBlob(type, q)
     if (blob && blob.size < 1300000) break
   }
   if (!blob) throw new Error('Görsel işlenemedi.')

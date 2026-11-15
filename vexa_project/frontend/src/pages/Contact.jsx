@@ -19,18 +19,19 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 export default function Contact() {
   const [params] = useSearchParams()
   const topic = (params.get('konu') || '').slice(0, 80)
-  return <ContactPage key={topic} topic={topic} />
+  const order = (params.get('siparis') || '').slice(0, 30)
+  return <ContactPage key={`${topic}|${order}`} topic={topic} order={order} />
 }
 
-function ContactPage({ topic }) {
+function ContactPage({ topic, order }) {
   const { user } = useApp()
   const siteConfig = useSite()
 
   const [form, setForm] = useState({
     name: user ? user.name : '',
     email: user ? user.email : '',
-    subject: topic ? 'Fiyat Teklifi' : SUBJECTS[0],
-    orderNo: '',
+    subject: order ? 'Sipariş Hakkında' : topic ? 'Fiyat Teklifi' : SUBJECTS[0],
+    orderNo: order || '',
     message: topic ? `${topic} hakkında teklif almak istiyorum.` : '',
   })
   const [errors, setErrors] = useState({})

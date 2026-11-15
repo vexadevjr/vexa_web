@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 function Lightbox({ images, start, alt, onClose }) {
@@ -13,7 +14,7 @@ function Lightbox({ images, start, alt, onClose }) {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [go, onClose])
-  return (
+  return createPortal(
     <div role="dialog" aria-label="Fotoğraf görüntüleyici" className="fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <button aria-label="Kapat" className="absolute top-4 right-4 w-11 h-11 grid place-items-center rounded-full bg-white/10 hover:bg-white/20 text-white" onClick={onClose}><X className="w-5 h-5" /></button>
       {images.length > 1 && (
@@ -24,7 +25,8 @@ function Lightbox({ images, start, alt, onClose }) {
       )}
       <img src={images[i]} alt={`${alt} ${i + 1}`} className="max-h-[88vh] max-w-[92vw] rounded-xl object-contain" onClick={(e) => e.stopPropagation()} />
       {images.length > 1 && <div className="absolute bottom-5 text-[13px] text-white/80">{i + 1} / {images.length}</div>}
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -33,7 +35,9 @@ export default function Gallery({ images = [], alt = 'Proje görseli', aspect = 
   const track = useRef(null)
   const [index, setIndex] = useState(0)
   const [view, setView] = useState(-1)
-  if (!images.length) return null
+  const [broken, setBroken] = useState({})
+  const shown = images.filter((src) => !broken[src])
+  if (!shown.length) return null
 
   const onScroll = () => {
     const el = track.current
@@ -47,22 +51,22 @@ export default function Gallery({ images = [], alt = 'Proje görseli', aspect = 
   return (
     <div className={`group relative overflow-hidden rounded-xl bg-vx-surface ${className}`}>
       <div ref={track} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {images.map((src, n) => (
+        {shown.map((src, n) => (
           <button key={src} type="button" onClick={() => setView(n)} aria-label={`${alt} ${n + 1} büyüt`} className={`relative shrink-0 w-full snap-center ${aspect} cursor-zoom-in`}>
-            <img src={src} alt={`${alt} ${n + 1}`} loading="lazy" decoding="async" draggable="false" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={src} alt={`${alt} ${n + 1}`} loading="lazy" decoding="async" draggable="false" onError={() => setBroken((b) => ({ ...b, [src]: true }))} className="absolute inset-0 w-full h-full object-cover" />
           </button>
         ))}
       </div>
-      {images.length > 1 && (
+      {shown.length > 1 && (
         <>
           <button type="button" aria-label="Önceki fotoğraf" onClick={() => move(-1)} className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-full bg-black/55 hover:bg-black/80 text-white opacity-90 md:opacity-0 md:group-hover:opacity-100 transition-opacity"><ChevronLeft className="w-5 h-5" /></button>
           <button type="button" aria-label="Sonraki fotoğraf" onClick={() => move(1)} className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-full bg-black/55 hover:bg-black/80 text-white opacity-90 md:opacity-0 md:group-hover:opacity-100 transition-opacity"><ChevronRight className="w-5 h-5" /></button>
           <div className="absolute bottom-2.5 inset-x-0 flex justify-center gap-1.5 pointer-events-none">
-            {images.map((_, n) => <i key={n} className={`h-1.5 rounded-full transition-all ${n === index ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}`} />)}
+            {shown.map((_, n) => <i key={n} className={`h-1.5 rounded-full transition-all ${n === index ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}`} />)}
           </div>
         </>
       )}
-      {view >= 0 && <Lightbox images={images} start={view} alt={alt} onClose={() => setView(-1)} />}
+      {view >= 0 && <Lightbox images={shown} start={view} alt={alt} onClose={() => setView(-1)} />}
     </div>
   )
 }

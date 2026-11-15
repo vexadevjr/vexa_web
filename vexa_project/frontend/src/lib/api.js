@@ -66,6 +66,7 @@ export const api = {
   deleteAccount: (payload) => request('/auth/account/delete', { method: 'POST', body: payload }),
   createOrder: (payload) => request('/orders', { method: 'POST', body: payload }),
   myOrders: () => request('/orders/mine'),
+  cancelOrder: (orderNo, reason) => request(`/orders/${encodeURIComponent(orderNo)}/cancel`, { method: 'POST', body: { reason } }),
   contact: (payload) => request('/contact', { method: 'POST', body: payload }),
   myTickets: () => request('/contact/mine'),
   lookupTicket: (payload) => request('/contact/lookup', { method: 'POST', body: payload }),

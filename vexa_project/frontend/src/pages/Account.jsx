@@ -5,7 +5,8 @@ import Avatar from '../components/Avatar.jsx'
 import Button from '../components/Button.jsx'
 import Field, { inputCls } from '../components/Field.jsx'
 import Modal from '../components/Modal.jsx'
-import TicketThread, { statusLabel } from '../components/TicketThread.jsx'
+import OrdersTab from '../components/account/OrdersTab.jsx'
+import TicketsTab from '../components/account/TicketsTab.jsx'
 import { DiscordIcon, GoogleIcon } from '../components/Icons.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
@@ -21,138 +22,6 @@ const TABS = [
 ]
 
 const card = 'rounded-2xl bg-vx-card border border-vx-line'
-const STEPS = [
-  ['yeni', 'Alındı'],
-  ['onaylandi', 'Onaylandı'],
-  ['hazirlaniyor', 'Hazırlanıyor'],
-  ['teslim-edildi', 'Teslim edildi'],
-]
-
-function Orders() {
-  const [orders, setOrders] = useState(null)
-  const [error, setError] = useState('')
-  useEffect(() => {
-    let alive = true
-    api.myOrders().then((d) => alive && setOrders(d.orders)).catch((e) => alive && setError(e.message))
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  if (error) return <p className="text-[13px] text-rose-400">{error}</p>
-  if (!orders) return <p className="text-[13px] text-vx-muted">Yükleniyor…</p>
-  if (!orders.length) {
-    return (
-      <div className={`${card} p-8 text-center`}>
-        <Package className="w-10 h-10 mx-auto text-vx-accent-text" strokeWidth={1.5} />
-        <p className="mt-3 text-[15px] font-semibold text-white">Henüz siparişiniz yok</p>
-        <p className="mt-1 text-[13px] text-vx-muted">Bir hizmet seçtiğinizde siparişinizin her aşamasını buradan takip edebilirsiniz.</p>
-        <Button size="sm" to={routes.bots} className="mt-5">Botlara göz at</Button>
-      </div>
-    )
-  }
-
-  return (
-    <ul className="space-y-4">
-      {orders.map((o) => {
-        const idx = STEPS.findIndex(([k]) => k === o.status)
-        const cancelled = o.status === 'iptal'
-        return (
-          <li key={o.orderNo} className={`${card} p-5`}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="text-[16px] font-semibold text-white">{o.productName}</div>
-                <div className="text-[12px] text-vx-muted mt-0.5">Sipariş no: {o.orderNo} · {dateLabel(o.createdAt)}</div>
-              </div>
-              <div className="text-[18px] font-black text-white">{formatPrice(o.price)}</div>
-            </div>
-            {cancelled ? (
-              <div className="mt-4 inline-flex items-center gap-2 px-3 h-8 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[12px] text-rose-300"><X className="w-4 h-4" /> Sipariş iptal edildi</div>
-            ) : (
-              <ol className="mt-5 grid grid-cols-4 gap-2">
-                {STEPS.map(([k, label], i) => (
-                  <li key={k} className="text-center">
-                    <div className={`h-1.5 rounded-full ${i <= idx ? 'bg-vx-accent' : 'bg-vx-line'}`} />
-                    <div className={`mt-2 text-[11px] sm:text-[12px] ${i === idx ? 'font-semibold text-white' : i < idx ? 'text-vx-accent-soft' : 'text-zinc-400'}`}>{label}</div>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-function Tickets() {
-  const [tickets, setTickets] = useState(null)
-  const [sel, setSel] = useState('')
-  useEffect(() => {
-    let alive = true
-    api.myTickets().then((d) => alive && setTickets(d.tickets)).catch(() => alive && setTickets([]))
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  function open(t) {
-    setSel(t.ticketNo)
-    if (t.unread) {
-      api.readTicket(t.ticketNo).catch(() => {})
-      setTickets((l) => l.map((x) => (x.ticketNo === t.ticketNo ? { ...x, unread: false } : x)))
-    }
-  }
-  async function reply(ticketNo, text) {
-    const d = await api.replyTicket({ ticketNo, text })
-    setTickets((l) => l.map((x) => (x.ticketNo === ticketNo ? d.ticket : x)))
-  }
-
-  if (!tickets) return <p className="text-[13px] text-vx-muted">Yükleniyor…</p>
-  if (!tickets.length) {
-    return (
-      <div className={`${card} p-8 text-center`}>
-        <LifeBuoy className="w-10 h-10 mx-auto text-vx-accent-text" strokeWidth={1.5} />
-        <p className="mt-3 text-[15px] font-semibold text-white">Henüz destek talebiniz yok</p>
-        <p className="mt-1 text-[13px] text-vx-muted">Sorularınız için bir talep oluşturun; yanıtları burada görürsünüz.</p>
-        <Button size="sm" to={routes.contact} className="mt-5">Yeni Talep Oluştur</Button>
-      </div>
-    )
-  }
-  const current = tickets.find((t) => t.ticketNo === sel)
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] gap-5 items-start">
-      <div className={`${card} overflow-hidden`}>
-        <div className="flex items-center justify-between px-4 py-3 border-b border-vx-line">
-          <span className="text-[13px] font-semibold text-white">Taleplerim ({tickets.length})</span>
-          <Link to={routes.contact} className="inline-flex items-center gap-1 text-[12px] text-vx-accent-soft hover:text-white"><Plus className="w-3.5 h-3.5" /> Yeni</Link>
-        </div>
-        <ul className="divide-y divide-vx-line max-h-[520px] overflow-y-auto">
-          {tickets.map((t) => (
-            <li key={t.ticketNo}>
-              <button onClick={() => open(t)} className={`w-full text-left px-4 py-3 transition-colors ${sel === t.ticketNo ? 'bg-vx-surface' : 'hover:bg-vx-surface/60'}`}>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-semibold text-white truncate flex items-center gap-2">
-                    {t.unread && <i className="w-2 h-2 rounded-full bg-rose-500 shrink-0" aria-label="Yeni yanıt" />}
-                    {t.subject}
-                  </span>
-                  <span className="text-[11px] text-vx-accent-soft shrink-0">{statusLabel(t.status)}</span>
-                </div>
-                <div className="mt-1 text-[12px] text-zinc-300 truncate">{t.replies.length ? t.replies[t.replies.length - 1].text : t.message}</div>
-                <div className="mt-0.5 text-[11px] text-zinc-400">{t.ticketNo} · {dateLabel(t.updatedAt)}</div>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className={`${card} p-5`}>
-        {current ? <TicketThread key={current.ticketNo} ticket={current} onReply={(text) => reply(current.ticketNo, text)} /> : <p className="py-10 text-center text-[13px] text-vx-muted">Görüntülemek için soldan bir talep seçin.</p>}
-      </div>
-    </div>
-  )
-}
-
 function Notice({ ok, children }) {
   return <p role={ok ? 'status' : 'alert'} className={`text-[13px] ${ok ? 'text-emerald-400' : 'text-rose-400'}`}>{children}</p>
 }
@@ -291,7 +160,7 @@ export default function Account() {
     )
   }
 
-  const Screen = pathname.startsWith(routes.tickets) ? Tickets : pathname.startsWith(routes.settings) ? SettingsTab : Orders
+  const Screen = pathname.startsWith(routes.tickets) ? TicketsTab : pathname.startsWith(routes.settings) ? SettingsTab : OrdersTab
   const title = TABS.find((t) => pathname.startsWith(t.to))?.label || TABS[0].label
 
   return (

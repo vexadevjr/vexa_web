@@ -55,6 +55,7 @@ export function Orders() {
                 <td className="py-3 pr-3 text-zinc-100">
                   {o.customer.name}
                   <div className="text-[11px] text-vx-muted break-all">{o.customer.email}{o.customer.discord ? ` · Discord: ${o.customer.discord}` : ''}</div>
+                  {o.status === 'iptal' && <div className="mt-1 text-[12px] text-rose-300">İptal ({o.cancelledBy === 'customer' ? 'müşteri' : 'yönetici'}){o.cancelReason ? `: ${o.cancelReason}` : ''}</div>}
                   {o.note && <div className="mt-1 text-[12px] text-zinc-300 max-w-[280px] whitespace-pre-wrap">“{o.note}”</div>}
                 </td>
                 <td className="py-3 pr-3 font-bold text-white whitespace-nowrap">{formatPrice(o.price)}</td>
