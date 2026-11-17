@@ -21,7 +21,8 @@ const rules = {
 router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) => {
   try {
     const { value, errors, ok } = validate(rules, req.body)
-    if (!ok) return fail(res, errors)
+    if (req.body && req.body.legalAccepted !== true) errors.legal = 'Devam etmek için Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu’nu onaylamanız gerekir.'
+    if (!ok || errors.legal) return fail(res, errors)
 
     const product = await findProductBySlug(value.productSlug)
     if (!product) return res.status(404).json({ message: 'Seçilen ürün bulunamadı.' })
@@ -40,6 +41,8 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
       note: value.note || '',
       delivery: product.delivery || (product.deliveryDays ? `${product.deliveryDays} iş günü` : ''),
       history: [{ status: 'yeni' }],
+      legalAcceptedAt: new Date(),
+      legalVersion: '2026-11-14',
     })
 
     res.status(201).json({

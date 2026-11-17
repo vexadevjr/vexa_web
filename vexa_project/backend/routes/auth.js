@@ -40,13 +40,14 @@ const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', config.bcryptRounds)
 router.post('/register', requireDb, authLimiter, async (req, res, next) => {
   try {
     const { value, errors, ok } = validate(registerRules, req.body)
-    if (!ok) return fail(res, errors)
+    if (req.body && req.body.acceptTerms !== true) errors.acceptTerms = 'Devam etmek için Kullanım Şartları ve Gizlilik Politikası’nı kabul etmelisiniz.'
+    if (!ok || errors.acceptTerms) return fail(res, errors)
 
     if (await User.exists({ email: value.email })) {
       return res.status(409).json({ message: 'Bu e-posta adresi ile zaten bir hesap var.' })
     }
     const passwordHash = await bcrypt.hash(value.password, config.bcryptRounds)
-    const user = await User.create({ name: value.name, email: value.email, passwordHash, emailVerified: false })
+    const user = await User.create({ name: value.name, email: value.email, passwordHash, emailVerified: false, termsAcceptedAt: new Date(), termsVersion: '2026-11-14' })
     res.status(201).json({ token: sign(user), user: publicUser(user) })
   } catch (err) {
     if (err && err.code === 11000) return res.status(409).json({ message: 'Bu e-posta adresi ile zaten bir hesap var.' })
@@ -181,7 +182,7 @@ router.get('/:provider(google|discord)/callback', authLimiter, async (req, res) 
         if (!user.emailVerified && user.passwordHash) await User.updateOne({ _id: user._id }, { $set: update, $unset: { passwordHash: 1 } })
         else await User.updateOne({ _id: user._id }, { $set: update })
       } else {
-        user = await User.create({ name: displayName, email, emailVerified: true, [p.idField]: String(profile.id) })
+        user = await User.create({ name: displayName, email, emailVerified: true, termsAcceptedAt: new Date(), termsVersion: '2026-11-14', [p.idField]: String(profile.id) })
       }
     }
 

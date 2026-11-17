@@ -47,6 +47,22 @@ async function getData() {
 const priceText = (p) => (p.price == null ? 'Teklif alın' : `${p.priceFrom ? 'Başlangıç ' : ''}${Number(p.price).toLocaleString('tr-TR')} ₺`)
 const productsOf = (d, cat) => d.products.filter((p) => p.category === cat)
 
+// ---- product pages: /urunler/<slug> ----
+const LABEL = { 'discord-bot': 'Discord Botu', web: 'Web Sitesi', server: 'Sunucu', software: 'Yazılım' }
+function productPage(d, p) {
+  const base = trim(`${p.tagline || ''} ${p.description || ''}`.trim(), 160)
+  return {
+    product: p,
+    title: p.metaTitle || trim(`${p.name} | ${LABEL[p.category] || 'Hizmet'} Paketi – Vexstar`, 70),
+    description: p.metaDescription || base || `${p.name} hizmeti: net fiyat ve hızlı teslimat.`,
+    h1: p.name,
+    image: p.images && p.images[0],
+    changefreq: 'weekly',
+    priority: '0.8',
+  }
+}
+const listPath = (p) => (p.category === 'web' ? '/web-gelistirme' : '/discord-botlari')
+
 // ---- structured data ----
 function organization(d) {
   const sameAs = ['discord', 'github', 'youtube', 'x'].map((k) => d.links[k]).filter((u) => u && /^https:\/\//.test(u) && new URL(u).pathname.length > 1)
@@ -113,15 +129,29 @@ function graph(d, path, page) {
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: d.seo.siteName || 'Vexstar', alternateName: d.seo.legalName, inLanguage: 'tr-TR', publisher: { '@id': `${SITE}/#organization` } },
     { '@type': path === '/iletisim' ? 'ContactPage' : 'WebPage', '@id': `${SITE}${path === '/' ? '/' : path}#webpage`, url: `${SITE}${path === '/' ? '/' : path}`, name: page.title, description: page.description, inLanguage: 'tr-TR', isPartOf: { '@id': `${SITE}/#website` }, about: { '@id': `${SITE}/#organization` }, primaryImageOfPage: { '@type': 'ImageObject', url: abs(d.seo.image || '/og-image.jpg') } },
   ]
-  const crumb = breadcrumb(path, (page.h1 || page.title).split(':')[0])
-  if (crumb) nodes.push(crumb)
-  if (path === '/discord-botlari' || path === '/web-gelistirme') {
+  if (page.product) {
+    const p = page.product
+    nodes.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${SITE}/` },
+        { '@type': 'ListItem', position: 2, name: LABEL[p.category] === 'Web Sitesi' ? 'Web Geliştirme' : 'Discord Botları', item: `${SITE}${listPath(p)}` },
+        { '@type': 'ListItem', position: 3, name: p.name, item: `${SITE}${path}` },
+      ],
+    })
+    nodes.push({ ...productNode(d, p, listPath(p)), url: `${SITE}${path}`, '@id': `${SITE}${path}#product` })
+    nodes[nodes.length - 1].offers && (nodes[nodes.length - 1].offers.url = `${SITE}${path}`)
+  } else {
+    const crumb = breadcrumb(path, (page.h1 || page.title).split(':')[0])
+    if (crumb) nodes.push(crumb)
+  }
+  if (!page.product && (path === '/discord-botlari' || path === '/web-gelistirme')) {
     const list = productsOf(d, path === '/web-gelistirme' ? 'web' : 'discord-bot')
     if (list.length) {
       nodes.push({ '@type': 'ItemList', name: page.h1, itemListElement: list.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: productNode(d, p, path) })) })
     }
   }
-  if (path === '/' || path === '/iletisim') {
+  if (!page.product && (path === '/' || path === '/iletisim')) {
     const f = faqNode(d.faq)
     if (f) nodes.push(f)
   }
@@ -139,7 +169,10 @@ function snapshot(d, path, page) {
   let body = `<h1>${esc(page.h1 || page.title)}</h1><p>${esc(page.description)}</p>`
   const bots = productsOf(d, 'discord-bot')
   const web = productsOf(d, 'web')
-  if (path === '/') {
+  if (page.product) {
+    const p = page.product
+    body += `<p>${esc(p.tagline || '')}</p>${p.details ? `<p>${esc(p.details)}</p>` : `<p>${esc(p.description || '')}</p>`}<ul>${(p.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${(p.requirements || []).length ? `<h2>Teslim için gerekenler</h2><ul>${p.requirements.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}<p>Fiyat: ${esc(priceText(p))}${p.oldPrice && p.price != null && p.oldPrice > p.price ? ` (indirim öncesi ${Number(p.oldPrice).toLocaleString('tr-TR')} ₺)` : ''}</p><p>Teslim: ${esc(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : 'Kapsama göre'))}</p>`
+  } else if (path === '/') {
     body += `<h2>Discord Bot Yaptırma</h2><p>Moderasyon, ticket, müzik, ekonomi ve özel komutlar içeren, sunucunuza göre hazırlanan Discord botları.</p>${productList(d, bots, '/discord-botlari')}`
     body += `<h2>Web Sitesi Yaptırma</h2><p>Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ve e-ticaret web siteleri.</p>${productList(d, web, '/web-gelistirme')}`
     body += faqHtml(d.faq)
@@ -148,13 +181,14 @@ function snapshot(d, path, page) {
   else if (path === '/portfoy') body += `<ul>${d.portfolio.map((p) => `<li><h3>${esc(p.title)}</h3><p>${esc(p.client)} · ${esc(p.category)}</p><p>${esc(p.result)}</p></li>`).join('')}</ul>`
   else if (path === '/iletisim') body += `<p>E-posta: ${esc(d.contact.email || '')}</p><p>${esc(d.contact.hours || '')}</p>${faqHtml(d.faq)}`
   // kept off-screen (not display:none) until React replaces it; identical to what the app renders
-  return `<div id="seo-snapshot" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden">${nav}<main>${body}</main></div>`
+  return `<div id="seo-snapshot" class="vx-snapshot">${nav}<main>${body}</main></div>`
 }
 
 // ---- head ----
 function head(d, path, page, indexable) {
   const url = `${SITE}${path === '/' ? '/' : path}`
-  const img = abs(d.seo.image || '/og-image.jpg')
+  const img = abs(page.image || d.seo.image || '/og-image.jpg')
+  const imgType = /\.(png)$/i.test(img) ? 'image/png' : 'image/jpeg'
   const title = esc(page.title)
   const desc = esc(trim(page.description, 200))
   const robots = indexable ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow'
@@ -171,7 +205,7 @@ function head(d, path, page, indexable) {
     `<link rel="alternate" hreflang="tr" href="${esc(url)}" />`,
     `<link rel="alternate" hreflang="x-default" href="${esc(url)}" />`,
     `<link rel="manifest" href="/manifest.webmanifest" />`,
-    `<meta property="og:type" content="website" />`,
+    `<meta property="og:type" content="${page.product ? 'product' : 'website'}" />`,
     `<meta property="og:site_name" content="${esc(d.seo.siteName || 'Vexstar')}" />`,
     `<meta property="og:locale" content="${esc(d.seo.locale || 'tr_TR')}" />`,
     `<meta property="og:title" content="${title}" />`,
@@ -179,9 +213,7 @@ function head(d, path, page, indexable) {
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:image" content="${esc(img)}" />`,
     `<meta property="og:image:secure_url" content="${esc(img)}" />`,
-    `<meta property="og:image:type" content="image/jpeg" />`,
-    `<meta property="og:image:width" content="1200" />`,
-    `<meta property="og:image:height" content="630" />`,
+    ...(page.image ? [] : [`<meta property="og:image:type" content="image/jpeg" />`, `<meta property="og:image:width" content="1200" />`, `<meta property="og:image:height" content="630" />`]),
     `<meta property="og:image:alt" content="${esc(d.seo.imageAlt || page.title)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${title}" />`,
@@ -204,7 +236,9 @@ function cleanPath(p) {
 async function renderPage(template, rawPath) {
   const path = cleanPath(rawPath)
   const d = await getData()
-  const known = d.seo.pages[path]
+  const pm = path.match(/^\/urunler\/([a-z0-9-]+)$/)
+  const prod = pm ? d.products.find((x) => x.slug === pm[1]) : null
+  const known = prod ? productPage(d, prod) : d.seo.pages[path]
   const noindex = NOINDEX_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))
   let page = known
   let status = 200
@@ -236,7 +270,8 @@ async function robots(req, res) {
 async function sitemap(req, res) {
   const d = await getData()
   const day = new Date().toISOString().slice(0, 10)
-  const urls = Object.entries(d.seo.pages)
+  const entries = [...Object.entries(d.seo.pages), ...d.products.filter((p) => p.category === 'discord-bot' || p.category === 'web').map((p) => [`/urunler/${p.slug}`, { changefreq: 'weekly', priority: '0.8' }])]
+  const urls = entries
     .map(([p, v]) => `  <url>\n    <loc>${esc(SITE + (p === '/' ? '/' : p))}</loc>\n    <lastmod>${day}</lastmod>\n    <changefreq>${v.changefreq || 'monthly'}</changefreq>\n    <priority>${v.priority || '0.5'}</priority>\n  </url>`)
     .join('\n')
   res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`)

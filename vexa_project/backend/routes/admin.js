@@ -61,14 +61,23 @@ const PER = 25
 // ───────── overview ─────────
 router.get('/overview', async (req, res, next) => {
   try {
-    const [openTickets, newOrders, pendingReviews, users, products] = await Promise.all([
+    const [openTickets, newOrders, pendingReviews, users, products, recentOrders, recentTickets, legal, revenue] = await Promise.all([
       Message.countDocuments({ status: { $ne: 'kapali' }, unreadByAdmin: true }),
       Order.countDocuments({ status: 'yeni' }),
       Review.countDocuments({ status: 'pending' }),
       User.estimatedDocumentCount(),
       Product.estimatedDocumentCount(),
+      Order.find().sort({ createdAt: -1 }).limit(5).select('orderNo productName price status createdAt customer.name -_id').lean(),
+      Message.find().sort({ updatedAt: -1 }).limit(5).select('ticketNo subject name status unreadByAdmin updatedAt -_id').lean(),
+      Setting.findOne({ key: 'content:legal' }).lean(),
+      Order.aggregate([{ $match: { status: { $ne: 'iptal' } } }, { $group: { _id: null, total: { $sum: '$price' }, count: { $sum: 1 } } }]),
     ])
-    res.json({ openTickets, newOrders, pendingReviews, users, products })
+    const l = (legal && legal.value) || {}
+    res.json({
+      openTickets, newOrders, pendingReviews, users, products, recentOrders, recentTickets,
+      revenue: revenue[0] ? { total: revenue[0].total, count: revenue[0].count } : { total: 0, count: 0 },
+      legalMissing: !(l.unvan && l.adres && (l.vergiNo || l.mersis)),
+    })
   } catch (err) {
     next(err)
   }
@@ -124,13 +133,36 @@ async function totalsSince(since) {
   return { views: a ? a.views : 0, unique: a ? a.unique : 0 }
 }
 
+async function totalsBetween(from, to) {
+  const [a] = await Visit.aggregate([
+    { $match: { createdAt: { $gte: from, $lt: to } } },
+    { $group: { _id: '$ip', hits: { $sum: 1 } } },
+    { $group: { _id: null, unique: { $sum: 1 }, views: { $sum: '$hits' } } },
+  ])
+  return { views: a ? a.views : 0, unique: a ? a.unique : 0 }
+}
+
+// device / browser family from the user-agent string
+function classify(ua) {
+  const device = /ipad|tablet|(android(?!.*mobile))/i.test(ua) ? 'Tablet' : /mobi|iphone|android/i.test(ua) ? 'Mobil' : 'Masaüstü'
+  let browser = 'Diğer'
+  if (/edg\//i.test(ua)) browser = 'Edge'
+  else if (/opr\/|opera/i.test(ua)) browser = 'Opera'
+  else if (/samsungbrowser/i.test(ua)) browser = 'Samsung'
+  else if (/firefox|fxios/i.test(ua)) browser = 'Firefox'
+  else if (/chrome|crios/i.test(ua)) browser = 'Chrome'
+  else if (/safari/i.test(ua)) browser = 'Safari'
+  return { device, browser }
+}
+
 router.get('/analytics', async (req, res, next) => {
   try {
     const range = rangeOf(req.query.range)
     const { unit, list, since } = buckets(range)
     const fmt = FORMAT[unit]
 
-    const [series, totals, pages] = await Promise.all([
+    const span = Date.now() - since.getTime()
+    const [series, totals, pages, previous, uaRows] = await Promise.all([
       Visit.aggregate([
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: { k: { $dateToString: { format: fmt, date: '$createdAt', timezone: TZ } }, ip: '$ip' }, hits: { $sum: 1 } } },
@@ -143,13 +175,30 @@ router.get('/analytics', async (req, res, next) => {
         { $sort: { views: -1 } },
         { $limit: 8 },
       ]),
+      totalsBetween(new Date(since.getTime() - span), since),
+      Visit.aggregate([
+        { $match: { createdAt: { $gte: since } } },
+        { $group: { _id: '$ua', hits: { $sum: 1 } } },
+        { $sort: { hits: -1 } },
+        { $limit: 400 },
+      ]),
     ])
+    const devices = {}
+    const browsers = {}
+    for (const r of uaRows) {
+      const c = classify(r._id || '')
+      devices[c.device] = (devices[c.device] || 0) + r.hits
+      browsers[c.browser] = (browsers[c.browser] || 0) + r.hits
+    }
     const byKey = new Map(series.map((s) => [s._id, s]))
     res.json({
       range,
       series: list.map((b) => ({ label: b.label, views: (byKey.get(b.key) || {}).views || 0, unique: (byKey.get(b.key) || {}).unique || 0 })),
       totals: Object.fromEntries(RANGES.map((r, i) => [r, totals[i]])),
       topPages: pages.map((p) => ({ path: p._id, views: p.views })),
+      previous,
+      devices: Object.entries(devices).map(([name, views]) => ({ name, views })).sort((a, b) => b.views - a.views),
+      browsers: Object.entries(browsers).map(([name, views]) => ({ name, views })).sort((a, b) => b.views - a.views).slice(0, 6),
     })
   } catch (err) {
     next(err)
@@ -217,6 +266,10 @@ function productInput(b, { creating }) {
   if (out.oldPrice != null && out.price != null && out.oldPrice <= out.price) errors.push('oldPrice (eski fiyat, satış fiyatından yüksek olmalı)')
   if ('delivery' in o) out.delivery = text(o.delivery, 60)
   if ('images' in o) out.images = arr(o.images, 6, (m) => (typeof m === 'string' && MEDIA_URL.test(m) ? m : undefined)) || []
+  if ('details' in o) out.details = text(o.details, 4000, true)
+  if ('requirements' in o) out.requirements = arr(o.requirements, 12, (r) => text(r, 200) || undefined) || []
+  if ('metaTitle' in o) out.metaTitle = text(o.metaTitle, 70)
+  if ('metaDescription' in o) out.metaDescription = text(o.metaDescription, 170)
   if ('priceFrom' in o) out.priceFrom = bool(o.priceFrom)
   if ('period' in o) out.period = text(o.period, 40)
   if ('deliveryDays' in o) {
@@ -451,12 +504,18 @@ const ORDER_STATUS = ['yeni', 'onaylandi', 'hazirlaniyor', 'teslim-edildi', 'ipt
 router.get('/orders', async (req, res, next) => {
   try {
     const filter = ORDER_STATUS.includes(req.query.status) ? { status: req.query.status } : {}
+    const q = str(req.query.q, 60)
+    if (q) {
+      const rx = new RegExp(esc(q), 'i')
+      filter.$or = [{ orderNo: rx }, { productName: rx }, { 'customer.name': rx }, { 'customer.email': rx }, { 'customer.discord': rx }]
+    }
     const p = page(req)
-    const [rows, total] = await Promise.all([
+    const [rows, total, counts] = await Promise.all([
       Order.find(filter).sort({ createdAt: -1 }).skip((p - 1) * PER).limit(PER).select('-__v').lean(),
       Order.countDocuments(filter),
+      Order.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
     ])
-    res.json({ orders: rows.map((o) => ({ ...o, _id: undefined, user: o.user ? String(o.user) : null })), total, page: p, perPage: PER })
+    res.json({ orders: rows.map((o) => ({ ...o, _id: undefined, user: o.user ? String(o.user) : null })), total, page: p, perPage: PER, counts: Object.fromEntries(counts.map((c) => [c._id, c.n])) })
   } catch (err) {
     next(err)
   }

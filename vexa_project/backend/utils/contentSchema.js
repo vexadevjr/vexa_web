@@ -78,6 +78,14 @@ const validators = {
       return title && to && desc ? { title, icon: SERVICE_ICONS.includes(o.icon) ? o.icon : 'settings', to, desc } : undefined
     }),
 
+  legal: (v) => {
+    const o = obj(v)
+    if (!o) return undefined
+    const out = {}
+    for (const [k, max] of [['unvan', 150], ['adres', 300], ['vergiDairesi', 80], ['vergiNo', 40], ['mersis', 40], ['eposta', 120], ['telefon', 40], ['kep', 120], ['yetkili', 100]]) out[k] = text(o[k], max)
+    return out
+  },
+
   announcement: (v) => {
     const o = obj(v)
     if (!o) return undefined

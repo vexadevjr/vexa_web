@@ -17,6 +17,8 @@ const orderSchema = new mongoose.Schema(
     note: { type: String, default: '', maxlength: 1000 },
     delivery: { type: String, default: '', maxlength: 60 }, // delivery estimate at the time of ordering
     history: { type: [new mongoose.Schema({ status: String, at: { type: Date, default: Date.now } }, { _id: false })], default: [] },
+    legalAcceptedAt: { type: Date, default: null }, // distance-sales contract + pre-information accepted
+    legalVersion: { type: String, default: '', maxlength: 20 },
     cancelReason: { type: String, default: '', maxlength: 300 },
     cancelledBy: { type: String, enum: ['customer', 'admin', ''], default: '' },
     status: { type: String, enum: ['yeni', 'onaylandi', 'hazirlaniyor', 'teslim-edildi', 'iptal'], default: 'yeni' },

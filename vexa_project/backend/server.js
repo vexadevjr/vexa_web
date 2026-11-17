@@ -38,23 +38,53 @@ try {
   console.warn('[server] "compression" is not installed; run npm install in backend/')
 }
 
+// Strict CSP: no 'unsafe-inline' and no 'unsafe-eval' anywhere (scripts and styles only from our own files).
+const csp = {
+  'default-src': ["'self'"],
+  'base-uri': ["'self'"],
+  'connect-src': ["'self'"],
+  'font-src': ["'self'", 'https://fonts.gstatic.com'],
+  'form-action': ["'self'"],
+  'frame-ancestors': ["'none'"],
+  'frame-src': ["'none'"],
+  'img-src': ["'self'", 'data:', 'https://*.googleusercontent.com', 'https://cdn.discordapp.com'],
+  'manifest-src': ["'self'"],
+  'media-src': ["'none'"],
+  'object-src': ["'none'"],
+  'script-src': ["'self'"],
+  'script-src-attr': ["'none'"],
+  'style-src': ["'self'", 'https://fonts.googleapis.com'],
+  'style-src-attr': ["'none'"],
+  'worker-src': ["'none'"],
+}
+if (config.isProd) csp['upgrade-insecure-requests'] = []
+
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      useDefaults: true,
-      directives: {
-        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
-        'img-src': ["'self'", 'data:', 'https://*.googleusercontent.com', 'https://cdn.discordapp.com'],
-        'connect-src': ["'self'"],
-        'frame-ancestors': ["'none'"],
-        'object-src': ["'none'"],
-        'form-action': ["'self'"],
-      },
-    },
+    contentSecurityPolicy: { useDefaults: false, directives: csp },
+    strictTransportSecurity: { maxAge: 63072000, includeSubDomains: true, preload: true },
+    frameguard: { action: 'deny' },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-origin' },
   })
 )
+
+// Browser features the site never needs are switched off (camera, microphone, location, payment, USB ...)
+const PERMISSIONS_POLICY = [
+  'accelerometer=()', 'autoplay=()', 'bluetooth=()', 'browsing-topics=()', 'camera=()', 'display-capture=()', 'fullscreen=(self)',
+  'geolocation=()', 'gyroscope=()', 'hid=()', 'magnetometer=()', 'microphone=()', 'midi=()', 'payment=()', 'serial=()', 'usb=()', 'xr-spatial-tracking=()',
+].join(', ')
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', PERMISSIONS_POLICY)
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  next()
+})
+// API answers are private by default; routes that are meant to be cached (content, stats, media) override this
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store')
+  next()
+})
 // the admin panel must never be indexed or cached
 app.use((req, res, next) => {
   if (req.path === '/admin' || req.path.startsWith('/admin/') || req.path.startsWith('/api/admin')) {
@@ -104,6 +134,13 @@ app.use('/api', (req, res) => {
 // ---- built React app (single Render web service) ----
 const distPath = path.join(__dirname, '..', 'frontend', 'dist')
 const indexHtml = path.join(distPath, 'index.html')
+
+// RFC 9116 security contact
+app.get(['/.well-known/security.txt', '/security.txt'], async (req, res) => {
+  const email = (await require('./data/catalog').loadSiteConfig()).contact?.email || ''
+  const exp = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString()
+  res.type('text/plain').send(`${email ? `Contact: mailto:${email}\n` : ''}Expires: ${exp}\nPreferred-Languages: tr, en\nCanonical: ${config.siteUrl}/.well-known/security.txt\n`)
+})
 
 if (fs.existsSync(indexHtml)) {
   const seo = require('./seo/render')

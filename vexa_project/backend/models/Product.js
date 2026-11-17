@@ -19,6 +19,10 @@ const productSchema = new mongoose.Schema(
     deliveryDays: { type: Number, default: null, min: 0 }, // legacy
     delivery: { type: String, trim: true, default: '', maxlength: 60 }, // free text, e.g. "5-7 iş günü"
     images: { type: [String], default: [] }, // /api/media/<id>
+    details: { type: String, trim: true, default: '', maxlength: 4000 }, // long description (product page)
+    requirements: { type: [String], default: [] }, // what the customer must provide / prepare
+    metaTitle: { type: String, trim: true, default: '', maxlength: 70 },
+    metaDescription: { type: String, trim: true, default: '', maxlength: 170 },
     popular: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     sort: { type: Number, default: 0 },
