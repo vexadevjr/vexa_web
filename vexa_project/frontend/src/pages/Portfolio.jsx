@@ -46,7 +46,7 @@ export default function Portfolio() {
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-stretch">
           {items.map((p) => (
-            <article key={p.id} className="flex flex-col h-full p-4 rounded-2xl bg-vx-card border border-vx-line hover:border-vx-accent-text/40 transition-colors">
+            <article key={p.id} id={p.id} className="flex flex-col h-full p-4 rounded-2xl bg-vx-card border border-vx-line hover:border-vx-accent-text/40 transition-colors">
               {(p.images || []).length > 0 ? (
                 <Gallery images={p.images} alt={p.title} />
               ) : (

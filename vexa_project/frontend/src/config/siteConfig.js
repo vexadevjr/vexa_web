@@ -48,6 +48,27 @@ export const siteConfig = {
         changefreq: 'monthly',
         priority: '0.6',
       },
+      '/kvkk-aydinlatma-metni': {
+        title: 'KVKK Aydınlatma Metni | Vexstar',
+        description: '6698 sayılı KVKK kapsamında Vexstar’ın kişisel verileri hangi amaçlarla, hangi hukuki sebeplerle işlediği ve haklarınız.',
+        h1: 'KVKK Aydınlatma Metni',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
+      '/mesafeli-satis-sozlesmesi': {
+        title: 'Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme | Vexstar',
+        description: 'Vexstar hizmet siparişlerine ilişkin mesafeli satış sözleşmesi, ön bilgilendirme ve cayma hakkı bilgileri.',
+        h1: 'Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
+      '/iptal-ve-iade': {
+        title: 'İptal, İade ve Cayma Hakkı Koşulları | Vexstar',
+        description: 'Vexstar Discord botu ve web sitesi hizmetlerinde sipariş iptali, ücret iadesi ve cayma hakkı koşulları.',
+        h1: 'İptal, İade ve Cayma Hakkı Koşulları',
+        changefreq: 'yearly',
+        priority: '0.3',
+      },
       '/gizlilik-politikasi': {
         title: 'Gizlilik Politikası ve KVKK Aydınlatma Metni | Vexstar',
         description: 'Vexstar’ın hangi kişisel verileri hangi amaçla işlediği, nasıl koruduğu ve KVKK kapsamındaki haklarınız.',
@@ -130,6 +151,10 @@ export const siteConfig = {
     admin: '/admin',
     cookies: '/cerez-politikasi',
     privacy: '/gizlilik-politikasi',
+    kvkk: '/kvkk-aydinlatma-metni',
+    distance: '/mesafeli-satis-sozlesmesi',
+    refund: '/iptal-ve-iade',
+    product: '/urunler',
     terms: '/kullanim-sartlari',
   },
 
@@ -359,6 +384,9 @@ export const siteConfig = {
     { q: 'Teslimattan sonra destek alabilir miyim?', a: 'Evet. Garanti süresi boyunca hatalar ücretsiz düzeltilir. Sonrasında bakım ve destek için ayrı bir plan sunulabilir.' },
     { q: 'Özel bir bot veya yazılım yaptırabilir miyim?', a: 'Evet. İletişim formundan ihtiyacınızı anlatın, size kapsam ve fiyat teklifi hazırlayalım.' },
   ],
+
+  // Legal identity shown on the legal pages. Fill it in from /admin -> Site Ayarları -> Yasal Bilgiler.
+  legal: { unvan: '', adres: '', vergiDairesi: '', vergiNo: '', mersis: '', eposta: '', telefon: '', kep: '', yetkili: '' },
 
   // Real projects are added from the admin panel (/admin -> Portföy).
   portfolio: [],

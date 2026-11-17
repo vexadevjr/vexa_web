@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import Modal from '../../components/Modal.jsx'
-import { Card, Btn, Badge, Empty, TextField, AreaField, ImageUploader, useLoad, useToast, confirmDo } from './ui.jsx'
+import { Card, Btn, Badge, Empty, TextField, AreaField, ImageUploader, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
 const BLANK = { id: '', title: '', category: 'Discord Bot', client: '', result: '', tags: '', link: '', images: [] }
 const CATS = ['Discord Bot', 'Web Sitesi', 'E-Ticaret', 'Sunucu', 'Yazılım']
@@ -40,7 +40,8 @@ function Editor({ item, onClose, onSave }) {
 
 export default function PortfolioAdmin() {
   const { data, error, loading, reload } = useLoad(() => admin.content(), [])
-  const [editing, setEditing] = useState(undefined) // undefined closed, null new, object edit
+  const { focus } = useAdmin()
+  const [editing, setEditing] = useState(focus === 'new' ? null : undefined) // undefined closed, null new, object edit
   const [toast, push] = useToast()
   const items = (data && data.content.portfolio) || []
 

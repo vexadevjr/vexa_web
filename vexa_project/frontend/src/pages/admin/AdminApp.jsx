@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LayoutDashboard, Package, Images, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Package, Images, ExternalLink, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { AdminContext, Btn, TextField, Card } from './ui.jsx'
 import Dashboard from './Dashboard.jsx'
@@ -10,16 +10,32 @@ import Tickets from './Tickets.jsx'
 import { Orders, Reviews, Customers } from './Lists.jsx'
 import logo from '../../assets/vexstar-logo.png'
 
-const TABS = [
-  { id: 'dashboard', label: 'Genel Bakış', icon: LayoutDashboard },
-  { id: 'products', label: 'Ürünler & Fiyatlar', icon: Package },
-  { id: 'portfolio', label: 'Portföy', icon: Images },
-  { id: 'content', label: 'Site İçeriği & SSS', icon: FileText },
-  { id: 'tickets', label: 'Destek Talepleri', icon: MessageSquare, badge: 'openTickets' },
-  { id: 'orders', label: 'Siparişler', icon: ShoppingBag, badge: 'newOrders' },
-  { id: 'reviews', label: 'Yorumlar', icon: Star, badge: 'pendingReviews' },
-  { id: 'users', label: 'Müşteriler', icon: Users },
+const GROUPS = [
+  { title: 'Genel', tabs: [{ id: 'dashboard', label: 'Genel Bakış', icon: LayoutDashboard }] },
+  {
+    title: 'Satış',
+    tabs: [
+      { id: 'orders', label: 'Siparişler', icon: ShoppingBag, badge: 'newOrders' },
+      { id: 'products', label: 'Ürünler & Fiyatlar', icon: Package },
+      { id: 'reviews', label: 'Yorumlar', icon: Star, badge: 'pendingReviews' },
+    ],
+  },
+  {
+    title: 'Müşteriler',
+    tabs: [
+      { id: 'tickets', label: 'Destek Talepleri', icon: MessageSquare, badge: 'openTickets' },
+      { id: 'users', label: 'Müşteri Listesi', icon: Users },
+    ],
+  },
+  {
+    title: 'İçerik',
+    tabs: [
+      { id: 'portfolio', label: 'Portföy', icon: Images },
+      { id: 'content', label: 'Site Ayarları', icon: FileText },
+    ],
+  },
 ]
+const TABS = GROUPS.flatMap((g) => g.tabs)
 const SCREENS = { dashboard: Dashboard, products: Products, portfolio: PortfolioAdmin, content: Content, tickets: Tickets, orders: Orders, reviews: Reviews, users: Customers }
 
 function Login({ onDone }) {
@@ -82,6 +98,7 @@ export default function AdminApp() {
   const [tab, setTab] = useState(() => (TABS.some((t) => `#${t.id}` === window.location.hash) ? window.location.hash.slice(1) : 'dashboard'))
   const [menu, setMenu] = useState(false)
   const [counts, setCounts] = useState({})
+  const [focus, setFocus] = useState('')
 
   useEffect(() => {
     document.title = 'Yönetim · Vexstar'
@@ -107,9 +124,10 @@ export default function AdminApp() {
     return () => clearInterval(id)
   }, [phase, refreshCounts])
 
-  const ctx = useMemo(() => ({ authLost, refreshCounts, counts, goTo: (id) => go(id) }), [authLost, refreshCounts, counts]) // eslint-disable-line react-hooks/exhaustive-deps
+  const ctx = useMemo(() => ({ authLost, refreshCounts, counts, focus, goTo: (id, f = '') => go(id, f) }), [authLost, refreshCounts, counts, focus]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function go(id) {
+  function go(id, f = '') {
+    setFocus(f)
     setTab(id)
     setMenu(false)
     window.history.replaceState(null, '', `#${id}`)
@@ -144,17 +162,24 @@ export default function AdminApp() {
               <div className="text-[10px] tracking-[0.25em] text-vx-muted">YÖNETİM</div>
             </div>
           </div>
-          <nav className="px-3 space-y-1 flex-1 overflow-y-auto" aria-label="Yönetim menüsü">
-            {TABS.map(({ id, label, icon: Icon, badge }) => (
-              <button
-                key={id}
-                onClick={() => go(id)}
-                className={`w-full flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] font-medium transition-colors ${tab === id ? 'bg-vx-accent text-white' : 'text-vx-muted hover:text-white hover:bg-vx-card'}`}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="flex-1 text-left">{label}</span>
-                {badge && counts[badge] > 0 && <span className="min-w-5 h-5 px-1.5 grid place-items-center rounded-full bg-rose-500 text-[10px] font-bold text-white">{counts[badge]}</span>}
-              </button>
+          <nav className="px-3 flex-1 overflow-y-auto space-y-5" aria-label="Yönetim menüsü">
+            {GROUPS.map((g) => (
+              <div key={g.title}>
+                <div className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{g.title}</div>
+                <div className="space-y-1">
+                  {g.tabs.map(({ id, label, icon: Icon, badge }) => (
+                    <button
+                      key={id}
+                      onClick={() => go(id)}
+                      className={`w-full flex items-center gap-3 h-11 px-3 rounded-xl text-[14px] font-medium transition-colors ${tab === id ? 'bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.9)]' : 'text-vx-muted hover:text-white hover:bg-vx-card'}`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="flex-1 text-left">{label}</span>
+                      {badge && counts[badge] > 0 && <span className="min-w-5 h-5 px-1.5 grid place-items-center rounded-full bg-rose-500 text-[10px] font-bold text-white">{counts[badge]}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
           <div className="p-4 space-y-3 border-t border-vx-line">
@@ -173,7 +198,8 @@ export default function AdminApp() {
             <button onClick={() => setMenu(true)} className="lg:hidden w-10 h-10 grid place-items-center rounded-xl bg-vx-card border border-vx-line" aria-label="Menü">
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold">{TABS.find((t) => t.id === tab).label}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{TABS.find((t) => t.id === tab).label}</h1>
+            <a href="/" target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-vx-line bg-vx-card text-[13px] font-semibold text-white hover:bg-vx-surface"><ExternalLink className="w-4 h-4" /> Siteyi aç</a>
           </div>
           <Screen />
         </main>

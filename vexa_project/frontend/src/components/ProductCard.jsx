@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom'
 import { Check, Clock } from 'lucide-react'
 import Button from './Button.jsx'
 import Gallery from './Gallery.jsx'
 import PriceBlock from './PriceBlock.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
-import { deliveryLabel } from '../lib/format.js'
+import { deliveryLabel, productPath } from '../lib/format.js'
 
 export default function ProductCard({ product, large = false }) {
   const { openOrder } = useApp()
@@ -29,7 +30,7 @@ export default function ProductCard({ product, large = false }) {
         )}
       </div>
 
-      <h3 className={`mt-4 font-semibold text-white ${large ? 'text-2xl' : 'text-[19px]'}`}>{product.name}</h3>
+      <h3 className={`mt-4 font-semibold text-white ${large ? 'text-2xl' : 'text-[19px]'}`}><Link to={productPath(product)} className="hover:text-vx-accent-soft transition-colors">{product.name}</Link></h3>
       <p className="mt-1.5 text-[13px] leading-relaxed text-vx-muted">{product.tagline}</p>
 
       <ul className="mt-5 space-y-2.5">
@@ -50,6 +51,7 @@ export default function ProductCard({ product, large = false }) {
         </div>
 
         <div className="mt-5 flex gap-3">
+          <Button variant="secondary" to={productPath(product)}>Detaylı İncele</Button>
           {quote ? (
             <Button to={`${siteConfig.routes.contact}?konu=${encodeURIComponent(product.name)}`} className="flex-1">
               Teklif İste

@@ -13,7 +13,7 @@ const col = (title, links) => ({ title, links })
 const columns = [
   col('Hizmetler', [['Discord Botları', routes.bots], ['Web Geliştirme', routes.web], ['Portföy', routes.portfolio]]),
   col('Destek', [['İletişim ve Teklif', routes.contact], ['Talep Takibi', routes.contact], ['Hesabım', routes.orders]]),
-  col('Yasal', [['Gizlilik Politikası', routes.privacy], ['Kullanım Şartları', routes.terms], ['Çerez Politikası', routes.cookies]]),
+  col('Yasal', [['KVKK Aydınlatma Metni', routes.kvkk], ['Gizlilik Politikası', routes.privacy], ['Kullanım Şartları', routes.terms], ['Mesafeli Satış Sözleşmesi', routes.distance], ['İptal ve İade', routes.refund], ['Çerez Politikası', routes.cookies]]),
 ]
 
 const socialDefs = [

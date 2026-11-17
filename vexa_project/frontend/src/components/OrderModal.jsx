@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Check, Package } from 'lucide-react'
 import Modal from './Modal.jsx'
 import Button from './Button.jsx'
@@ -21,6 +21,7 @@ export default function OrderModal({ product, onClose }) {
   const [serverError, setServerError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
+  const [accepted, setAccepted] = useState(false)
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
@@ -29,13 +30,14 @@ export default function OrderModal({ product, onClose }) {
     const next = {}
     if (form.name.trim().length < 2) next.name = 'Ad soyad girin.'
     if (!EMAIL.test(form.email.trim())) next.email = 'Geçerli bir e-posta adresi girin.'
+    if (!accepted) next.legal = 'Devam etmek için sözleşmeyi onaylamanız gerekir.'
     setErrors(next)
     setServerError('')
     if (Object.keys(next).length) return
 
     setBusy(true)
     try {
-      const data = await api.createOrder({ productSlug: product.slug, ...form })
+      const data = await api.createOrder({ productSlug: product.slug, ...form, legalAccepted: true })
       setDone(data.order)
     } catch (err) {
       setErrors(err.errors || {})
@@ -125,6 +127,17 @@ export default function OrderModal({ product, onClose }) {
           </Field>
         </div>
 
+        <div className="sm:col-span-2 space-y-2">
+          <label className="flex items-start gap-3 p-3 rounded-xl bg-vx-surface border border-vx-line cursor-pointer">
+            <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="mt-1 w-4 h-4 shrink-0 accent-violet-500" />
+            <span className="text-[13px] leading-relaxed text-zinc-200">
+              <Link to={siteConfig.routes.distance} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu</Link>’nu,{' '}
+              <Link to={siteConfig.routes.refund} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">İptal ve İade Koşulları</Link>’nı ve{' '}
+              <Link to={siteConfig.routes.kvkk} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">KVKK Aydınlatma Metni</Link>’ni okudum, onaylıyorum.
+            </span>
+          </label>
+          {errors.legal && <p role="alert" className="text-[12px] text-rose-400">{errors.legal}</p>}
+        </div>
         <div className="sm:col-span-2">
           <TrustBadges compact />
         </div>

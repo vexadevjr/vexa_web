@@ -1,4 +1,4 @@
-import LegalDoc, { P } from '../components/LegalDoc.jsx'
+import LegalDoc, { P, L, IdentityTable, useIdentity } from '../components/LegalDoc.jsx'
 import Button from '../components/Button.jsx'
 import { openConsentSettings } from '../lib/consent.js'
 import { useSite } from '../context/SiteContext.jsx'
@@ -15,8 +15,9 @@ const rows = [
 ]
 
 export default function CookiePolicy() {
-  const { contact } = useSite()
+  const { email } = useIdentity()
   const sections = [
+    { id: 'sorumlu', title: 'Veri sorumlusu', content: (<><P>Bu politika, aşağıdaki işletme tarafından işletilen web sitesindeki çerez ve benzeri teknolojiler için geçerlidir.</P><IdentityTable /></>) },
     { id: 'nedir', title: 'Çerez nedir?', content: <P>Çerezler ve benzeri tarayıcı depolama teknolojileri, bir web sitesini ziyaret ettiğinizde cihazınıza kaydedilen küçük veri parçalarıdır. Siteyi çalıştırmak, tercihlerinizi hatırlamak ve siteyi geliştirmek için kullanılır.</P> },
     { id: 'liste', title: 'Kullandığımız çerezler', content: (
       <div className="overflow-x-auto -mx-2">
@@ -48,6 +49,7 @@ export default function CookiePolicy() {
         <P>Pazarlama veya reklam çerezi kullanmıyoruz.</P>
       </>
     ) },
+    { id: 'hukuki', title: 'Hukuki dayanak', content: (<P>Siteyi çalıştırmak için kesinlikle gerekli olan çerezler, açık rıza aranmaksızın kullanılır. İşlevsel ve analitik çerezler ise yalnızca 6698 sayılı KVKK ve 5809 sayılı Elektronik Haberleşme Kanunu kapsamında vereceğiniz <b className="text-white">açık rızaya</b> dayanır. Rızanızı dilediğiniz zaman geri çekebilirsiniz; geri çekme, önceki işlemlerin hukuka uygunluğunu etkilemez. Kişisel verilerin işlenmesi için <L to={routes.kvkk}>KVKK Aydınlatma Metni</L>’ne bakın.</P>) },
     { id: 'ucuncu', title: 'Üçüncü taraflar', content: <P>Yazı tipleri Google Fonts üzerinden yüklenir; bu nedenle tarayıcınız Google sunucularına istek gönderir. Google veya Discord ile giriş yapmayı seçerseniz ilgili hizmetin kendi gizlilik ve çerez kuralları geçerli olur. Kişisel verilerin işlenmesi için <a className="font-semibold text-vx-accent-text hover:text-white" href={routes.privacy}>Gizlilik Politikası</a>’na bakın.</P> },
     { id: 'yonetim', title: 'Tercihlerinizi yönetme', content: (
       <>
@@ -55,7 +57,7 @@ export default function CookiePolicy() {
         <Button size="sm" onClick={openConsentSettings}>Çerez Tercihlerini Aç</Button>
       </>
     ) },
-    { id: 'iletisim', title: 'İletişim', content: <P>Bu politika hakkındaki sorularınız için {contact.email ? <a className="font-semibold text-vx-accent-text hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a> : 'iletişim sayfamız'} üzerinden bize ulaşabilirsiniz.</P> },
+    { id: 'iletisim', title: 'İletişim', content: <P>Bu politika hakkındaki sorularınız için {email ? <a className="font-semibold text-vx-accent-text hover:text-white" href={`mailto:${email}`}>{email}</a> : 'iletişim sayfamız'} üzerinden bize ulaşabilirsiniz.</P> },
   ]
   return <LegalDoc path={routes.cookies} sections={sections} />
 }

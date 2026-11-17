@@ -2,18 +2,29 @@ import { useState } from 'react'
 import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { siteConfig } from '../../config/siteConfig.js'
-import { Card, Btn, Empty, TextField, AreaField, SelectField, CheckField, useLoad, useToast, confirmDo } from './ui.jsx'
+import { Card, Btn, Empty, TextField, AreaField, SelectField, CheckField, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
 const ICON_OPTS = [['lock', 'Kilit'], ['shield', 'Kalkan'], ['clock', 'Saat'], ['refresh', 'Yenile']]
 const SERVICE_ICONS = [['discord', 'Discord'], ['code', 'Kod'], ['server', 'Sunucu'], ['settings', 'Ayarlar']]
 
 const SECTIONS = [
-  { key: 'announcement', label: 'Duyuru Bandı', kind: 'object', blank: { enabled: false, text: '', link: '' }, fields: [
+  { key: 'legal', label: 'Yasal Bilgiler', kind: 'object', hint: 'KVKK Aydınlatma Metni, Mesafeli Satış Sözleşmesi, Gizlilik ve Çerez sayfalarında “veri sorumlusu / satıcı” olarak görünür. Gerçek işletme bilgilerinizi girin; boş bırakılan satırlar gösterilmez.', fields: [
+    { k: 'unvan', l: 'Ticari unvan / ad soyad', max: 150 },
+    { k: 'yetkili', l: 'Yetkili kişi', max: 100 },
+    { k: 'adres', l: 'Adres', t: 'area', max: 300 },
+    { k: 'vergiDairesi', l: 'Vergi dairesi', max: 80 },
+    { k: 'vergiNo', l: 'Vergi numarası / TCKN', max: 40 },
+    { k: 'mersis', l: 'MERSİS numarası', max: 40 },
+    { k: 'eposta', l: 'Hukuki bildirimler e-postası', max: 120 },
+    { k: 'telefon', l: 'Telefon', max: 40 },
+    { k: 'kep', l: 'KEP adresi (varsa)', max: 120 },
+  ] },
+  { key: 'announcement', label: 'Duyuru Bandı', kind: 'object', hint: 'Sitenin en üstünde görünen duyuru bandı. Kampanya veya bakım duyurusu için kullanın.', blank: { enabled: false, text: '', link: '' }, fields: [
     { k: 'enabled', t: 'bool', l: 'Sitede göster' },
     { k: 'text', l: 'Duyuru metni', max: 300 },
     { k: 'link', l: 'Bağlantı (isteğe bağlı: /iletisim veya https://...)', max: 300 },
   ] },
-  { key: 'contact', label: 'İletişim Bilgileri', kind: 'object', fields: [
+  { key: 'contact', label: 'İletişim Bilgileri', kind: 'object', hint: 'İletişim sayfası ve alt bilgide görünür.', fields: [
     { k: 'email', l: 'E-posta', max: 120 },
     { k: 'discord', l: 'Discord bilgisi', max: 120 },
     { k: 'hours', l: 'Çalışma saatleri', t: 'area', max: 300 },
@@ -27,22 +38,22 @@ const SECTIONS = [
     { k: 'youtube', l: 'YouTube' },
     { k: 'x', l: 'X (Twitter)' },
   ] },
-  { key: 'faq', label: 'Sık Sorulan Sorular', kind: 'list', blank: { q: '', a: '' }, title: (i) => i.q, fields: [
+  { key: 'faq', label: 'Sık Sorulan Sorular', kind: 'list', hint: 'Ana sayfa ve iletişim sayfasındaki sık sorulan sorular. Google’da zengin sonuç için de kullanılır.', blank: { q: '', a: '' }, title: (i) => i.q, fields: [
     { k: 'q', l: 'Soru', max: 200 },
     { k: 'a', l: 'Cevap', t: 'area', max: 2000 },
   ] },
-  { key: 'serviceCards', label: 'Ana Sayfa Hizmet Kartları', kind: 'list', blank: { title: '', icon: 'settings', to: '/iletisim', desc: '' }, title: (i) => i.title, fields: [
+  { key: 'serviceCards', label: 'Ana Sayfa Hizmet Kartları', kind: 'list', hint: 'Arama kutusunda önerilen hizmet kartları.', blank: { title: '', icon: 'settings', to: '/iletisim', desc: '' }, title: (i) => i.title, fields: [
     { k: 'title', l: 'Başlık', max: 80 },
     { k: 'icon', l: 'Simge', t: 'select', options: SERVICE_ICONS },
     { k: 'to', l: 'Sayfa adresi (/ ile başlar)', max: 200 },
     { k: 'desc', l: 'Açıklama', t: 'area', max: 300 },
   ] },
-  { key: 'guarantees', label: 'Garanti Kartları', kind: 'list', blank: { icon: 'shield', title: '', text: '' }, title: (i) => i.title, fields: [
+  { key: 'guarantees', label: 'Garanti Kartları', kind: 'list', hint: 'Ana sayfa ve ürün sayfalarındaki güvence kartları.', blank: { icon: 'shield', title: '', text: '' }, title: (i) => i.title, fields: [
     { k: 'icon', l: 'Simge', t: 'select', options: ICON_OPTS },
     { k: 'title', l: 'Başlık', max: 100 },
     { k: 'text', l: 'Metin', t: 'area', max: 500 },
   ] },
-  { key: 'steps', label: '“Nasıl Çalışır?” Adımları', kind: 'list', blank: { title: '', desc: '' }, title: (i) => i.title, fields: [
+  { key: 'steps', label: '“Nasıl Çalışır?” Adımları', kind: 'list', hint: '“Nasıl çalışır?” adımları.', blank: { title: '', desc: '' }, title: (i) => i.title, fields: [
     { k: 'title', l: 'Başlık', max: 100 },
     { k: 'desc', l: 'Açıklama', t: 'area', max: 400 },
   ] },
@@ -165,7 +176,8 @@ function SectionEditor({ section, initial, onSaved, onReset }) {
 }
 
 export default function Content() {
-  const [active, setActive] = useState(SECTIONS[0].key)
+  const { focus } = useAdmin()
+  const [active, setActive] = useState(SECTIONS.some((x) => x.key === focus) ? focus : SECTIONS[0].key)
   const { data, error, reload } = useLoad(() => admin.content(), [])
   const [version, setVersion] = useState(0) // remounts an editor after a reset
   const section = SECTIONS.find((s) => s.key === active)

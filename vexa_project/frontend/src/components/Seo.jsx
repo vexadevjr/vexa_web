@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { siteConfig } from '../config/siteConfig.js'
+import useProducts from '../hooks/useProducts.js'
 
 const { seo } = siteConfig
 const NOINDEX = ['/hesap', '/panel', '/admin']
@@ -20,9 +21,14 @@ const prop = (property, value) => setTag(`meta[property="${property}"]`, { tag: 
 // The server already sends the right tags for the first load; this keeps them correct while the visitor navigates.
 export default function Seo() {
   const { pathname } = useLocation()
+  const products = useProducts()
   useEffect(() => {
     const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/'
-    const page = seo.pages[path]
+    const pm = path.match(/^\/urunler\/([a-z0-9-]+)$/)
+    const prod = pm ? products.find((x) => x.slug === pm[1]) : null
+    const page = prod
+      ? { title: prod.metaTitle || `${prod.name} | Vexstar`, description: prod.metaDescription || `${prod.tagline || ''} ${prod.description || ''}`.trim().slice(0, 160) }
+      : seo.pages[path]
     const noindex = !page || NOINDEX.some((p) => path === p || path.startsWith(`${p}/`))
     const title = page ? page.title : path.startsWith('/hesap') || path === '/panel' ? 'Hesabım | Vexstar' : 'Sayfa bulunamadı | Vexstar'
     const desc = page ? page.description : seo.pages['/'].description
@@ -37,6 +43,6 @@ export default function Seo() {
     prop('og:url', url)
     meta('twitter:title', title)
     meta('twitter:description', desc)
-  }, [pathname])
+  }, [pathname, products])
   return null
 }

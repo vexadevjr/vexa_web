@@ -12,7 +12,8 @@ import Portfolio from './pages/Portfolio.jsx'
 import Contact from './pages/Contact.jsx'
 import Account from './pages/Account.jsx'
 import CookiePolicy from './pages/CookiePolicy.jsx'
-import { PrivacyPolicy, Terms } from './pages/Legal.jsx'
+import ProductDetail from './pages/ProductDetail.jsx'
+import { PrivacyPolicy, Terms, Kvkk, DistanceSales, Refund } from './pages/Legal.jsx'
 import Footer from './components/Footer.jsx'
 import NotFound from './pages/NotFound.jsx'
 import { useApp } from './context/AppContext.jsx'
@@ -122,9 +123,13 @@ function PublicApp() {
           <Route path={routes.web} element={<WebDev />} />
           <Route path={routes.portfolio} element={<Portfolio />} />
           <Route path={routes.contact} element={<Contact />} />
+          <Route path={`${routes.product}/:slug`} element={<ProductDetail />} />
           <Route path={routes.cookies} element={<CookiePolicy />} />
           <Route path={routes.privacy} element={<PrivacyPolicy />} />
           <Route path={routes.terms} element={<Terms />} />
+          <Route path={routes.kvkk} element={<Kvkk />} />
+          <Route path={routes.distance} element={<DistanceSales />} />
+          <Route path={routes.refund} element={<Refund />} />
           <Route path={routes.panel} element={<Navigate to={routes.orders} replace />} />
           <Route path={`${routes.account}/*`} element={<Account />} />
           <Route path="*" element={<NotFound />} />

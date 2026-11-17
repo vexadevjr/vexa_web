@@ -135,3 +135,6 @@ a, button { transition-property: color, background-color, border-color, box-shad
 [class~="bg-vx-card"]:is(article, figure, section):hover { border-color: rgba(167, 139, 250, 0.35); }
 ::placeholder { color: rgb(var(--vx-muted) / 0.7); }
 input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-text)) !important; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25); outline: none; }
+
+/* crawler-only text snapshot injected by the server (replaced once the app mounts); no inline style needed under the strict CSP */
+.vx-snapshot { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; overflow: hidden; }

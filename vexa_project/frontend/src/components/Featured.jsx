@@ -17,7 +17,7 @@ export default function Featured() {
   const picks = products.filter((p) => p.category === tab).sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular))).slice(0, 3)
 
   return (
-    <section>
+    <section id="services">
       <div className="flex items-end justify-between gap-4">
         <div>
           <span className="vx-eyebrow">Paketler</span>
@@ -40,7 +40,7 @@ export default function Featured() {
               <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-medium text-vx-accent-soft">{p.subCategory || 'Hizmet'}</span>
               {p.popular && <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white">Popüler</span>}
             </div>
-            <h3 className="mt-4 text-[19px] font-semibold text-white">{p.name}</h3>
+            <h3 className="mt-4 text-[19px] font-semibold text-white"><Link to={productPath(p)} className="hover:text-vx-accent-soft transition-colors">{p.name}</Link></h3>
             <p className="mt-1.5 text-[13px] leading-relaxed text-vx-muted">{p.tagline}</p>
             <ul className="mt-4 space-y-2">
               {(p.features || []).slice(0, 3).map((f) => (

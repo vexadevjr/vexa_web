@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { admin } from '../../lib/adminApi.js'
 import { Card, Btn, Badge, Empty, Pager, AreaField, SelectField, useAdmin, useLoad, useToast, fmtDate, confirmDo } from './ui.jsx'
 
+const CANNED = [
+  ['Talep alındı', 'Merhaba, talebiniz için teşekkür ederiz. Konuyu inceliyoruz ve en kısa sürede size dönüş yapacağız.'],
+  ['Sipariş onaylandı', 'Merhaba, siparişiniz onaylandı ve iş planına alındı. Süreçteki her adımı “Hesabım → Siparişlerim” sayfasından takip edebilirsiniz.'],
+  ['Ek bilgi gerekli', 'Merhaba, işe başlayabilmemiz için şu bilgilere ihtiyacımız var:\n- \n- '],
+  ['Teslim edildi', 'Merhaba, siparişiniz teslim edildi. Herhangi bir sorun yaşarsanız bu talep üzerinden yazabilirsiniz. Deneyiminizi yorum olarak paylaşırsanız çok seviniriz.'],
+  ['İade süreci', 'Merhaba, iptal/iade talebiniz alındı. Onaylanan tutar en geç 14 gün içinde ödeme yaptığınız yöntemle iade edilecektir.'],
+]
+
 const STATUS = { acik: ['Açık', 'amber'], yanitlandi: ['Yanıtlandı', 'green'], kapali: ['Kapalı', 'gray'] }
 
 function Detail({ ticketNo, onChanged, onGone }) {
@@ -76,6 +84,13 @@ function Detail({ ticketNo, onChanged, onGone }) {
         {t.replies.map((r, i) => bubble(r.from, r.text, r.at, i))}
       </div>
 
+      <label className="block">
+        <span className="block mb-1.5 text-[12px] font-medium text-slate-300">Hazır yanıt ekle</span>
+        <select className="h-10 w-full px-3 rounded-xl bg-vx-surface border border-vx-line text-[13px] text-white" value="" onChange={(e) => e.target.value && setText((t) => (t ? `${t}\n\n` : '') + e.target.value)}>
+          <option value="">Seçin…</option>
+          {CANNED.map(([l, v]) => <option key={l} value={v}>{l}</option>)}
+        </select>
+      </label>
       <AreaField label="Müşteriye yanıt" value={text} onChange={setText} rows={4} max={3000} placeholder="Yanıtınız müşterinin destek panelinde görünür…" />
       <div className="flex flex-wrap items-center gap-2">
         <Btn onClick={send} disabled={busy || text.trim().length < 2}>

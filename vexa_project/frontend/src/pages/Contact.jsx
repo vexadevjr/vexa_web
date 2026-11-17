@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Mail, Clock, MapPin, Check } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
 import { siteConfig as seoConfig } from '../config/siteConfig.js'
@@ -112,6 +112,7 @@ function ContactPage({ topic, order }) {
               )}
 
               <div className="sm:col-span-2">
+                <p className="sm:col-span-2 text-[12px] leading-relaxed text-vx-muted">Bu formdaki bilgileriniz yalnızca talebinizi yanıtlamak amacıyla işlenir. Ayrıntılar için <Link to={siteConfig.routes.kvkk} className="text-vx-accent-text underline underline-offset-2">KVKK Aydınlatma Metni</Link>’ne bakın.</p>
                 <Button type="submit" disabled={busy} className="min-w-[180px]">
                   {busy ? 'Gönderiliyor…' : 'Gönder'}
                 </Button>

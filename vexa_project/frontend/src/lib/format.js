@@ -33,10 +33,9 @@ export const norm = (s) =>
     .replace(/[ıİ]/g, 'i')
     .toLowerCase()
 
+// every product has its own page: /urunler/<slug>
 export function productPath(p) {
-  if (p.category === 'discord-bot') return `${routes.bots}#${p.slug}`
-  if (p.category === 'web') return `${routes.web}#${p.slug}`
-  return `${routes.contact}?konu=${encodeURIComponent(p.name)}`
+  return `${routes.product}/${p.slug}`
 }
 
 export const dateLabel = (iso) =>

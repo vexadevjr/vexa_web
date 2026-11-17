@@ -12,11 +12,60 @@ const ORDER_STATUS = [
   ['iptal', 'İptal'],
 ]
 
+const NEXT = { yeni: ['onaylandi', 'Onayla'], onaylandi: ['hazirlaniyor', 'Hazırlamaya başla'], hazirlaniyor: ['teslim-edildi', 'Teslim edildi olarak işaretle'] }
+const STATUS_TONE = { yeni: 'amber', onaylandi: 'blue', hazirlaniyor: 'blue', 'teslim-edildi': 'green', iptal: 'red' }
+const STATUS_NAME = Object.fromEntries(ORDER_STATUS)
+
+function OrderRow({ o, onChange }) {
+  const [open, setOpen] = useState(false)
+  const next = NEXT[o.status]
+  return (
+    <li className="rounded-xl bg-vx-surface border border-vx-line overflow-hidden">
+      <button onClick={() => setOpen((v) => !v)} className="w-full text-left p-4 flex flex-wrap items-center gap-x-6 gap-y-2" aria-expanded={open}>
+        <div className="min-w-[200px] flex-1">
+          <div className="text-[14px] font-semibold text-white">{o.productName}</div>
+          <div className="text-[12px] text-vx-muted">{o.orderNo} · {fmtDate(o.createdAt)}</div>
+        </div>
+        <div className="text-[13px] text-zinc-200 min-w-[140px]">{o.customer.name}<div className="text-[12px] text-vx-muted break-all">{o.customer.email}</div></div>
+        <div className="text-[15px] font-bold tabular-nums text-white">{formatPrice(o.price)}</div>
+        <Badge tone={STATUS_TONE[o.status]}>{STATUS_NAME[o.status]}</Badge>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 pt-1 border-t border-vx-line space-y-4">
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-[13px] pt-3">
+            <div><dt className="inline text-vx-muted">E-posta: </dt><dd className="inline"><a className="text-vx-accent-soft break-all" href={`mailto:${o.customer.email}`}>{o.customer.email}</a></dd></div>
+            <div><dt className="inline text-vx-muted">Discord: </dt><dd className="inline text-zinc-100">{o.customer.discord || '—'}</dd></div>
+            <div><dt className="inline text-vx-muted">Teslim tahmini: </dt><dd className="inline text-zinc-100">{o.delivery || '—'}</dd></div>
+            <div><dt className="inline text-vx-muted">Hesap: </dt><dd className="inline text-zinc-100">{o.user ? 'Üye' : 'Misafir'}</dd></div>
+            <div className="sm:col-span-2"><dt className="inline text-vx-muted">Sözleşme onayı: </dt><dd className="inline text-zinc-100">{o.legalAcceptedAt ? `${fmtDate(o.legalAcceptedAt)} (sürüm ${o.legalVersion || '-'})` : 'Kayıt yok (eski sipariş)'}</dd></div>
+            {o.note && <div className="sm:col-span-2"><dt className="text-vx-muted">Müşteri notu</dt><dd className="mt-1 p-3 rounded-lg bg-vx-card border border-vx-line text-zinc-100 whitespace-pre-wrap">{o.note}</dd></div>}
+            {o.status === 'iptal' && <div className="sm:col-span-2 text-rose-300">İptal eden: {o.cancelledBy === 'customer' ? 'müşteri' : 'yönetici'}{o.cancelReason ? ` — “${o.cancelReason}”` : ''}</div>}
+          </dl>
+          {(o.history || []).length > 0 && (
+            <ol className="flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-vx-muted">
+              {o.history.map((h, i) => <li key={i}><b className="text-zinc-200">{STATUS_NAME[h.status] || h.status}</b> · {fmtDate(h.at)}</li>)}
+            </ol>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {next && <Btn onClick={() => onChange(o.orderNo, next[0])}>{next[1]}</Btn>}
+            {o.status !== 'iptal' && o.status !== 'teslim-edildi' && <Btn variant="danger" onClick={() => confirmDo('Sipariş iptal edilsin mi?') && onChange(o.orderNo, 'iptal')}>İptal et</Btn>}
+            <select className="h-9 px-2 rounded-lg bg-vx-card border border-vx-line text-[13px] text-white" value={o.status} onChange={(e) => onChange(o.orderNo, e.target.value)} aria-label="Durumu değiştir">
+              {ORDER_STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
+    </li>
+  )
+}
+
 export function Orders() {
   const { refreshCounts } = useAdmin()
   const [status, setStatus] = useState('')
+  const [q, setQ] = useState('')
+  const [applied, setApplied] = useState('')
   const [page, setPage] = useState(1)
-  const { data, loading, reload } = useLoad(() => admin.orders({ status, page }), [status, page])
+  const { data, loading, reload } = useLoad(() => admin.orders({ status, q: applied, page }), [status, applied, page])
   const [toast, push] = useToast()
 
   async function change(no, v) {
@@ -29,48 +78,30 @@ export function Orders() {
       push(e.message, 'err')
     }
   }
+  const counts = (data && data.counts) || {}
+  const all = Object.values(counts).reduce((a, b) => a + b, 0)
 
   return (
     <Card
-      title={`Siparişler${data ? ` (${data.total})` : ''}`}
+      title="Siparişler"
       actions={
-        <select className="h-9 px-2 rounded-lg bg-vx-surface border border-vx-line text-[13px] text-white" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1) }} aria-label="Durum">
-          <option value="">Tüm durumlar</option>
-          {ORDER_STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
+        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setPage(1); setApplied(q.trim()) }}>
+          <input className="h-9 w-48 px-3 rounded-lg bg-vx-surface border border-vx-line text-[13px] text-white outline-none" placeholder="Sipariş no, ad, e-posta…" value={q} onChange={(e) => setQ(e.target.value)} maxLength={60} />
+          <Btn type="submit" variant="ghost">Ara</Btn>
+        </form>
       }
     >
       {toast}
-      {loading && !data && <Empty>Yükleniyor…</Empty>}
-      {data && data.orders.length === 0 && <Empty>Sipariş yok.</Empty>}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-[13px]">
-          <tbody>
-            {data && data.orders.map((o) => (
-              <tr key={o.orderNo} className="border-b border-vx-line/60 last:border-0 align-top">
-                <td className="py-3 pr-3">
-                  <div className="font-semibold text-white">{o.productName}</div>
-                  <div className="text-[11px] text-vx-muted">{o.orderNo} · {fmtDate(o.createdAt)}</div>
-                </td>
-                <td className="py-3 pr-3 text-zinc-100">
-                  {o.customer.name}
-                  <div className="text-[11px] text-vx-muted break-all">{o.customer.email}{o.customer.discord ? ` · Discord: ${o.customer.discord}` : ''}</div>
-                  {o.status === 'iptal' && <div className="mt-1 text-[12px] text-rose-300">İptal ({o.cancelledBy === 'customer' ? 'müşteri' : 'yönetici'}){o.cancelReason ? `: ${o.cancelReason}` : ''}</div>}
-                  {o.note && <div className="mt-1 text-[12px] text-zinc-300 max-w-[280px] whitespace-pre-wrap">“{o.note}”</div>}
-                </td>
-                <td className="py-3 pr-3 font-bold text-white whitespace-nowrap">{formatPrice(o.price)}</td>
-                <td className="py-3">
-                  <select className="h-9 px-2 rounded-lg bg-vx-surface border border-vx-line text-[13px] text-white" value={o.status} onChange={(e) => change(o.orderNo, e.target.value)} aria-label="Sipariş durumu">
-                    {ORDER_STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-5 flex flex-wrap gap-2">
+        {[['', 'Tümü', all], ...ORDER_STATUS.map(([v, l]) => [v, l, counts[v] || 0])].map(([v, l, n]) => (
+          <Btn key={v || 'all'} variant={status === v ? 'primary' : 'ghost'} onClick={() => { setStatus(v); setPage(1) }}>{l} <span className="opacity-70">({n})</span></Btn>
+        ))}
       </div>
+      {loading && !data && <Empty>Yükleniyor…</Empty>}
+      {data && data.orders.length === 0 && <Empty>Bu filtrede sipariş yok.</Empty>}
+      <ul className="space-y-3">{data && data.orders.map((o) => <OrderRow key={o.orderNo} o={o} onChange={change} />)}</ul>
       {data && <Pager page={page} total={data.total} perPage={data.perPage} onPage={setPage} />}
-      <p className="mt-4 text-[11px] text-zinc-400">“Teslim edildi” durumu, müşteri memnuniyeti istatistiğindeki tamamlanan sipariş sayısına ve yorumlardaki “Doğrulanmış müşteri” rozetine yansır.</p>
+      <p className="mt-4 text-[11px] text-slate-500">Bir siparişe tıklayarak müşteri bilgilerini, notunu, durum geçmişini ve sözleşme onay kaydını görebilirsiniz. “Teslim edildi” durumu yorumlardaki “Doğrulanmış müşteri” rozetine yansır; durum değişiklikleri müşterinin “Siparişlerim” sayfasındaki zaman çizelgesinde görünür.</p>
     </Card>
   )
 }

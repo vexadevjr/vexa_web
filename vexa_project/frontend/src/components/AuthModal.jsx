@@ -17,6 +17,7 @@ export default function AuthModal() {
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [accept, setAccept] = useState(false)
 
   const isRegister = tab === 'register'
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -32,13 +33,14 @@ export default function AuthModal() {
     if (isRegister && form.name.trim().length < 2) next.name = 'Ad soyad girin.'
     if (!EMAIL.test(form.email.trim())) next.email = 'Geçerli bir e-posta adresi girin.'
     if (form.password.length < (isRegister ? 8 : 1)) next.password = isRegister ? 'Şifre en az 8 karakter olmalıdır.' : 'Şifrenizi girin.'
+    if (isRegister && !accept) next.acceptTerms = 'Devam etmek için şartları kabul etmelisiniz.'
     setErrors(next)
     setServerError('')
     if (Object.keys(next).length) return
 
     setBusy(true)
     try {
-      if (isRegister) await register({ name: form.name, email: form.email, password: form.password })
+      if (isRegister) await register({ name: form.name, email: form.email, password: form.password, acceptTerms: true })
       else await login({ email: form.email, password: form.password })
     } catch (err) {
       setErrors(err.errors || {})
@@ -99,6 +101,19 @@ export default function AuthModal() {
         <Button type="submit" disabled={busy} variant="flat" className="w-full">
           {busy ? 'Lütfen bekleyin…' : isRegister ? 'Hesap Oluştur' : 'Giriş Yap'}
         </Button>
+        {isRegister && (
+          <div className="space-y-1.5">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-1 w-4 h-4 shrink-0 accent-violet-500" />
+              <span className="text-[13px] leading-relaxed text-zinc-200">
+                <Link to={siteConfig.routes.terms} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">Kullanım Şartları</Link>’nı,{' '}
+                <Link to={siteConfig.routes.privacy} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">Gizlilik Politikası</Link>’nı ve{' '}
+                <Link to={siteConfig.routes.kvkk} target="_blank" className="font-semibold text-vx-accent-text underline underline-offset-2">KVKK Aydınlatma Metni</Link>’ni okudum, kabul ediyorum.
+              </span>
+            </label>
+            {errors.acceptTerms && <p role="alert" className="text-[12px] text-rose-400">{errors.acceptTerms}</p>}
+          </div>
+        )}
         <TrustBadges compact />
       </form>
 
@@ -122,11 +137,12 @@ export default function AuthModal() {
         </a>
       </div>
       <p className="mt-5 text-center text-[12px] leading-relaxed text-vx-muted">
-        Devam ederek{' '}
+        {isRegister ? 'Google veya Discord ile devam ederek' : 'Devam ederek'}{' '}
         <Link to={siteConfig.routes.terms} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">Kullanım Şartları</Link>
         {' '}ve{' '}
         <Link to={siteConfig.routes.privacy} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">Gizlilik Politikası</Link>
-        ’nı kabul etmiş olursunuz.
+        ’nı ve{' '}
+        <Link to={siteConfig.routes.kvkk} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">KVKK Aydınlatma Metni</Link>’ni kabul etmiş olursunuz.
       </p>
     </Modal>
   )

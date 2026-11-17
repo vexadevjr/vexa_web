@@ -5,6 +5,7 @@ import { ArrowUp } from 'lucide-react'
 export default function ScrollUi() {
   const [pct, setPct] = useState(0)
   const [showTop, setShowTop] = useState(false)
+  const [lift, setLift] = useState(false)
 
   useEffect(() => {
     let ticking = false
@@ -13,6 +14,7 @@ export default function ScrollUi() {
       const y = window.scrollY
       setPct(h > 0 ? Math.min(100, (y / h) * 100) : 0)
       setShowTop(y > 900)
+      setLift(Boolean(document.querySelector('[data-bottom-bar]')) && window.innerWidth < 1024)
       ticking = false
     }
     const onScroll = () => {
@@ -37,7 +39,7 @@ export default function ScrollUi() {
         type="button"
         aria-label="Sayfanın başına dön"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}
+        style={{ bottom: `calc(${lift ? '5.5rem' : '1.25rem'} + env(safe-area-inset-bottom))` }}
         className={`fixed right-4 sm:right-6 z-40 w-12 h-12 grid place-items-center rounded-full bg-vx-card/90 backdrop-blur border border-vx-line text-white shadow-xl shadow-black/50 transition-all duration-300 hover:bg-vx-accent hover:border-vx-accent ${showTop ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}`}
       >
         <ArrowUp className="w-5 h-5" />
