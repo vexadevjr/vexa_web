@@ -20,6 +20,8 @@ const productSchema = new mongoose.Schema(
     delivery: { type: String, trim: true, default: '', maxlength: 60 }, // free text, e.g. "5-7 iş günü"
     images: { type: [String], default: [] }, // /api/media/<id>
     specs: { type: [new mongoose.Schema({ k: { type: String, maxlength: 60 }, v: { type: String, maxlength: 200 } }, { _id: false })], default: [] }, // technical-specification table rows
+    // extra information asked from the customer when ordering this product (Discord server id, bot token, ...)
+    orderFields: { type: [new mongoose.Schema({ key: { type: String, maxlength: 30 }, required: { type: Boolean, default: false }, label: { type: String, maxlength: 60, default: '' } }, { _id: false })], default: [] },
     details: { type: String, trim: true, default: '', maxlength: 4000 }, // long description (product page)
     requirements: { type: [String], default: [] }, // what the customer must provide / prepare
     metaTitle: { type: String, trim: true, default: '', maxlength: 70 },

@@ -7,6 +7,7 @@ const mediaSchema = new mongoose.Schema(
     data: { type: Buffer, required: true },
     mime: { type: String, required: true, enum: ['image/jpeg', 'image/png', 'image/webp'] },
     size: { type: Number, required: true },
+    kind: { type: String, enum: ['admin', 'order-logo'], default: 'admin', index: true },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 )

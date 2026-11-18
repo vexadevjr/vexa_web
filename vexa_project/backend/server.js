@@ -103,6 +103,7 @@ app.use(
 )
 // admin content (FAQ, portfolio ...) can be larger than public form bodies
 app.use('/api/admin/media', express.json({ limit: '3mb' })) // photo uploads (base64)
+app.use('/api/orders/logo', express.json({ limit: '3mb' })) // customer bot-logo upload (base64)
 app.use('/api/admin', express.json({ limit: '300kb' }))
 app.use(express.json({ limit: '20kb' }))
 app.use(mongoSanitize()) // strips $ and . operators from body/query/params (NoSQL injection)

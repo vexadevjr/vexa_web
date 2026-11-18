@@ -25,6 +25,8 @@ module.exports = {
   adminLogin: make(15 * 60 * 1000, 8, 'Çok fazla deneme. Lütfen 15 dakika sonra tekrar deneyin.', { skipSuccessfulRequests: true }),
   // admin API after login
   admin: make(60 * 1000, 240, 'Çok fazla istek.'),
+  // customer logo uploads in the order form
+  upload: make(60 * 60 * 1000, 10, 'Çok fazla dosya yüklediniz. Lütfen daha sonra tekrar deneyin.'),
   // visit tracking beacon
   track: make(60 * 1000, 60, 'Too many requests', { skipFailedRequests: false }),
 }

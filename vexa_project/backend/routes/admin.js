@@ -14,6 +14,8 @@ const adminAuth = require('../middleware/adminAuth')
 const { seedCatalogIfNeeded } = require('../services/products')
 const Media = require('../models/Media')
 const { validators, CONTENT_KEYS, MEDIA_URL } = require('../utils/contentSchema')
+const { normalizeDefs, publicFields } = require('../utils/orderFields')
+const { decrypt } = require('../utils/secretBox')
 const { text, bool, num, arr } = require('../utils/sanitize')
 const { str } = require('../utils/validate')
 
@@ -267,6 +269,10 @@ function productInput(b, { creating }) {
   if ('delivery' in o) out.delivery = text(o.delivery, 60)
   if ('images' in o) out.images = arr(o.images, 6, (m) => (typeof m === 'string' && MEDIA_URL.test(m) ? m : undefined)) || []
   if ('specs' in o) out.specs = arr(o.specs, 20, (r) => { const k = r && text(r.k, 60); const v = r && text(r.v, 200); return k && v ? { k, v } : undefined }) || []
+  if ('orderFields' in o) {
+    const defs = normalizeDefs(o.orderFields)
+    set('orderFields', defs, defs === null)
+  }
   if ('details' in o) out.details = text(o.details, 4000, true)
   if ('requirements' in o) out.requirements = arr(o.requirements, 12, (r) => text(r, 200) || undefined) || []
   if ('metaTitle' in o) out.metaTitle = text(o.metaTitle, 70)
@@ -516,7 +522,34 @@ router.get('/orders', async (req, res, next) => {
       Order.countDocuments(filter),
       Order.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
     ])
-    res.json({ orders: rows.map((o) => ({ ...o, _id: undefined, user: o.user ? String(o.user) : null })), total, page: p, perPage: PER, counts: Object.fromEntries(counts.map((c) => [c._id, c.n])) })
+    res.json({ orders: rows.map((o) => ({ ...o, _id: undefined, user: o.user ? String(o.user) : null, fields: publicFields(o.fields) })), total, page: p, perPage: PER, counts: Object.fromEntries(counts.map((c) => [c._id, c.n])) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Reveal a stored secret (decrypted only on request; every access is logged without the value)
+router.get('/orders/:orderNo/secret', async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ orderNo: str(req.params.orderNo, 40) }).select('orderNo fields')
+    const f = order && order.fields.find((x) => x.secret && x.key === str(req.query.key, 30))
+    if (!f || !f.value) return res.status(404).json({ message: 'Kayıtlı gizli bilgi yok (silinmiş olabilir).' })
+    console.warn(`[audit] admin viewed secret "${f.key}" of order ${order.orderNo}`)
+    res.json({ value: decrypt(f.value) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/orders/:orderNo/secret', async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ orderNo: str(req.params.orderNo, 40) })
+    if (!order) return res.status(404).json({ message: 'Sipariş bulunamadı.' })
+    order.fields.forEach((f) => { if (f.secret) f.value = '' })
+    order.secretsPurgedAt = new Date()
+    await order.save()
+    console.warn(`[audit] admin purged secrets of order ${order.orderNo}`)
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }
@@ -531,6 +564,11 @@ router.patch('/orders/:orderNo', async (req, res, next) => {
       order.status = req.body.status
       order.history.push({ status: req.body.status })
       if (req.body.status === 'iptal' && !order.cancelledBy) order.cancelledBy = 'admin'
+      // delivered or cancelled: the customer's bot token is no longer needed, so it is wiped
+      if (['teslim-edildi', 'iptal'].includes(req.body.status)) {
+        order.fields.forEach((f) => { if (f.secret) f.value = '' })
+        order.secretsPurgedAt = new Date()
+      }
       await order.save()
     }
     res.json({ ok: true })

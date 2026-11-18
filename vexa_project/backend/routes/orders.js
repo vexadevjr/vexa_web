@@ -3,7 +3,10 @@ const router = require('express').Router()
 const Order = require('../models/Order')
 const requireDb = require('../middleware/requireDb')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
-const { form: formLimiter } = require('../middleware/limiters')
+const { form: formLimiter, upload: uploadLimiter } = require('../middleware/limiters')
+const Media = require('../models/Media')
+const { sniff } = require('../utils/imageSniff')
+const { parseOrderFields, publicFields } = require('../utils/orderFields')
 const { findProductBySlug } = require('../services/products')
 const { validate, fail, str } = require('../utils/validate')
 const { makeNo } = require('../utils/ids')
@@ -30,6 +33,9 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
       return res.status(400).json({ message: 'Bu hizmet için lütfen teklif formunu kullanın.' })
     }
 
+    const parsed = parseOrderFields(product.orderFields, req.body.fields)
+    if (Object.keys(parsed.errors).length) return fail(res, parsed.errors)
+
     const order = await Order.create({
       orderNo: makeNo('VX'),
       user: req.auth ? req.auth.sub : null,
@@ -40,6 +46,7 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
       customer: { name: value.name, email: value.email, discord: value.discord || '' },
       note: value.note || '',
       delivery: product.delivery || (product.deliveryDays ? `${product.deliveryDays} iş günü` : ''),
+      fields: parsed.fields,
       history: [{ status: 'yeni' }],
       legalAcceptedAt: new Date(),
       legalVersion: '2026-11-14',
@@ -65,9 +72,27 @@ router.get('/mine', requireDb, requireAuth, async (req, res, next) => {
     const orders = await Order.find({ user: req.auth.sub })
       .sort({ createdAt: -1 })
       .limit(50)
-      .select('orderNo productSlug productName price currency status note delivery history cancelReason cancelledBy createdAt updatedAt -_id')
+      .select('orderNo productSlug productName price currency status note delivery history fields secretsPurgedAt cancelReason cancelledBy createdAt updatedAt -_id')
       .lean()
-    res.json({ orders })
+    // sensitive values (bot tokens) never leave the server
+    res.json({ orders: orders.map((o) => ({ ...o, fields: publicFields(o.fields) })) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Customer uploads the bot logo during ordering (JPG/PNG/WebP, resized in the browser; real type checked here).
+router.post('/logo', requireDb, uploadLimiter, async (req, res, next) => {
+  try {
+    const raw = req.body && req.body.data
+    if (typeof raw !== 'string' || raw.length < 100 || raw.length > 1500000 || !/^[A-Za-z0-9+/=]+$/.test(raw)) return res.status(400).json({ message: 'Geçersiz görsel.' })
+    const buf = Buffer.from(raw, 'base64')
+    if (buf.length > 1000000) return res.status(400).json({ message: 'Logo çok büyük (en fazla 1 MB).' })
+    const mime = sniff(buf)
+    if (!mime) return res.status(400).json({ message: 'Yalnızca JPG, PNG veya WebP yüklenebilir.' })
+    if ((await Media.countDocuments({ kind: 'order-logo' })) > 3000) return res.status(400).json({ message: 'Şu an yükleme yapılamıyor. Lütfen destek talebi oluşturun.' })
+    const doc = await Media.create({ data: buf, mime, size: buf.length, kind: 'order-logo' })
+    res.status(201).json({ url: `/api/media/${doc._id}` })
   } catch (err) {
     next(err)
   }
@@ -89,12 +114,15 @@ router.post('/:orderNo/cancel', requireDb, formLimiter, requireAuth, async (req,
     order.cancelledBy = 'customer'
     order.cancelReason = str(req.body && req.body.reason, 300, true)
     order.history.push({ status: 'iptal' })
+    // data minimisation: sensitive values are wiped as soon as the order is cancelled
+    order.fields.forEach((f) => { if (f.secret) f.value = '' })
+    order.secretsPurgedAt = new Date()
     await order.save()
     res.json({
       order: {
         orderNo: order.orderNo, productSlug: order.productSlug, productName: order.productName, price: order.price, currency: order.currency,
         status: order.status, note: order.note, delivery: order.delivery, history: order.history, cancelReason: order.cancelReason,
-        cancelledBy: order.cancelledBy, createdAt: order.createdAt, updatedAt: order.updatedAt,
+        cancelledBy: order.cancelledBy, createdAt: order.createdAt, updatedAt: order.updatedAt, fields: publicFields(order.fields), secretsPurgedAt: order.secretsPurgedAt,
       },
     })
   } catch (err) {

@@ -41,6 +41,8 @@ module.exports = Object.freeze({
   publicUrl,
   // canonical public address used in SEO tags, sitemap and structured data
   siteUrl: (process.env.SITE_URL || 'https://vexstar.com.tr').replace(/\/+$/, ''),
+  // key used to encrypt sensitive order data (Discord bot tokens) at rest; falls back to a key derived from JWT_SECRET
+  dataKey: process.env.DATA_ENCRYPTION_KEY || '',
   googleVerification: process.env.GOOGLE_SITE_VERIFICATION || '',
   bingVerification: process.env.BING_SITE_VERIFICATION || '',
   // Admin identity lives ONLY in environment variables (never in the database, never in the frontend).
