@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
 import { Lightbox } from './Gallery.jsx'
+import FitImage from './FitImage.jsx'
 
 // Marketplace-style gallery: one large image with arrows and a thumbnail strip underneath.
 export default function ProductGallery({ images = [], name }) {
@@ -26,7 +27,7 @@ export default function ProductGallery({ images = [], name }) {
     <div>
       <div className="relative">
         <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full aspect-[4/3] sm:aspect-[16/11] overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
-          <img src={list[cur]} alt={`${name} ${cur + 1}`} decoding="async" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0 w-full h-full object-cover" />
+          <FitImage src={list[cur]} alt={`${name} ${cur + 1}`} loading="eager" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0" />
         </button>
         {list.length > 1 && (
           <>

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useSite } from '../context/SiteContext.jsx'
+import FitImage from './FitImage.jsx'
 import { siteConfig } from '../config/siteConfig.js'
 
 // Home page showcase: real projects from the portfolio, swipeable. Hidden until at least one project exists.
@@ -38,7 +39,7 @@ export default function PortfolioSlider() {
           >
             <div className="relative aspect-[16/10] bg-vx-surface overflow-hidden">
               {p.images && p.images[0] ? (
-                <img src={p.images[0]} alt={p.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <FitImage src={p.images[0]} alt={p.title} className="absolute inset-0" imgClass="transition-transform duration-500 group-hover:scale-105" />
               ) : (
                 <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-vx-accent/30 to-vx-surface text-4xl font-black text-white/70">{(p.title || '?').slice(0, 1)}</div>
               )}

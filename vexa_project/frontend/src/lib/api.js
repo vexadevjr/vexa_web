@@ -64,6 +64,7 @@ export const api = {
   updateProfile: (payload) => request('/auth/profile', { method: 'PATCH', body: payload }),
   changePassword: (payload) => request('/auth/password', { method: 'POST', body: payload }),
   deleteAccount: (payload) => request('/auth/account/delete', { method: 'POST', body: payload }),
+  uploadOrderLogo: (data) => request('/orders/logo', { method: 'POST', body: { data } }),
   createOrder: (payload) => request('/orders', { method: 'POST', body: payload }),
   myOrders: () => request('/orders/mine'),
   cancelOrder: (orderNo, reason) => request(`/orders/${encodeURIComponent(orderNo)}/cancel`, { method: 'POST', body: { reason } }),

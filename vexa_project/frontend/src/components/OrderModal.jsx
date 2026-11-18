@@ -9,6 +9,8 @@ import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
 import { useSite } from '../context/SiteContext.jsx'
 import { formatPrice, deliveryLabel, discountInfo } from '../lib/format.js'
+import OrderFields from './OrderFields.jsx'
+import { validateOrderFields } from '../config/orderFields.js'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -22,6 +24,7 @@ export default function OrderModal({ product, onClose }) {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
   const [accepted, setAccepted] = useState(false)
+  const [extra, setExtra] = useState({})
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
@@ -30,6 +33,7 @@ export default function OrderModal({ product, onClose }) {
     const next = {}
     if (form.name.trim().length < 2) next.name = 'Ad soyad girin.'
     if (!EMAIL.test(form.email.trim())) next.email = 'Geçerli bir e-posta adresi girin.'
+    Object.assign(next, validateOrderFields(product.orderFields, extra))
     if (!accepted) next.legal = 'Devam etmek için sözleşmeyi onaylamanız gerekir.'
     setErrors(next)
     setServerError('')
@@ -37,7 +41,7 @@ export default function OrderModal({ product, onClose }) {
 
     setBusy(true)
     try {
-      const data = await api.createOrder({ productSlug: product.slug, ...form, legalAccepted: true })
+      const data = await api.createOrder({ productSlug: product.slug, ...form, fields: extra, legalAccepted: true })
       setDone(data.order)
     } catch (err) {
       setErrors(err.errors || {})
@@ -115,6 +119,7 @@ export default function OrderModal({ product, onClose }) {
             <input className={inputCls} value={form.discord} onChange={set('discord')} maxLength={40} />
           </Field>
         </div>
+        <OrderFields product={product} values={extra} onChange={(k, v) => setExtra((x) => ({ ...x, [k]: v }))} errors={errors} />
         <div className="sm:col-span-2">
           <Field label="Notunuz (isteğe bağlı)" error={errors.note}>
             <textarea

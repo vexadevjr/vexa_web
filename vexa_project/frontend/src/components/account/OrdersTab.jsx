@@ -139,6 +139,22 @@ function OrderCard({ order, onCancel }) {
 
       <Timeline order={order} />
 
+      {(order.fields || []).length > 0 && (
+        <div className="mt-5 rounded-xl bg-vx-surface border border-vx-line p-4">
+          <div className="text-[13px] font-semibold text-white">Gönderdiğiniz kurulum bilgileri</div>
+          <dl className="mt-2 space-y-1.5 text-[13px]">
+            {order.fields.map((f) => (
+              <div key={f.key} className="flex flex-wrap gap-x-2">
+                <dt className="text-vx-muted">{f.label}:</dt>
+                <dd className="text-zinc-100 break-all">
+                  {f.secret ? (f.provided ? 'Kaydedildi (şifreli saklanıyor; teslim/iptal sonrası silinir)' : 'Silindi') : f.key === 'botLogo' && f.value ? <img src={f.value} alt="Bot logosu" className="inline-block w-10 h-10 rounded-lg object-cover align-middle" /> : f.value || '—'}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+
       {order.note && (
         <div className="mt-5 text-[13px] text-zinc-300"><span className="text-vx-muted">Sipariş notunuz: </span>“{order.note}”</div>
       )}

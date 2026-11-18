@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react'
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Copy, ExternalLink } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import Modal from '../../components/Modal.jsx'
+import { ORDER_FIELD_PRESETS, PRESET_KEYS } from '../../config/orderFields.js'
 import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, ImageUploader, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
 const CATEGORY = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 const catOptions = Object.entries(CATEGORY)
 
-const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', metaTitle: '', metaDescription: '', popular: false, active: true }
+const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', orderFields: [], metaTitle: '', metaDescription: '', popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
@@ -17,6 +18,7 @@ const toForm = (p) => ({
   delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
   images: p.images || [],
   details: p.details || '',
+  orderFields: p.orderFields || [],
   specs: (p.specs || []).map((r) => `${r.k}: ${r.v}`).join('\n'),
   requirements: (p.requirements || []).join('\n'),
   metaTitle: p.metaTitle || '',
@@ -44,6 +46,7 @@ function toPayload(f, creating) {
     images: f.images,
     slug: f.slug,
     details: f.details,
+    orderFields: (f.orderFields || []).filter((d) => PRESET_KEYS.includes(d.key) || (/^custom_[0-2]$/.test(d.key) && (d.label || '').trim())).map((d) => ({ key: d.key, required: Boolean(d.required), label: d.label || '' })),
     specs: lines(f.specs).map((l) => { const i = l.indexOf(':'); return i > 0 ? { k: l.slice(0, i).trim(), v: l.slice(i + 1).trim() } : null }).filter((r) => r && r.k && r.v),
     requirements: lines(f.requirements),
     metaTitle: f.metaTitle,
@@ -52,6 +55,46 @@ function toPayload(f, creating) {
     active: f.active,
   }
   return body
+}
+
+// Which extra questions the order form asks for this product, and which of them are mandatory.
+function OrderFieldsEditor({ value = [], onChange }) {
+  const find = (key) => value.find((d) => d.key === key)
+  const toggle = (key, on) => onChange(on ? [...value, { key, required: false, label: '' }] : value.filter((d) => d.key !== key))
+  const patch = (key, p) => onChange(value.map((d) => (d.key === key ? { ...d, ...p } : d)))
+  const customs = [0, 1, 2].map((i) => ({ key: `custom_${i}`, def: find(`custom_${i}`) }))
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <Btn variant="ghost" onClick={() => onChange(PRESET_KEYS.map((key) => ({ key, required: key !== 'botLogo' && key !== 'serverInvite', label: '' })))}>Bot kurulumu şablonu</Btn>
+        <Btn variant="ghost" onClick={() => onChange([])}>Hepsini kapat</Btn>
+      </div>
+      <ul className="divide-y divide-vx-line/60 rounded-xl border border-vx-line bg-vx-surface">
+        {PRESET_KEYS.map((key) => {
+          const d = find(key)
+          const p = ORDER_FIELD_PRESETS[key]
+          return (
+            <li key={key} className="p-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+              <div className="min-w-[220px] flex-1"><div className="text-[14px] font-semibold text-white">{p.label}</div><div className="text-[12px] text-vx-muted">{key === 'botToken' ? 'Hassas veri: şifreli saklanır, teslim/iptalde silinir.' : p.hint || 'Müşteriden istenir.'}</div></div>
+              <CheckField label="Siparişte iste" checked={Boolean(d)} onChange={(on) => toggle(key, on)} />
+              <label className={`inline-flex items-center gap-2 text-[13px] select-none ${d ? 'text-slate-200 cursor-pointer' : 'text-slate-600'}`}>
+                <input type="checkbox" className="w-4 h-4 accent-violet-500" disabled={!d} checked={Boolean(d && d.required)} onChange={(e) => patch(key, { required: e.target.checked })} /> Zorunlu
+              </label>
+            </li>
+          )
+        })}
+      </ul>
+      <div className="rounded-xl border border-vx-line bg-vx-surface p-3 space-y-3">
+        <div className="text-[13px] font-semibold text-white">Özel alanlar (en fazla 3)</div>
+        {customs.map(({ key, def }) => (
+          <div key={key} className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[200px]"><TextField label="Soru / alan adı" value={def ? def.label : ''} max={60} placeholder="Örn: Hangi komut öneki? (!, /)" onChange={(v) => (v ? (def ? patch(key, { label: v }) : onChange([...value, { key, required: false, label: v }])) : onChange(value.filter((d) => d.key !== key)))} /></div>
+            <label className={`inline-flex items-center gap-2 pb-3 text-[13px] select-none ${def ? 'text-slate-200 cursor-pointer' : 'text-slate-600'}`}><input type="checkbox" className="w-4 h-4 accent-violet-500" disabled={!def} checked={Boolean(def && def.required)} onChange={(e) => patch(key, { required: e.target.checked })} /> Zorunlu</label>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 function Editor({ product, subs, onClose, onSaved }) {
@@ -109,7 +152,10 @@ function Editor({ product, subs, onClose, onSaved }) {
         <h4 className="sm:col-span-2 mt-3 text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">4 · Görseller</h4>
         <div className="sm:col-span-2"><ImageUploader label="Örnek fotoğraflar" value={f.images} onChange={set('images')} max={6} upload={admin.uploadMedia} /></div>
 
-        <h4 className="sm:col-span-2 mt-3 text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">5 · Arama motoru (isteğe bağlı)</h4>
+        <h4 className="sm:col-span-2 mt-3 text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">5 · Sipariş formu (müşteriden istenecek bilgiler)</h4>
+        <div className="sm:col-span-2"><OrderFieldsEditor value={f.orderFields} onChange={set('orderFields')} /></div>
+
+        <h4 className="sm:col-span-2 mt-3 text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">6 · Arama motoru (isteğe bağlı)</h4>
         <TextField label="Sayfa başlığı (SEO)" value={f.metaTitle} onChange={set('metaTitle')} max={70} hint="Boş bırakılırsa otomatik oluşturulur. 60 karakter ideal." />
         <TextField label="Sayfa açıklaması (SEO)" value={f.metaDescription} onChange={set('metaDescription')} max={170} hint="Google sonuçlarında görünen metin. 150-160 karakter ideal." />
       </div>

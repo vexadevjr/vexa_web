@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import FitImage from './FitImage.jsx'
 
 export function Lightbox({ images, start, alt, onClose }) {
   const [i, setI] = useState(start)
@@ -53,7 +54,7 @@ export default function Gallery({ images = [], alt = 'Proje görseli', aspect = 
       <div ref={track} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shown.map((src, n) => (
           <button key={src} type="button" onClick={() => setView(n)} aria-label={`${alt} ${n + 1} büyüt`} className={`relative shrink-0 w-full snap-center ${aspect} cursor-zoom-in`}>
-            <img src={src} alt={`${alt} ${n + 1}`} loading="lazy" decoding="async" draggable="false" onError={() => setBroken((b) => ({ ...b, [src]: true }))} className="absolute inset-0 w-full h-full object-cover" />
+            <FitImage src={src} alt={`${alt} ${n + 1}`} onError={() => setBroken((b) => ({ ...b, [src]: true }))} className="absolute inset-0" />
           </button>
         ))}
       </div>

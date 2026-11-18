@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { inputCls } from '../../components/Field.jsx'
+import { shrinkImage } from '../../lib/image.js'
 
 export const AdminContext = createContext({ authLost: () => {} })
 export const useAdmin = () => useContext(AdminContext)
@@ -153,29 +154,7 @@ export function useToast() {
 export const confirmDo = (message) => window.confirm(message)
 
 // ───── photo uploader: resizes in the browser (max 1600px, WebP) and stores the file on the server ─────
-async function shrink(file) {
-  const bmp = await createImageBitmap(file)
-  const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height))
-  const c = document.createElement('canvas')
-  c.width = Math.round(bmp.width * scale)
-  c.height = Math.round(bmp.height * scale)
-  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
-  const toBlob = (type, q) => new Promise((r) => c.toBlob(r, type, q))
-  const probe = await toBlob('image/webp', 0.8)
-  const type = probe && probe.type === 'image/webp' ? 'image/webp' : 'image/jpeg' // older Safari cannot encode WebP
-  let blob = null
-  for (const q of [0.84, 0.72, 0.6, 0.48, 0.38]) {
-    blob = await toBlob(type, q)
-    if (blob && blob.size < 1300000) break
-  }
-  if (!blob) throw new Error('Görsel işlenemedi.')
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader()
-    fr.onload = () => resolve(String(fr.result).split(',')[1])
-    fr.onerror = () => reject(new Error('Dosya okunamadı.'))
-    fr.readAsDataURL(blob)
-  })
-}
+const shrink = (file) => shrinkImage(file, 1600, 1300000)
 
 export function ImageUploader({ label = 'Fotoğraflar', value = [], onChange, max = 6, upload }) {
   const [busy, setBusy] = useState(false)

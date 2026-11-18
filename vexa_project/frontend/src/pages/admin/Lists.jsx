@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Star, BadgeCheck } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { formatPrice } from '../../lib/format.js'
@@ -15,6 +15,44 @@ const ORDER_STATUS = [
 const NEXT = { yeni: ['onaylandi', 'Onayla'], onaylandi: ['hazirlaniyor', 'Hazırlamaya başla'], hazirlaniyor: ['teslim-edildi', 'Teslim edildi olarak işaretle'] }
 const STATUS_TONE = { yeni: 'amber', onaylandi: 'blue', hazirlaniyor: 'blue', 'teslim-edildi': 'green', iptal: 'red' }
 const STATUS_NAME = Object.fromEntries(ORDER_STATUS)
+
+function SecretCell({ o, f, onPurged }) {
+  const [val, setVal] = useState('')
+  const [err, setErr] = useState('')
+  const timer = useRef(null)
+  async function reveal() {
+    setErr('')
+    try {
+      const r = await admin.orderSecret(o.orderNo, f.key)
+      setVal(r.value)
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => setVal(''), 30000)
+    } catch (e) {
+      setErr(e.message)
+    }
+  }
+  async function purge() {
+    if (!confirmDo('Bu siparişteki gizli bilgiler (bot token) kalıcı olarak silinsin mi?')) return
+    try {
+      await admin.purgeSecrets(o.orderNo)
+      setVal('')
+      onPurged()
+    } catch (e) {
+      setErr(e.message)
+    }
+  }
+  if (!f.provided) return <span className="text-vx-muted">{o.secretsPurgedAt ? 'Silindi (teslim/iptal sonrası otomatik)' : 'Girilmedi'}</span>
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <code className="px-2 py-1 rounded bg-vx-card border border-vx-line text-[12px] break-all">{val || '••••••••••••••••••••'}</code>
+        {!val ? <Btn variant="ghost" onClick={reveal}>Göster (30 sn)</Btn> : <Btn variant="ghost" onClick={() => navigator.clipboard && navigator.clipboard.writeText(val)}>Kopyala</Btn>}
+        <Btn variant="danger" onClick={purge}>Sil</Btn>
+      </div>
+      {err && <div className="text-rose-400 text-[12px]">{err}</div>}
+    </div>
+  )
+}
 
 function OrderRow({ o, onChange }) {
   const [open, setOpen] = useState(false)
@@ -41,6 +79,24 @@ function OrderRow({ o, onChange }) {
             {o.note && <div className="sm:col-span-2"><dt className="text-vx-muted">Müşteri notu</dt><dd className="mt-1 p-3 rounded-lg bg-vx-card border border-vx-line text-zinc-100 whitespace-pre-wrap">{o.note}</dd></div>}
             {o.status === 'iptal' && <div className="sm:col-span-2 text-rose-300">İptal eden: {o.cancelledBy === 'customer' ? 'müşteri' : 'yönetici'}{o.cancelReason ? ` — “${o.cancelReason}”` : ''}</div>}
           </dl>
+          {(o.fields || []).length > 0 && (
+            <div>
+              <h4 className="text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">Kurulum bilgileri</h4>
+              <dl className="mt-2 rounded-xl border border-vx-line divide-y divide-vx-line/60 text-[13px]">
+                {o.fields.map((f) => (
+                  <div key={f.key} className="grid grid-cols-[170px_1fr] gap-3 px-3 py-2.5">
+                    <dt className="text-vx-muted">{f.label}</dt>
+                    <dd className="text-zinc-100 break-words">
+                      {f.secret ? <SecretCell o={o} f={f} onPurged={() => onChange(o.orderNo, o.status, true)} />
+                        : f.key === 'botLogo' && f.value ? <a href={f.value} target="_blank" rel="noopener noreferrer"><img src={f.value} alt="Bot logosu" className="w-16 h-16 rounded-xl object-cover border border-vx-line" /></a>
+                        : f.key === 'serverInvite' && f.value ? <a className="text-vx-accent-soft underline" href={f.value} target="_blank" rel="noopener noreferrer nofollow">{f.value}</a>
+                        : f.value || '—'}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
           {(o.history || []).length > 0 && (
             <ol className="flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-vx-muted">
               {o.history.map((h, i) => <li key={i}><b className="text-zinc-200">{STATUS_NAME[h.status] || h.status}</b> · {fmtDate(h.at)}</li>)}
@@ -68,8 +124,13 @@ export function Orders() {
   const { data, loading, reload } = useLoad(() => admin.orders({ status, q: applied, page }), [status, applied, page])
   const [toast, push] = useToast()
 
-  async function change(no, v) {
+  async function change(no, v, refreshOnly = false) {
     try {
+      if (refreshOnly) {
+        push('Gizli bilgiler silindi.')
+        await reload()
+        return
+      }
       await admin.setOrderStatus(no, v)
       push('Sipariş durumu güncellendi.')
       reload()

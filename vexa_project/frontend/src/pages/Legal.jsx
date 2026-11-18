@@ -25,6 +25,7 @@ export function Kvkk() {
         ['Hesap bağlantısı', 'Google veya Discord ile girişte: hesap kimliği, ad, doğrulanmış e-posta, profil fotoğrafı bağlantısı', 'Google / Discord oturum açma'],
         ['Pazarlama / ziyaret (yalnızca izninizle)', 'Ziyaret edilen sayfa, IP adresi, tarayıcı ve cihaz bilgisi, ziyaret zamanı', 'Analitik çerez tercihi'],
         ['Görüş ve yorum', 'Puan, yorum metni, görünen kısaltılmış ad', 'Yorum formu'],
+        ['Hizmet teslim bilgileri', 'Discord sunucu ID’si, bot adı, bot logosu, sunucu davet bağlantısı ve (bot kurulumu siparişlerinde) bot token. Bot token şifreli saklanır, sipariş teslim edildiğinde veya iptal edildiğinde otomatik silinir.', 'Sipariş formu'],
         ['Hukuki işlem', 'Mesafeli satış sözleşmesi ve kullanım şartları onay zamanı ve sürümü', 'Sipariş ve kayıt onayı'],
       ]} />
     ) },
@@ -57,6 +58,7 @@ export function Kvkk() {
       'Sipariş ve ödeme kayıtları: ilgili mevzuatta öngörülen saklama süreleri boyunca (vergi ve ticaret mevzuatı kapsamında genellikle 5-10 yıl); hesap silinirse kimliğinizden ayrılarak saklanır.',
       'Destek kayıtları: hizmet geçmişi ve olası uyuşmazlıklar için gerekli süre boyunca; hesap silinirse kimliğinizden ayrılır.',
       'Yorumlar: hesabınızı sildiğinizde veya talep ettiğinizde silinir.',
+      'Bot token gibi hassas teslimat bilgileri: şifreli saklanır; sipariş teslim edildiğinde veya iptal edildiğinde silinir.',
       'Ziyaret (analitik) kayıtları: en geç 400 gün sonra otomatik silinir.',
       'Saklama süresi sona eren veriler, periyodik imha süreçlerinde silinir, yok edilir veya anonim hâle getirilir.',
     ]} />) },
@@ -85,7 +87,7 @@ export function PrivacyPolicy() {
     { id: 'kapsam', title: 'Kapsam', content: (<><P>Bu politika, Vexstar web sitesini ziyaret ettiğinizde veya hizmetlerimizden yararlandığınızda hangi bilgilerin toplandığını ve nasıl kullanıldığını sade bir dille açıklar. Kişisel verilerin KVKK kapsamındaki ayrıntılı işlenme koşulları için <L to={routes.kvkk}>KVKK Aydınlatma Metni</L>’ni inceleyin.</P><IdentityTable /></>) },
     { id: 'toplanan', title: 'Hangi bilgileri topluyoruz?', content: (<Ul items={[
       'Hesap bilgileri: ad, e-posta, şifre (yalnızca geri döndürülemez şifrelenmiş hâliyle); Google/Discord ile girişte hesap kimliği ve profil fotoğrafı',
-      'Sipariş bilgileri: seçtiğiniz hizmet, ad, e-posta, Discord kullanıcı adı, sipariş notu',
+      'Sipariş bilgileri: seçtiğiniz hizmet, ad, e-posta, Discord kullanıcı adı, sipariş notu ve hizmete göre istenen kurulum bilgileri (Discord sunucu ID’si, bot adı/logosu, davet bağlantısı, bot token)',
       'Destek bilgileri: taleplerinizin içeriği ve yazışmalarımız',
       'Yorumlar: puanınız ve yorum metniniz (adınız “Ahmet Y.” biçiminde kısaltılarak gösterilir)',
       'Ziyaret bilgileri (yalnızca analitik çerezine izin verirseniz): sayfa, IP adresi, tarayıcı bilgisi, zaman',
