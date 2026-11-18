@@ -42,7 +42,7 @@ export default function DiscordBots() {
           ))}
         </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-stretch">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
           {visible.map((bot) => (
             <ProductCard key={bot.slug} product={bot} />
           ))}

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
-function Lightbox({ images, start, alt, onClose }) {
+export function Lightbox({ images, start, alt, onClose }) {
   const [i, setI] = useState(start)
   const go = useCallback((d) => setI((x) => (x + d + images.length) % images.length), [images.length])
   useEffect(() => {

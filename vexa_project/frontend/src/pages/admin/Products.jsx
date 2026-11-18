@@ -7,7 +7,7 @@ import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField,
 const CATEGORY = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 const catOptions = Object.entries(CATEGORY)
 
-const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', metaTitle: '', metaDescription: '', popular: false, active: true }
+const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', metaTitle: '', metaDescription: '', popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
@@ -17,6 +17,7 @@ const toForm = (p) => ({
   delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
   images: p.images || [],
   details: p.details || '',
+  specs: (p.specs || []).map((r) => `${r.k}: ${r.v}`).join('\n'),
   requirements: (p.requirements || []).join('\n'),
   metaTitle: p.metaTitle || '',
   metaDescription: p.metaDescription || '',
@@ -43,6 +44,7 @@ function toPayload(f, creating) {
     images: f.images,
     slug: f.slug,
     details: f.details,
+    specs: lines(f.specs).map((l) => { const i = l.indexOf(':'); return i > 0 ? { k: l.slice(0, i).trim(), v: l.slice(i + 1).trim() } : null }).filter((r) => r && r.k && r.v),
     requirements: lines(f.requirements),
     metaTitle: f.metaTitle,
     metaDescription: f.metaDescription,
@@ -100,6 +102,7 @@ function Editor({ product, subs, onClose, onSaved }) {
         <div className="sm:col-span-2"><AreaField label="Kısa tanım (kartlar ve arama)" value={f.description} onChange={set('description')} rows={2} max={1000} /></div>
         <div className="sm:col-span-2"><AreaField label="Detaylı açıklama (ürün sayfasında “Genel Bakış”)" hint="Paragrafları boş satırla ayırın." value={f.details} onChange={set('details')} rows={7} max={4000} /></div>
         <div className="sm:col-span-2"><AreaField label="Özellikler / neler dahil (her satıra bir madde)" value={f.features} onChange={set('features')} rows={5} max={3000} /></div>
+        <div className="sm:col-span-2"><AreaField label="Teknik özellikler tablosu (her satıra “Ad: Değer”)" hint="Örn: Komut sayısı: 40+  |  Dil desteği: Türkçe / İngilizce  |  Barındırma: Dahil. Boş bırakırsanız otomatik tablo gösterilir." value={f.specs} onChange={set('specs')} rows={5} max={4000} /></div>
         <div className="sm:col-span-2"><AreaField label="Teslim için gerekenler (her satıra bir madde)" hint="Örn: Sunucu davet bağlantısı, logo dosyası, istenen komut listesi" value={f.requirements} onChange={set('requirements')} rows={4} max={2400} /></div>
         <div className="sm:col-span-2"><TextField label="Arama etiketleri (virgülle ayırın)" value={f.tags} onChange={set('tags')} max={300} /></div>
 
