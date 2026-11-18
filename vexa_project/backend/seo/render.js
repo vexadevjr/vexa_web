@@ -94,6 +94,7 @@ function productNode(d, p, pagePath) {
     image: abs((p.images && p.images[0]) || d.seo.image || '/og-image.jpg'),
     url: `${SITE}${pagePath}#${p.slug}`,
   }
+  if ((p.specs || []).length) node.additionalProperty = p.specs.map((s) => ({ '@type': 'PropertyValue', name: s.k, value: s.v }))
   if (p.price != null) {
     node.offers = {
       '@type': 'Offer',
@@ -171,7 +172,7 @@ function snapshot(d, path, page) {
   const web = productsOf(d, 'web')
   if (page.product) {
     const p = page.product
-    body += `<p>${esc(p.tagline || '')}</p>${p.details ? `<p>${esc(p.details)}</p>` : `<p>${esc(p.description || '')}</p>`}<ul>${(p.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${(p.requirements || []).length ? `<h2>Teslim için gerekenler</h2><ul>${p.requirements.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}<p>Fiyat: ${esc(priceText(p))}${p.oldPrice && p.price != null && p.oldPrice > p.price ? ` (indirim öncesi ${Number(p.oldPrice).toLocaleString('tr-TR')} ₺)` : ''}</p><p>Teslim: ${esc(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : 'Kapsama göre'))}</p>`
+    body += `<p>${esc(p.tagline || '')}</p>${p.details ? `<p>${esc(p.details)}</p>` : `<p>${esc(p.description || '')}</p>`}<ul>${(p.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${(p.requirements || []).length ? `<h2>Teknik özellikler</h2><ul>${(p.specs || []).map((s) => `<li>${esc(s.k)}: ${esc(s.v)}</li>`).join('')}</ul><h2>Teslim için gerekenler</h2><ul>${p.requirements.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}<p>Fiyat: ${esc(priceText(p))}${p.oldPrice && p.price != null && p.oldPrice > p.price ? ` (indirim öncesi ${Number(p.oldPrice).toLocaleString('tr-TR')} ₺)` : ''}</p><p>Teslim: ${esc(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : 'Kapsama göre'))}</p>`
   } else if (path === '/') {
     body += `<h2>Discord Bot Yaptırma</h2><p>Moderasyon, ticket, müzik, ekonomi ve özel komutlar içeren, sunucunuza göre hazırlanan Discord botları.</p>${productList(d, bots, '/discord-botlari')}`
     body += `<h2>Web Sitesi Yaptırma</h2><p>Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ve e-ticaret web siteleri.</p>${productList(d, web, '/web-gelistirme')}`

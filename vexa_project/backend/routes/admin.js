@@ -266,6 +266,7 @@ function productInput(b, { creating }) {
   if (out.oldPrice != null && out.price != null && out.oldPrice <= out.price) errors.push('oldPrice (eski fiyat, satış fiyatından yüksek olmalı)')
   if ('delivery' in o) out.delivery = text(o.delivery, 60)
   if ('images' in o) out.images = arr(o.images, 6, (m) => (typeof m === 'string' && MEDIA_URL.test(m) ? m : undefined)) || []
+  if ('specs' in o) out.specs = arr(o.specs, 20, (r) => { const k = r && text(r.k, 60); const v = r && text(r.v, 200); return k && v ? { k, v } : undefined }) || []
   if ('details' in o) out.details = text(o.details, 4000, true)
   if ('requirements' in o) out.requirements = arr(o.requirements, 12, (r) => text(r, 200) || undefined) || []
   if ('metaTitle' in o) out.metaTitle = text(o.metaTitle, 70)

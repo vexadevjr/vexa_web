@@ -19,6 +19,7 @@ const productSchema = new mongoose.Schema(
     deliveryDays: { type: Number, default: null, min: 0 }, // legacy
     delivery: { type: String, trim: true, default: '', maxlength: 60 }, // free text, e.g. "5-7 iş günü"
     images: { type: [String], default: [] }, // /api/media/<id>
+    specs: { type: [new mongoose.Schema({ k: { type: String, maxlength: 60 }, v: { type: String, maxlength: 200 } }, { _id: false })], default: [] }, // technical-specification table rows
     details: { type: String, trim: true, default: '', maxlength: 4000 }, // long description (product page)
     requirements: { type: [String], default: [] }, // what the customer must provide / prepare
     metaTitle: { type: String, trim: true, default: '', maxlength: 70 },
