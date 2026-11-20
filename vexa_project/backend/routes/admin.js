@@ -19,6 +19,8 @@ const { decrypt } = require('../utils/secretBox')
 const { getCategories } = require('../services/categories')
 const { text, bool, num, arr } = require('../utils/sanitize')
 const { str } = require('../utils/validate')
+const AuditLog = require('../models/AuditLog')
+const audit = require('../services/audit')
 
 router.use((req, res, next) => {
   res.set('Cache-Control', 'no-store')
@@ -31,9 +33,15 @@ router.post('/login', limiters.adminLogin, async (req, res, next) => {
     if (!adminAuth.enabled) return res.status(404).json({ message: 'Not found' })
     const ip = require('../utils/clientIp').clientIp(req)
     const result = await adminAuth.checkCredentials(req.body || {}, ip)
+    const tried = String((req.body && req.body.email) || '').trim().toLowerCase().slice(0, 80)
+    if (result === 'locked') await audit.record(req, 'oturum', 'GIRIS_ENGEL', `Kilitli IP giriş denedi (${tried || '-'})`, {}, tried || 'bilinmiyor')
     if (result === 'locked') return res.status(429).json({ message: 'Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin.' })
-    if (!result) return res.status(401).json({ message: 'Giriş bilgileri hatalı.' }) // same message for every failure
+    if (!result) {
+      await audit.record(req, 'oturum', 'GIRIS_BASARISIZ', `Başarısız giriş denemesi (${tried || '-'})`, {}, tried || 'bilinmiyor')
+      return res.status(401).json({ message: 'Giriş bilgileri hatalı.' }) // same message for every failure
+    }
     adminAuth.issue(res)
+    await audit.record(req, 'oturum', 'GIRIS', 'Yönetim paneline giriş yapıldı')
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -45,8 +53,9 @@ router.get('/config', (req, res) => {
   res.json({ enabled: adminAuth.enabled, totp: adminAuth.requiresTotp })
 })
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   adminAuth.clear(res)
+  await audit.record(req, 'oturum', 'CIKIS', 'Yönetim panelinden çıkış yapıldı')
   res.json({ ok: true })
 })
 
@@ -311,6 +320,7 @@ router.post('/products', async (req, res, next) => {
     if (await Product.exists({ slug: out.slug })) return res.status(409).json({ message: 'Bu kısa ad (slug) zaten kullanılıyor.' })
     const count = await Product.estimatedDocumentCount()
     const product = await Product.create({ sort: count, ...out })
+    await audit.record(req, 'urun', 'URUN_EKLE', `"${out.name}" ürünü eklendi (${out.price == null ? 'teklif' : out.price + ' ₺'})`, { slug: out.slug, kategori: out.category, fiyat: out.price ?? null })
     res.status(201).json({ id: String(product._id) })
   } catch (err) {
     next(err)
@@ -324,8 +334,14 @@ router.put('/products/:slug', async (req, res, next) => {
     if (errors.length) return res.status(400).json({ message: `Geçersiz alan: ${errors.join(', ')}` })
     if (out.category && !(await getCategories()).some((c) => c.id === out.category)) return res.status(400).json({ message: 'Geçersiz kategori.' })
     if (out.slug && out.slug !== slug && (await Product.exists({ slug: out.slug }))) return res.status(409).json({ message: 'Bu kısa ad (slug) başka bir üründe kullanılıyor.' })
+    const before = await Product.findOne({ slug }).lean()
     const r = await Product.updateOne({ slug }, { $set: out }, { runValidators: true })
     if (!r.matchedCount) return res.status(404).json({ message: 'Ürün bulunamadı.' })
+    const d = audit.diff(before, out)
+    if (Object.keys(d).length) {
+      const L = { price: 'fiyat', oldPrice: 'eski fiyat', name: 'ad', category: 'kategori', popular: 'popüler', active: 'yayında', slug: 'kısa ad', delivery: 'teslim süresi', priceFrom: 'başlangıç fiyatı', subCategory: 'alt kategori' }
+      await audit.record(req, 'urun', d.price ? 'FIYAT_DUZENLE' : 'URUN_DUZENLE', `"${before.name}" ürünü düzenlendi → ${audit.diffText(d, L)}`, { slug, degisiklik: d })
+    }
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -334,8 +350,10 @@ router.put('/products/:slug', async (req, res, next) => {
 
 router.delete('/products/:slug', async (req, res, next) => {
   try {
+    const gone = await Product.findOne({ slug: str(req.params.slug, 60) }).lean()
     const r = await Product.deleteOne({ slug: str(req.params.slug, 60) })
     if (!r.deletedCount) return res.status(404).json({ message: 'Ürün bulunamadı.' })
+    await audit.record(req, 'urun', 'URUN_SIL', `"${gone.name}" ürünü silindi`, { slug: gone.slug, kategori: gone.category, fiyat: gone.price, eskiFiyat: gone.oldPrice })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -357,6 +375,7 @@ router.post('/products-reorder', async (req, res, next) => {
     // keep the category's slots, fill them in the new order, then renumber everything
     const slugs = all.map((p) => (p.category === category ? queue.shift() : p.slug))
     await Product.bulkWrite(slugs.map((slug, i) => ({ updateOne: { filter: { slug }, update: { $set: { sort: i } } } })))
+    await audit.record(req, 'urun', 'SIRALAMA', `"${category}" kategorisinde ürün sırası değiştirildi`, { yeniSira: wanted })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -372,7 +391,69 @@ router.post('/products-rename-sub', async (req, res, next) => {
     const ids = (await getCategories()).map((c) => c.id)
     if (!ids.includes(category) || !from || !to) return res.status(400).json({ message: 'Geçersiz istek.' })
     const r = await Product.updateMany({ category, subCategory: from }, { $set: { subCategory: to } })
+    await audit.record(req, 'urun', 'ALT_KATEGORI', `Alt kategori adı "${from}" → "${to}" (${r.modifiedCount} ürün)`, { kategori: category, onceki: from, yeni: to })
     res.json({ updated: r.modifiedCount })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ───────── discounts (per product or per category) ─────────
+// percent > 0: the current price becomes the "old price" (or keeps the existing one) and the sale price is lowered.
+// percent = 0: the discount is removed and the original price is restored. Quote-only products (no price) are skipped.
+router.post('/discounts', async (req, res, next) => {
+  try {
+    const scope = req.body && req.body.scope
+    const target = str(req.body && req.body.target, 60)
+    const pct = Math.round(Number(req.body && req.body.percent))
+    if (!['product', 'category'].includes(scope) || !target || !Number.isFinite(pct) || pct < 0 || pct > 90) return res.status(400).json({ message: 'İndirim 0 ile 90 arasında olmalı ve bir hedef seçilmelidir.' })
+    const products = await Product.find(scope === 'product' ? { slug: target } : { category: target }).lean()
+    if (!products.length) return res.status(404).json({ message: 'Bu hedefte ürün bulunamadı.' })
+    const ops = []
+    const changes = []
+    let skipped = 0
+    for (const p of products) {
+      if (p.price == null) { skipped += 1; continue }
+      const base = p.oldPrice && p.oldPrice > p.price ? p.oldPrice : p.price
+      const price = pct === 0 ? base : Math.round(base * (1 - pct / 100))
+      if (pct > 0 && price >= base) { skipped += 1; continue }
+      const oldPrice = pct === 0 ? null : base
+      if (price === p.price && (oldPrice || null) === (p.oldPrice || null)) continue
+      ops.push({ updateOne: { filter: { slug: p.slug }, update: { $set: { price, oldPrice } } } })
+      changes.push({ urun: p.name, slug: p.slug, fiyatOnceki: p.price, fiyatYeni: price, eskiFiyat: oldPrice })
+    }
+    if (ops.length) await Product.bulkWrite(ops)
+    const what = scope === 'product' ? `"${products[0].name}" ürününe` : `"${target}" kategorisindeki ${products.length} ürüne`
+    await audit.record(req, 'indirim', pct ? 'INDIRIM_UYGULA' : 'INDIRIM_KALDIR', pct ? `${what} %${pct} indirim uygulandı (${ops.length} ürün güncellendi)` : `${what} ait indirim kaldırıldı (${ops.length} ürün)`, { kapsam: scope, hedef: target, yuzde: pct, degisenler: changes.slice(0, 100), atlanan: skipped })
+    res.json({ ok: true, updated: ops.length, skipped })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ───────── activity log (read-only; there is intentionally no way to edit or delete entries) ─────────
+router.get('/audit', async (req, res, next) => {
+  try {
+    const p = page(req)
+    const AP = 40
+    const filter = {}
+    const cat = str(req.query.category, 20)
+    if (cat) filter.category = cat
+    const q = str(req.query.q, 60)
+    if (q) {
+      const rx = new RegExp(esc(q), 'i')
+      filter.$or = [{ summary: rx }, { actor: rx }, { ip: rx }, { action: rx }]
+    }
+    const [rows, total] = await Promise.all([AuditLog.find(filter).sort({ seq: -1 }).skip((p - 1) * AP).limit(AP).select('-_id -prevHash').lean(), AuditLog.countDocuments(filter)])
+    res.json({ rows: rows.map((r) => { let d = null; try { d = r.details ? JSON.parse(r.details) : null } catch (e) { d = null } return { ...r, details: d } }), total, page: p, perPage: AP })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/audit/verify', async (req, res, next) => {
+  try {
+    res.json(await audit.verify())
   } catch (err) {
     next(err)
   }
@@ -396,6 +477,7 @@ router.post('/media', async (req, res, next) => {
     if (!mime) return res.status(400).json({ message: 'Yalnızca JPG, PNG veya WebP yüklenebilir.' })
     if ((await Media.estimatedDocumentCount()) > 600) return res.status(400).json({ message: 'Görsel depolama sınırına ulaşıldı.' })
     const doc = await Media.create({ data: buf, mime, size: buf.length })
+    await audit.record(req, 'icerik', 'GORSEL_YUKLE', `Görsel yüklendi (${Math.round(buf.length / 1024)} KB, ${mime})`, { url: `/api/media/${doc._id}` })
     res.status(201).json({ url: `/api/media/${doc._id}` })
   } catch (err) {
     next(err)
@@ -425,7 +507,11 @@ router.put('/content/:key', async (req, res, next) => {
       const missing = used.filter((id) => !value.some((c) => c.id === id))
       if (missing.length) return res.status(400).json({ message: `Bu kategorilerde ürün var, önce ürünleri taşıyın veya silin: ${missing.join(', ')}` })
     }
+    const prevRow = await Setting.findOne({ key: `content:${key}` }).lean()
     await Setting.updateOne({ key: `content:${key}` }, { $set: { value } }, { upsert: true })
+    const was = prevRow ? prevRow.value : null
+    const det = Array.isArray(value) ? { oncekiAdet: Array.isArray(was) ? was.length : 0, yeniAdet: value.length } : { degisiklik: audit.diff(was || {}, value) }
+    await audit.record(req, 'icerik', key === 'announcement' ? 'DUYURU' : 'ICERIK_DUZENLE', key === 'announcement' ? `Duyuru güncellendi: "${audit.clip(value.text || '', 80)}" (${value.enabled ? 'yayında' : 'kapalı'})` : `"${key}" içeriği güncellendi${Array.isArray(value) ? ` (${det.oncekiAdet} → ${det.yeniAdet} öğe)` : ''}`, { icerik: key, ...det })
     res.json({ ok: true, value })
   } catch (err) {
     next(err)
@@ -436,6 +522,7 @@ router.delete('/content/:key', async (req, res, next) => {
   try {
     if (!CONTENT_KEYS.includes(req.params.key)) return res.status(404).json({ message: 'Bilinmeyen içerik.' })
     await Setting.deleteOne({ key: `content:${req.params.key}` })
+    await audit.record(req, 'icerik', 'ICERIK_SIFIRLA', `"${req.params.key}" içeriği varsayılana döndürüldü`, { icerik: req.params.key })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -488,6 +575,7 @@ router.post('/tickets/:ticketNo/reply', async (req, res, next) => {
     t.unreadByUser = true // the customer sees a "new reply" marker in their panel
     t.unreadByAdmin = false
     await t.save()
+    await audit.record(req, 'destek', 'TALEP_YANIT', `${t.ticketNo} numaralı talebe yanıt verildi`, { talep: t.ticketNo, yanit: audit.clip(body, 400) })
     res.status(201).json({ ok: true, replies: t.replies })
   } catch (err) {
     next(err)
@@ -499,6 +587,7 @@ router.patch('/tickets/:ticketNo', async (req, res, next) => {
     if (!TICKET_STATUS.includes(req.body && req.body.status)) return res.status(400).json({ message: 'Geçersiz durum.' })
     const r = await Message.updateOne({ ticketNo: str(req.params.ticketNo, 40) }, { $set: { status: req.body.status } })
     if (!r.matchedCount) return res.status(404).json({ message: 'Talep bulunamadı.' })
+    await audit.record(req, 'destek', 'TALEP_DURUM', `${str(req.params.ticketNo, 40)} talebinin durumu "${req.body.status}" yapıldı`, { talep: str(req.params.ticketNo, 40), durum: req.body.status })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -507,7 +596,9 @@ router.patch('/tickets/:ticketNo', async (req, res, next) => {
 
 router.delete('/tickets/:ticketNo', async (req, res, next) => {
   try {
+    const gone = await Message.findOne({ ticketNo: str(req.params.ticketNo, 40) }).lean()
     await Message.deleteOne({ ticketNo: str(req.params.ticketNo, 40) })
+    if (gone) await audit.record(req, 'destek', 'TALEP_SIL', `${gone.ticketNo} numaralı destek talebi silindi (${gone.name}, "${audit.clip(gone.subject || '', 80)}")`, { talep: gone.ticketNo, ad: gone.name, eposta: gone.email, konu: gone.subject, yanitSayisi: (gone.replies || []).length })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -544,6 +635,7 @@ router.get('/orders/:orderNo/secret', async (req, res, next) => {
     const f = order && order.fields.find((x) => x.secret && x.key === str(req.query.key, 30))
     if (!f || !f.value) return res.status(404).json({ message: 'Kayıtlı gizli bilgi yok (silinmiş olabilir).' })
     console.warn(`[audit] admin viewed secret "${f.key}" of order ${order.orderNo}`)
+    await audit.record(req, 'siparis', 'GIZLI_GORUNTULE', `${order.orderNo} siparişinin gizli bilgisi görüntülendi (${f.key})`, { siparis: order.orderNo, alan: f.key })
     res.json({ value: decrypt(f.value) })
   } catch (err) {
     next(err)
@@ -558,6 +650,7 @@ router.delete('/orders/:orderNo/secret', async (req, res, next) => {
     order.secretsPurgedAt = new Date()
     await order.save()
     console.warn(`[audit] admin purged secrets of order ${order.orderNo}`)
+    await audit.record(req, 'siparis', 'GIZLI_SIL', `${order.orderNo} siparişinin gizli bilgileri kalıcı silindi`, { siparis: order.orderNo })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -570,7 +663,9 @@ router.patch('/orders/:orderNo', async (req, res, next) => {
     const order = await Order.findOne({ orderNo: str(req.params.orderNo, 40) })
     if (!order) return res.status(404).json({ message: 'Sipariş bulunamadı.' })
     if (order.status !== req.body.status) {
+      const was = order.status
       order.status = req.body.status
+      await audit.record(req, 'siparis', 'SIPARIS_DURUM', `${order.orderNo} siparişi (${order.productName}, ${order.customer.name}) durumu ${was} → ${req.body.status}`, { siparis: order.orderNo, urun: order.productName, tutar: order.price, onceki: was, yeni: req.body.status })
       order.history.push({ status: req.body.status })
       if (req.body.status === 'iptal' && !order.cancelledBy) order.cancelledBy = 'admin'
       // delivered or cancelled: the customer's bot token is no longer needed, so it is wiped
@@ -605,9 +700,11 @@ router.patch('/reviews/:id', async (req, res, next) => {
     if (!id || !['pending', 'approved', 'rejected'].includes(req.body && req.body.status)) return res.status(400).json({ message: 'Geçersiz istek.' })
     const review = await Review.findById(id)
     if (!review) return res.status(404).json({ message: 'Yorum bulunamadı.' })
+    const wasStatus = review.status
     review.status = req.body.status
     review.verified = Boolean(await Order.exists({ user: review.user, status: 'teslim-edildi' }))
     await review.save()
+    await audit.record(req, 'yorum', 'YORUM_DURUM', `${review.name} adlı kişinin yorumu ${wasStatus} → ${req.body.status}`, { yorum: String(review._id), metin: audit.clip(review.text, 300), onceki: wasStatus, yeni: req.body.status })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -618,7 +715,9 @@ router.delete('/reviews/:id', async (req, res, next) => {
   try {
     const id = objectId(req.params.id)
     if (!id) return res.status(400).json({ message: 'Geçersiz istek.' })
+    const gone = await Review.findById(id).lean()
     await Review.deleteOne({ _id: id })
+    if (gone) await audit.record(req, 'yorum', 'YORUM_SIL', `${gone.name} adlı kişinin yorumu silindi`, { puan: gone.rating, metin: audit.clip(gone.text, 400), urun: gone.product })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -667,6 +766,7 @@ router.patch('/users/:id', async (req, res, next) => {
     if (req.body.disabled) require('../middleware/auth').blocked.add(id)
     else require('../middleware/auth').blocked.delete(id)
     console.warn(`[audit] admin ${req.body.disabled ? 'blocked' : 'unblocked'} user ${id}`)
+    await audit.record(req, 'musteri', req.body.disabled ? 'MUSTERI_ENGELLE' : 'MUSTERI_ENGEL_KALDIR', `${u.name} <${u.email}> müşterisi ${req.body.disabled ? 'engellendi' : 'engeli kaldırıldı'}`, { musteri: String(u._id), ad: u.name, eposta: u.email })
     res.json({ ok: true })
   } catch (err) {
     next(err)
@@ -686,6 +786,7 @@ router.delete('/users/:id', async (req, res, next) => {
       Review.deleteMany({ user: u._id }),
     ])
     await User.deleteOne({ _id: u._id })
+    await audit.record(req, 'musteri', 'MUSTERI_SIL', `${u.name} <${u.email}> müşteri hesabı silindi`, { musteri: String(u._id), ad: u.name, eposta: u.email, kayitTarihi: u.createdAt, google: Boolean(u.googleId), discord: Boolean(u.discordId) })
     require('../middleware/auth').blocked.delete(id)
     console.warn(`[audit] admin deleted user ${id}`)
     res.json({ ok: true })

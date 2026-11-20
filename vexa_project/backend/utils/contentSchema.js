@@ -115,7 +115,8 @@ const validators = {
     if (!o) return undefined
     const link = o.link ? internalPath(o.link) || url(o.link) : ''
     if (link === null) return undefined
-    return { enabled: bool(o.enabled), text: text(o.text, 300), link: link || '' }
+    const STYLES = ['kampanya', 'bilgi', 'uyari']
+    return { enabled: bool(o.enabled), title: text(o.title, 80), text: text(o.text, 300), link: link || '', linkText: text(o.linkText, 30), style: STYLES.includes(o.style) ? o.style : 'bilgi' }
   },
 }
 
