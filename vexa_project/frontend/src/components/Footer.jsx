@@ -10,8 +10,8 @@ import { external } from '../lib/scroll.js'
 const { routes } = siteConfig
 
 const col = (title, links) => ({ title, links })
-const columns = [
-  col('Hizmetler', [['Discord Botları', routes.bots], ['Web Geliştirme', routes.web], ['Portföy', routes.portfolio]]),
+const columns = (categories) => [
+  col('Hizmetler', [...categories.map((c) => [c.name, c.path]), ['Portföy', routes.portfolio]]),
   col('Destek', [['İletişim ve Teklif', routes.contact], ['Talep Takibi', routes.contact], ['Hesabım', routes.orders]]),
   col('Yasal', [['KVKK Aydınlatma Metni', routes.kvkk], ['Gizlilik Politikası', routes.privacy], ['Kullanım Şartları', routes.terms], ['Mesafeli Satış Sözleşmesi', routes.distance], ['İptal ve İade', routes.refund], ['Çerez Politikası', routes.cookies]]),
 ]
@@ -24,7 +24,7 @@ const socialDefs = [
 ]
 
 export default function Footer() {
-  const { links, contact } = useSite()
+  const { links, contact, categories } = useSite()
   const socials = socialDefs.filter((s) => links[s.key])
 
   return (
@@ -46,7 +46,7 @@ export default function Footer() {
           )}
         </div>
 
-        {columns.map((c) => (
+        {columns(categories).map((c) => (
           <nav key={c.title} aria-label={c.title}>
             <div className="text-[13px] font-semibold text-white">{c.title}</div>
             <ul className="mt-4 space-y-2.5">

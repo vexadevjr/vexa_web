@@ -1,5 +1,6 @@
 // Order-form fields an admin can switch on per product (mirrors backend/utils/orderFields.js).
 export const ORDER_FIELD_PRESETS = {
+  discordUsername: { label: 'Discord Kullanıcı Adı', placeholder: 'kullanıcı adınız', hint: '', type: 'text', regex: /^.{2,40}$/, error: 'Discord kullanıcı adınızı girin (2-40 karakter).' },
   discordServerId: { label: 'Discord Sunucu ID', placeholder: '123456789012345678', hint: 'Discord → Ayarlar → Gelişmiş → Geliştirici Modu’nu açın, sunucu adına sağ tıklayıp “Sunucu ID’sini Kopyala” seçin.', type: 'text', regex: /^\d{17,20}$/, error: 'Geçerli bir Discord sunucu ID girin (17-20 haneli sayı).' },
   botToken: { label: 'Discord Bot Token', placeholder: 'MTIz...', hint: 'Discord Developer Portal → Uygulamanız → Bot → “Reset Token”.', type: 'secret', regex: /^[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{15,}$/, error: 'Geçerli bir bot token girin.' },
   botName: { label: 'Discord Bot Adı', placeholder: 'Örn: Nova Guard', hint: '', type: 'text', regex: /^.{2,32}$/, error: 'Bot adı 2-32 karakter olmalıdır.' },

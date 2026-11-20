@@ -238,37 +238,86 @@ export function Reviews() {
 
 export function Customers() {
   const [page, setPage] = useState(1)
-  const { data, loading } = useLoad(() => admin.users({ page }), [page])
+  const [status, setStatus] = useState('')
+  const [q, setQ] = useState('')
+  const [applied, setApplied] = useState('')
+  const { data, loading, reload } = useLoad(() => admin.users({ page, status, q: applied }), [page, status, applied])
+  const [toast, push] = useToast()
+
+  async function block(u) {
+    if (!u.disabled && !confirmDo(`${u.name} hesabı engellensin mi? Giriş yapamaz, sipariş veremez ve yorum/talep yazamaz.`)) return
+    try {
+      await admin.blockUser(u.id, !u.disabled)
+      push(u.disabled ? 'Engel kaldırıldı.' : 'Hesap engellendi.')
+      reload()
+    } catch (e) {
+      push(e.message, 'err')
+    }
+  }
+  async function remove(u) {
+    if (!confirmDo(`${u.name} (${u.email}) hesabı KALICI olarak silinsin mi?\n\nYorumları silinir; sipariş ve destek kayıtları kimliğinden ayrılarak saklanır. Bu işlem geri alınamaz.`)) return
+    try {
+      await admin.deleteUser(u.id)
+      push('Hesap silindi.')
+      reload()
+    } catch (e) {
+      push(e.message, 'err')
+    }
+  }
+
   return (
-    <Card title={`Müşteriler${data ? ` (${data.total})` : ''}`}>
+    <Card
+      title={`Müşteriler${data ? ` (${data.total})` : ''}`}
+      actions={
+        <>
+          <select className="h-9 px-2 rounded-lg bg-vx-surface border border-vx-line text-[13px] text-white" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1) }} aria-label="Durum">
+            <option value="">Tümü</option>
+            <option value="blocked">Engellenenler</option>
+          </select>
+          <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setPage(1); setApplied(q.trim()) }}>
+            <input className="h-9 w-44 px-3 rounded-lg bg-vx-surface border border-vx-line text-[13px] text-white outline-none" placeholder="Ad veya e-posta…" value={q} onChange={(e) => setQ(e.target.value)} maxLength={60} />
+            <Btn type="submit" variant="ghost">Ara</Btn>
+          </form>
+        </>
+      }
+    >
+      {toast}
       {loading && !data && <Empty>Yükleniyor…</Empty>}
+      {data && data.users.length === 0 && <Empty>Müşteri bulunamadı.</Empty>}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-left text-[13px]">
+        <table className="w-full min-w-[860px] text-left text-[13px]">
           <thead>
             <tr className="text-vx-muted border-b border-vx-line">
-              <th className="py-2 pr-3 font-medium">Ad</th>
-              <th className="py-2 pr-3 font-medium">E-posta</th>
-              <th className="py-2 pr-3 font-medium">Giriş yöntemi</th>
-              <th className="py-2 font-medium">Kayıt tarihi</th>
+              {['Müşteri', 'Giriş yöntemi', 'Sipariş', 'Talep', 'Yorum', 'Kayıt tarihi', 'İşlem'].map((h) => <th key={h} className="py-2 pr-3 font-medium">{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {data && data.users.map((u) => (
-              <tr key={u.id} className="border-b border-vx-line/60 last:border-0">
-                <td className="py-2.5 pr-3 text-white">{u.name}</td>
-                <td className="py-2.5 pr-3 break-all">{u.email}</td>
-                <td className="py-2.5 pr-3 space-x-1">
+              <tr key={u.id} className="border-b border-vx-line/60 last:border-0 align-top">
+                <td className="py-3 pr-3">
+                  <div className="font-semibold text-white flex items-center gap-2">{u.name}{u.disabled && <Badge tone="red">Engelli</Badge>}</div>
+                  <div className="text-[12px] text-vx-muted break-all">{u.email}</div>
+                </td>
+                <td className="py-3 pr-3 space-x-1">
                   {!u.google && !u.discord && <Badge>E-posta</Badge>}
                   {u.google && <Badge tone="blue">Google</Badge>}
                   {u.discord && <Badge tone="blue">Discord</Badge>}
                 </td>
-                <td className="py-2.5 text-vx-muted whitespace-nowrap">{fmtDate(u.createdAt)}</td>
+                <td className="py-3 pr-3 tabular-nums">{u.orders}</td>
+                <td className="py-3 pr-3 tabular-nums">{u.tickets}</td>
+                <td className="py-3 pr-3 tabular-nums">{u.reviews}</td>
+                <td className="py-3 pr-3 text-vx-muted whitespace-nowrap">{fmtDate(u.createdAt)}{u.termsAcceptedAt && <div className="text-[11px]">Şartlar: {fmtDate(u.termsAcceptedAt)}</div>}</td>
+                <td className="py-3 whitespace-nowrap space-x-2">
+                  <Btn variant={u.disabled ? 'success' : 'ghost'} onClick={() => block(u)}>{u.disabled ? 'Engeli kaldır' : 'Engelle'}</Btn>
+                  <Btn variant="danger" onClick={() => remove(u)}>Sil</Btn>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {data && <Pager page={page} total={data.total} perPage={data.perPage} onPage={setPage} />}
+      <p className="mt-4 text-[11px] text-slate-500">Engellenen müşteri giriş yapamaz, sipariş veremez, yorum veya destek talebi yazamaz (oturumu anında geçersiz olur). Hesap silindiğinde yorumları kaldırılır; sipariş ve destek kayıtları muhasebe için kimlikten ayrılarak saklanır.</p>
     </Card>
   )
 }

@@ -18,7 +18,7 @@ export default function OrderModal({ product, onClose }) {
   const { user } = useApp()
   const navigate = useNavigate()
   const siteConfig = useSite()
-  const [form, setForm] = useState({ name: user ? user.name : '', email: user ? user.email : '', discord: '', note: '' })
+  const [form, setForm] = useState({ name: user ? user.name : '', email: user ? user.email : '', note: '' })
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -114,11 +114,6 @@ export default function OrderModal({ product, onClose }) {
         <Field label="E-posta" error={errors.email}>
           <input className={inputCls} type="email" value={form.email} onChange={set('email')} autoComplete="email" maxLength={254} />
         </Field>
-        <div className="sm:col-span-2">
-          <Field label="Discord kullanıcı adı (isteğe bağlı)" error={errors.discord}>
-            <input className={inputCls} value={form.discord} onChange={set('discord')} maxLength={40} />
-          </Field>
-        </div>
         <OrderFields product={product} values={extra} onChange={(k, v) => setExtra((x) => ({ ...x, [k]: v }))} errors={errors} />
         <div className="sm:col-span-2">
           <Field label="Notunuz (isteğe bağlı)" error={errors.note}>

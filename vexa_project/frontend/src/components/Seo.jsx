@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { siteConfig } from '../config/siteConfig.js'
 import useProducts from '../hooks/useProducts.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 const { seo } = siteConfig
 const NOINDEX = ['/hesap', '/panel', '/admin']
@@ -22,11 +23,15 @@ const prop = (property, value) => setTag(`meta[property="${property}"]`, { tag: 
 export default function Seo() {
   const { pathname } = useLocation()
   const products = useProducts()
+  const { categories } = useSite()
   useEffect(() => {
     const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/'
     const pm = path.match(/^\/urunler\/([a-z0-9-]+)$/)
     const prod = pm ? products.find((x) => x.slug === pm[1]) : null
-    const page = prod
+    const cat = categories.find((c) => c.path === path)
+    const page = cat
+      ? { title: cat.seoTitle || `${cat.name} | Vexstar`, description: cat.seoDescription || cat.description }
+      : prod
       ? { title: prod.metaTitle || `${prod.name} | Vexstar`, description: prod.metaDescription || `${prod.tagline || ''} ${prod.description || ''}`.trim().slice(0, 160) }
       : seo.pages[path]
     const noindex = !page || NOINDEX.some((p) => path === p || path.startsWith(`${p}/`))
@@ -43,6 +48,6 @@ export default function Seo() {
     prop('og:url', url)
     meta('twitter:title', title)
     meta('twitter:description', desc)
-  }, [pathname, products])
+  }, [pathname, products, categories])
   return null
 }

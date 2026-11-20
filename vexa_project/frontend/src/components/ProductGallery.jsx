@@ -12,7 +12,7 @@ export default function ProductGallery({ images = [], name }) {
 
   if (!list.length) {
     return (
-      <div className="aspect-[4/3] sm:aspect-[16/11] rounded-2xl border border-vx-line bg-gradient-to-br from-vx-accent/25 via-vx-surface to-vx-card grid place-items-center">
+      <div className="h-full min-h-[280px] aspect-[4/3] xl:aspect-auto rounded-2xl border border-vx-line bg-gradient-to-br from-vx-accent/25 via-vx-surface to-vx-card grid place-items-center">
         <div className="text-center px-6">
           <Package className="w-14 h-14 mx-auto text-vx-accent-text/70" strokeWidth={1.2} />
           <div className="mt-3 text-[15px] font-semibold text-white/90">{name}</div>
@@ -24,9 +24,9 @@ export default function ProductGallery({ images = [], name }) {
   const go = (d) => setI((x) => (x + d + list.length) % list.length)
 
   return (
-    <div>
-      <div className="relative">
-        <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full aspect-[4/3] sm:aspect-[16/11] overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
+    <div className="flex flex-col h-full">
+      <div className="relative flex-1 flex flex-col">
+        <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full flex-1 min-h-[260px] aspect-[4/3] xl:aspect-auto overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
           <FitImage src={list[cur]} alt={`${name} ${cur + 1}`} loading="eager" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0" />
         </button>
         {list.length > 1 && (

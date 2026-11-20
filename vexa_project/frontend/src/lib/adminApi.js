@@ -68,5 +68,7 @@ export const admin = {
   reviews: (status) => call('GET', `/reviews${qs({ status })}`),
   setReviewStatus: (id, status) => call('PATCH', `/reviews/${id}`, { status }),
   deleteReview: (id) => call('DELETE', `/reviews/${id}`),
+  blockUser: (id, disabled) => call('PATCH', `/users/${id}`, { disabled }),
+  deleteUser: (id) => call('DELETE', `/users/${id}`),
   users: (params) => call('GET', `/users${qs(params)}`),
 }

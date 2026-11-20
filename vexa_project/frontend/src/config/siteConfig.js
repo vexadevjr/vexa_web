@@ -27,20 +27,6 @@ export const siteConfig = {
         changefreq: 'weekly',
         priority: '1.0',
       },
-      '/discord-botlari': {
-        title: 'Discord Bot Yaptırma | Moderasyon, Müzik, Ekonomi Botu – Vexstar',
-        description: 'Sunucunuza özel Discord botları: moderasyon, ticket, müzik, ekonomi ve özel komutlar. Hazır paketler, net fiyat, hızlı teslimat ve teslim sonrası ücretsiz hata düzeltme.',
-        h1: 'Discord Bot Yaptırma: Hazır Bot Paketleri',
-        changefreq: 'weekly',
-        priority: '0.9',
-      },
-      '/web-gelistirme': {
-        title: 'Web Sitesi Yaptırma | Kurumsal ve E-Ticaret Web Tasarım – Vexstar',
-        description: 'Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ile e-ticaret web siteleri. Hazır paketler, net fiyat ve profesyonel teslimat.',
-        h1: 'Web Sitesi Yaptırma: Kurumsal ve E-Ticaret Paketleri',
-        changefreq: 'weekly',
-        priority: '0.9',
-      },
       '/portfoy': {
         title: 'Projeler ve Referanslar | Discord Bot & Web Siteleri – Vexstar',
         description: 'Vexstar’ın tamamladığı Discord botu, web sitesi ve sunucu projelerinden seçmeler.',
@@ -139,7 +125,7 @@ export const siteConfig = {
   // Client-side routes
   routes: {
     home: '/',
-    bots: '/discord-botlari',
+    bots: '/discord-hizmetleri',
     web: '/web-gelistirme',
     portfolio: '/portfoy',
     contact: '/iletisim',
@@ -166,7 +152,7 @@ export const siteConfig = {
 
   // Cards on the home page
   serviceCards: [
-    { title: 'Discord Botları', icon: 'discord', to: '/discord-botlari', desc: 'Sunucunuz için gelişmiş, güvenli ve özelleştirilebilir botlar.' },
+    { title: 'Discord Hizmetleri', icon: 'discord', to: '/discord-hizmetleri', desc: 'Sunucunuz için gelişmiş, güvenli ve özelleştirilebilir botlar.' },
     { title: 'Web Geliştirme', icon: 'code', to: '/web-gelistirme', desc: 'Modern ve performanslı web siteleri ile projelerinizi büyütün.' },
     { title: 'Sunucu Çözümleri', icon: 'server', to: '/iletisim?konu=Sunucu%20Çözümleri', desc: 'Sunucu, hosting ve altyapı desteği ile kesintisiz hizmet.' },
     { title: 'Özel Yazılım', icon: 'settings', to: '/iletisim?konu=Özel%20Yazılım', desc: 'İhtiyacınıza özel yazılım çözümleri geliştiriyoruz.' },
@@ -347,14 +333,6 @@ export const siteConfig = {
   ],
 
   // Comparison table on the Discord bots page. `slugs` = bots that include the feature.
-  botComparison: [
-    { label: 'Özel bot adı ve avatar', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-economy', 'vexstar-register'] },
-    { label: 'Slash komut desteği', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
-    { label: 'Detaylı log kanalları', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-market', 'vexstar-register'] },
-    { label: 'Yönetici kontrol komutları', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
-    { label: 'Ücretsiz güncellemeler', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
-    { label: '7/24 teknik destek', slugs: ['vexstar-guard', 'vexstar-shield', 'vexstar-music', 'vexstar-economy', 'vexstar-market', 'vexstar-register'] },
-  ],
 
   // PLACEHOLDER business commitments: confirm each one before publishing.
   guarantees: [
@@ -383,6 +361,31 @@ export const siteConfig = {
     { q: 'Teslim süreleri nelerdir?', a: 'Her paketin kartında tahmini teslim süresi yazar. Özel istekler için süre, planlama aşamasında yazılı olarak bildirilir.' },
     { q: 'Teslimattan sonra destek alabilir miyim?', a: 'Evet. Garanti süresi boyunca hatalar ücretsiz düzeltilir. Sonrasında bakım ve destek için ayrı bir plan sunulabilir.' },
     { q: 'Özel bir bot veya yazılım yaptırabilir miyim?', a: 'Evet. İletişim formundan ihtiyacınızı anlatın, size kapsam ve fiyat teklifi hazırlayalım.' },
+  ],
+
+  // Shop categories: each one gets a page, a sidebar menu entry and its own SEO tags. Admins can add more in /admin -> Ürünler.
+  // Built-in ids (stored on products): 'discord-bot', 'web'. Custom categories live at /kategori/<id>.
+  categories: [
+    {
+      id: 'discord-bot',
+      path: '/discord-hizmetleri',
+      name: 'Discord Hizmetleri',
+      icon: 'discord',
+      title: 'Discord Hizmetleri',
+      description: 'Bot geliştirme, sunucu kurulumu ve özel Discord çözümleri. Her hizmet sunucunuzun ihtiyacına göre hazırlanır ve net fiyatla, belirtilen sürede teslim edilir.',
+      seoTitle: 'Discord Hizmetleri | Bot Yaptırma ve Sunucu Kurulumu – Vexstar',
+      seoDescription: 'Discord bot yaptırma, sunucu kurulumu ve özel Discord çözümleri. Moderasyon, ticket, müzik, ekonomi botları; hazır paketler, net fiyat ve hızlı teslimat.',
+    },
+    {
+      id: 'web',
+      path: '/web-gelistirme',
+      name: 'Web Geliştirme',
+      icon: 'code',
+      title: 'Web Sitesi Yaptırma: Kurumsal ve E-Ticaret Paketleri',
+      description: 'Şeffaf fiyatlar ve net teslim süreleri. Her paket, kapsamı ve teslim tarihi yazılı olarak onaylandıktan sonra başlar.',
+      seoTitle: 'Web Sitesi Yaptırma | Kurumsal ve E-Ticaret Web Tasarım – Vexstar',
+      seoDescription: 'Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ile e-ticaret web siteleri. Hazır paketler, net fiyat ve profesyonel teslimat.',
+    },
   ],
 
   // Legal identity shown on the legal pages. Fill it in from /admin -> Site Ayarları -> Yasal Bilgiler.

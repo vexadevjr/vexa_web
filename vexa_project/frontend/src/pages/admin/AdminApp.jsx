@@ -24,7 +24,7 @@ const GROUPS = [
     title: 'Müşteriler',
     tabs: [
       { id: 'tickets', label: 'Destek Talepleri', icon: MessageSquare, badge: 'openTickets' },
-      { id: 'users', label: 'Müşteri Listesi', icon: Users },
+      { id: 'users', label: 'Müşteriler', icon: Users },
     ],
   },
   {

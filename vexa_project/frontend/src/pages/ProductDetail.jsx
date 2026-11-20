@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { BadgeCheck, Check, ChevronRight, Clock, Headphones, ListChecks, MessageSquare, PackageCheck, RotateCcw, ShieldCheck, Truck } from 'lucide-react'
+import { BadgeCheck, Check, ChevronRight, Clock, Headphones, ListChecks, MessageSquare, PackageCheck, RotateCcw, ShieldCheck, Tag, Truck } from 'lucide-react'
 import Button from '../components/Button.jsx'
 import ProductGallery from '../components/ProductGallery.jsx'
 import PriceBlock from '../components/PriceBlock.jsx'
@@ -16,8 +16,6 @@ import { siteConfig } from '../config/siteConfig.js'
 import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel } from '../lib/format.js'
 
 const { routes } = siteConfig
-const LABEL = { 'discord-bot': 'Discord Botu', web: 'Web Sitesi', server: 'Sunucu', software: 'Yazılım' }
-const listFor = (p) => (p.category === 'web' ? [routes.web, 'Web Geliştirme'] : [routes.bots, 'Discord Botları'])
 
 const Panel = ({ id, title, children, className = '' }) => (
   <section id={id} className={`scroll-mt-20 rounded-2xl bg-vx-card border border-vx-line p-5 sm:p-7 ${className}`}>
@@ -38,7 +36,7 @@ export default function ProductDetail() {
   const products = useProducts()
   const { openOrder } = useApp()
   const { reviews } = useReviews()
-  useSite()
+  const { categories } = useSite()
   const p = products.find((x) => x.slug === slug)
   const [active, setActive] = useState('genel')
 
@@ -69,7 +67,9 @@ export default function ProductDetail() {
 
   if (!p) return <NotFound />
 
-  const [listTo, listName] = listFor(p)
+  const cat = categories.find((c) => c.id === p.category)
+  const listTo = cat ? cat.path : routes.home
+  const listName = cat ? cat.name : 'Ürünler'
   const quote = p.price == null
   const sale = discountInfo(p)
   const eta = estimateDelivery(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''))
@@ -78,7 +78,7 @@ export default function ProductDetail() {
   const specs = (p.specs || []).length
     ? p.specs
     : [
-        { k: 'Hizmet türü', v: LABEL[p.category] || 'Hizmet' },
+        { k: 'Hizmet türü', v: listName },
         ...(p.subCategory ? [{ k: 'Kategori', v: p.subCategory }] : []),
         ...(p.period ? [{ k: 'Ödeme türü', v: p.period }] : []),
         { k: 'Teslim süresi', v: deliveryLabel(p) },
@@ -98,13 +98,13 @@ export default function ProductDetail() {
       </nav>
 
       {/* ───── above the fold: gallery on the left, everything needed to buy on the right ───── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-6 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-6 items-stretch">
         <ProductGallery images={p.images || []} name={p.name} />
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-semibold uppercase tracking-wide text-vx-accent-soft">{LABEL[p.category] || 'Hizmet'}</span>
+              <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-semibold uppercase tracking-wide text-vx-accent-soft">{listName}</span>
               {p.subCategory && <span className="text-[12px] text-vx-muted">{p.subCategory}</span>}
               {p.popular && <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white">En çok tercih edilen</span>}
             </div>
@@ -126,20 +126,23 @@ export default function ProductDetail() {
           )}
 
           {/* buy box */}
-          <div className="rounded-2xl bg-vx-card border border-vx-accent/40 p-5 shadow-[0_20px_50px_-30px_rgba(124,58,237,0.8)]">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2 h-6">
-                  {p.priceFrom && !quote && <span className="text-[12px] font-bold uppercase tracking-wide text-vx-accent-soft">Başlangıç fiyatı</span>}
-                  {sale && <span className="px-2 h-6 inline-flex items-center rounded-md bg-rose-500 text-[12px] font-bold text-white">%{sale.pct} İNDİRİM</span>}
+          <div className="mt-auto rounded-2xl bg-vx-card border border-vx-accent/40 p-5 shadow-[0_20px_50px_-30px_rgba(124,58,237,0.8)]">
+            {sale && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-500/40 bg-gradient-to-r from-rose-500/25 via-orange-500/10 to-transparent px-4 py-3">
+                <span className="grid place-items-center w-10 h-10 shrink-0 rounded-full bg-rose-500 text-white shadow-lg shadow-rose-500/30"><Tag className="w-5 h-5" /></span>
+                <div className="min-w-0 leading-snug">
+                  <div className="text-[14px] font-bold text-white">Kampanyalı fiyat · %{sale.pct} indirim</div>
+                  <div className="text-[13px] text-rose-100/90">Liste fiyatına göre <b className="text-white">{formatPrice(sale.old - p.price)}</b> daha uygun</div>
                 </div>
-                <div className="mt-1 flex flex-wrap items-baseline gap-3">
-                  <span className="text-[40px] font-black leading-none tracking-tight tabular-nums text-white">{quote ? 'Teklif alın' : formatPrice(p.price)}</span>
-                  {sale && <span className="text-[18px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70 decoration-2">{formatPrice(sale.old)}</span>}
-                </div>
-                <div className="mt-1 text-[13px] text-vx-muted">{quote ? 'İhtiyacınıza göre özel fiyat' : p.period}</div>
               </div>
-              {sale && <div className="px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[13px] font-semibold text-emerald-300">{formatPrice(sale.old - p.price)} kazanıyorsunuz</div>}
+            )}
+            <div>
+              {p.priceFrom && !quote && <div className="text-[12px] font-bold uppercase tracking-wide text-vx-accent-soft">Başlangıç fiyatı</div>}
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-[42px] font-black leading-none tracking-tight tabular-nums text-white">{quote ? 'Teklif alın' : formatPrice(p.price)}</span>
+                {sale && <span className="text-[19px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70 decoration-2">{formatPrice(sale.old)}</span>}
+              </div>
+              <div className="mt-1 text-[13px] text-vx-muted">{quote ? 'İhtiyacınıza göre özel fiyat' : p.period}</div>
             </div>
 
             <div className="mt-4 flex items-start gap-3 p-3 rounded-xl bg-vx-surface border border-vx-line">
@@ -248,15 +251,15 @@ export default function ProductDetail() {
           )}
         </Panel>
 
+        {related.length > 0 && (
+          <section id="benzer" className="scroll-mt-20">
+            <h2 className="text-[22px] font-bold tracking-tight text-white">Benzer paketler</h2>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">{related.map((r) => <ProductCard key={r.slug} product={r} />)}</div>
+          </section>
+        )}
+
         <div id="sss" className="scroll-mt-20"><Faq /></div>
       </div>
-
-      {related.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Benzer ürünler</h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">{related.map((r) => <ProductCard key={r.slug} product={r} />)}</div>
-        </section>
-      )}
 
       <div data-bottom-bar className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-4 py-3 bg-vx-surface/95 backdrop-blur-xl border-t border-vx-line flex items-center gap-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
         <div className="min-w-0">

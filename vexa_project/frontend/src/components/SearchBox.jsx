@@ -5,11 +5,10 @@ import useProducts from '../hooks/useProducts.js'
 import { useSite } from '../context/SiteContext.jsx'
 import { norm, productPath, priceLabel } from '../lib/format.js'
 
-const CATEGORY_LABEL = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
 
 export default function SearchBox() {
   const products = useProducts()
-  const { serviceCards } = useSite()
+  const { serviceCards, categories } = useSite()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -22,7 +21,7 @@ export default function SearchBox() {
 
     const fromProducts = products
       .filter((p) => norm([p.name, p.tagline, p.subCategory, p.category, ...(p.tags || []), ...(p.features || [])].join(' ')).includes(term))
-      .map((p) => ({ key: p.slug, title: p.name, meta: CATEGORY_LABEL[p.category] || p.category, price: priceLabel(p), to: productPath(p) }))
+      .map((p) => ({ key: p.slug, title: p.name, meta: (categories.find((c) => c.id === p.category) || {}).name || '', price: priceLabel(p), to: productPath(p) }))
 
     const fromServices = serviceCards
       .filter((s) => norm(`${s.title} ${s.desc}`).includes(term))
@@ -30,7 +29,7 @@ export default function SearchBox() {
       .map((s) => ({ key: s.title, title: s.title, meta: 'Hizmet', price: '', to: s.to }))
 
     return [...fromProducts, ...fromServices].slice(0, 7)
-  }, [query, products, serviceCards])
+  }, [query, products, serviceCards, categories])
 
   useEffect(() => {
     const onDown = (e) => {

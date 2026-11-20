@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
-import { Home, Code2, LayoutGrid, Mail, ChevronRight, X } from 'lucide-react'
+import { Home, LayoutGrid, Mail, ChevronRight, X } from 'lucide-react'
+import { iconFor } from '../lib/categories.js'
 import { DiscordIcon, GithubIcon, YoutubeIcon, XIcon } from './Icons.jsx'
 import vLogo from '../assets/vexstar-logo.png'
 import { siteConfig } from '../config/siteConfig.js'
@@ -8,13 +9,6 @@ import { external } from '../lib/scroll.js'
 
 const { routes } = siteConfig
 
-const items = [
-  { label: 'Ana Sayfa', icon: Home, to: routes.home },
-  { label: 'Discord Botları', icon: DiscordIcon, to: routes.bots, chevron: true },
-  { label: 'Web Geliştirme', icon: Code2, to: routes.web, chevron: true },
-  { label: 'Portföy', icon: LayoutGrid, to: routes.portfolio },
-  { label: 'İletişim', icon: Mail, to: routes.contact },
-]
 
 const socialDefs = [
   { label: 'Discord', Icon: DiscordIcon, key: 'discord' },
@@ -24,7 +18,14 @@ const socialDefs = [
 ]
 
 export default function Sidebar({ open, onClose }) {
-  const { links } = useSite()
+  const { links, categories } = useSite()
+  // shop categories come from the admin panel, so a new category shows up here automatically
+  const items = [
+    { label: 'Ana Sayfa', icon: Home, to: routes.home },
+    ...categories.map((c) => ({ label: c.name, icon: iconFor(c.icon), to: c.path, chevron: true })),
+    { label: 'Portföy', icon: LayoutGrid, to: routes.portfolio },
+    { label: 'İletişim', icon: Mail, to: routes.contact },
+  ]
   const socials = socialDefs.filter((s) => links[s.key]).map((s) => ({ ...s, href: links[s.key] }))
   return (
     <aside

@@ -53,7 +53,7 @@ export default function OrderFields({ product, values, onChange, errors }) {
       <legend className="px-2 text-[13px] font-bold uppercase tracking-wide text-vx-accent-text">Kurulum bilgileri</legend>
       {defs.map((d) => {
         const p = ORDER_FIELD_PRESETS[d.key]
-        const label = `${labelOf(d)}${d.required ? '' : ' (isteğe bağlı)'}`
+        const label = `${labelOf(d)}${d.required ? ' *' : ''}`
         const err = errors[`f_${d.key}`]
         const v = values[d.key] || ''
         if (p && p.type === 'image') {

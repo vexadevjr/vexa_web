@@ -196,7 +196,7 @@ export default function OrdersTab() {
         <Package className="w-11 h-11 mx-auto text-vx-accent-text" strokeWidth={1.5} />
         <p className="mt-4 text-[17px] font-semibold text-white">Henüz siparişiniz yok</p>
         <p className="mt-1.5 text-[14px] text-vx-muted">Bir hizmet seçtiğinizde siparişinizin her aşamasını buradan takip edebilirsiniz.</p>
-        <Button size="sm" to={routes.bots} className="mt-6">Botlara göz at</Button>
+        <Button size="sm" to={routes.home} className="mt-6">Hizmetlere göz at</Button>
       </div>
     )
   }

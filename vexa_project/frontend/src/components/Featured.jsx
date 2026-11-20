@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import ProductCard from './ProductCard.jsx'
 import useProducts from '../hooks/useProducts.js'
-import { siteConfig } from '../config/siteConfig.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 // Home page shop window: the popular products first, so a visitor sees real prices without clicking around.
 export default function Featured() {
   const products = useProducts()
-  const [tab, setTab] = useState('discord-bot')
-  const picks = products.filter((p) => p.category === tab).sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular))).slice(0, 3)
+  const { categories } = useSite()
+  const [tab, setTab] = useState('')
+  const active = categories.find((c) => c.id === tab) || categories[0]
+  const picks = products.filter((p) => active && p.category === active.id).sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular))).slice(0, 3)
 
   return (
     <section id="services">
@@ -20,8 +22,8 @@ export default function Featured() {
           <p className="mt-1 text-[14px] text-vx-muted">En çok tercih edilenler, net fiyatlarla.</p>
         </div>
         <div className="flex items-center gap-2">
-          {[['discord-bot', 'Discord Botları'], ['web', 'Web Siteleri']].map(([id, l]) => (
-            <button key={id} onClick={() => setTab(id)} className={`h-10 px-4 rounded-xl text-[13px] font-semibold border transition-colors ${tab === id ? 'bg-vx-accent border-vx-accent text-white' : 'bg-vx-card border-vx-line text-vx-muted hover:text-white'}`}>{l}</button>
+          {categories.map(({ id, name: l }) => (
+            <button key={id} onClick={() => setTab(id)} className={`h-10 px-4 rounded-xl text-[13px] font-semibold border transition-colors ${active && active.id === id ? 'bg-vx-accent border-vx-accent text-white' : 'bg-vx-card border-vx-line text-vx-muted hover:text-white'}`}>{l}</button>
           ))}
         </div>
       </div>
@@ -32,8 +34,8 @@ export default function Featured() {
       </div>
 
       <div className="mt-5 text-center">
-        <Link to={tab === 'web' ? siteConfig.routes.web : siteConfig.routes.bots} className="inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
-          Tüm {tab === 'web' ? 'web paketlerini' : 'botları'} gör <ArrowRight className="w-4 h-4" />
+        <Link to={active ? active.path : '/'} className="inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
+          {active ? `Tüm ${active.name} ürünlerini gör` : ''} <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
     </section>

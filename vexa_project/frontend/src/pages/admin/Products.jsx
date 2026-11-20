@@ -3,12 +3,11 @@ import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Copy, ExternalLink } from 'lu
 import { admin } from '../../lib/adminApi.js'
 import Modal from '../../components/Modal.jsx'
 import { ORDER_FIELD_PRESETS, PRESET_KEYS } from '../../config/orderFields.js'
+import { ICON_OPTIONS, iconFor, slugify } from '../../lib/categories.js'
 import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, ImageUploader, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
-const CATEGORY = { 'discord-bot': 'Discord Botu', web: 'Web Geliştirme', server: 'Sunucu', software: 'Yazılım' }
-const catOptions = Object.entries(CATEGORY)
 
-const BLANK = { slug: '', category: 'discord-bot', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', orderFields: [], metaTitle: '', metaDescription: '', popular: false, active: true }
+const BLANK = { slug: '', category: '', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', orderFields: [], metaTitle: '', metaDescription: '', popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
@@ -97,9 +96,10 @@ function OrderFieldsEditor({ value = [], onChange }) {
   )
 }
 
-function Editor({ product, subs, onClose, onSaved }) {
+function Editor({ product, subs, categories, onClose, onSaved }) {
   const creating = !product
-  const [f, setF] = useState(product ? toForm(product) : BLANK)
+  const catOptions = categories.map((c) => [c.id, c.name])
+  const [f, setF] = useState(product ? toForm(product) : { ...BLANK, category: categories[0] ? categories[0].id : '' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const set = (k) => (v) => setF((x) => ({ ...x, [k]: v }))
@@ -196,8 +196,9 @@ function PriceCell({ product, onSaved, push }) {
   )
 }
 
-function RenameSub({ products, onDone, push }) {
-  const [category, setCategory] = useState('discord-bot')
+function RenameSub({ products, categories, onDone, push }) {
+  const catOptions = categories.map((c) => [c.id, c.name])
+  const [category, setCategory] = useState(categories[0] ? categories[0].id : '')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const subs = useMemo(() => Array.from(new Set(products.filter((p) => p.category === category).map((p) => p.subCategory).filter(Boolean))), [products, category])
@@ -226,6 +227,95 @@ function RenameSub({ products, onDone, push }) {
   )
 }
 
+// Shop categories: each one gets its own page, sidebar entry and SEO tags on the site.
+function CategoriesCard({ categories, products, onSaved, push }) {
+  const [editing, setEditing] = useState(undefined) // undefined closed, null new, object edit
+  const used = (id) => products.filter((p) => p.category === id).length
+
+  async function persist(list, msg) {
+    try {
+      await admin.saveContent('categories', list)
+      push(msg)
+      onSaved()
+      return true
+    } catch (e) {
+      push(e.message, 'err')
+      return false
+    }
+  }
+  const move = (i, d) => {
+    const j = i + d
+    if (j < 0 || j >= categories.length) return
+    const next = categories.slice()
+    ;[next[i], next[j]] = [next[j], next[i]]
+    persist(next, 'Menü sırası güncellendi.')
+  }
+  const remove = (c) => {
+    if (used(c.id)) return push('Bu kategoride ürün var. Önce ürünleri başka kategoriye taşıyın veya silin.', 'err')
+    if (categories.length <= 1) return push('En az bir kategori kalmalı.', 'err')
+    if (confirmDo(`“${c.name}” kategorisi silinsin mi? Menüden ve siteden kalkar.`)) persist(categories.filter((x) => x.id !== c.id), 'Kategori silindi.')
+  }
+  async function save(c) {
+    const exists = categories.some((x) => x.id === c.id)
+    const id = c.id || slugify(c.name)
+    if (!exists && categories.some((x) => x.id === id)) return push('Bu ada sahip bir kategori zaten var.', 'err')
+    const item = { ...c, id }
+    const list = exists ? categories.map((x) => (x.id === id ? item : x)) : [...categories, item]
+    if (await persist(list, 'Kategori kaydedildi. Soldaki menüde görünür.')) setEditing(undefined)
+  }
+
+  return (
+    <Card title="Kategoriler (sol menü ve sayfalar)" actions={<Btn onClick={() => setEditing(null)}><Plus className="w-4 h-4" /> Yeni kategori</Btn>}>
+      <ul className="space-y-3">
+        {categories.map((c, i) => {
+          const Icon = iconFor(c.icon)
+          return (
+            <li key={c.id} className="flex flex-wrap items-center gap-4 p-3 rounded-xl bg-vx-surface border border-vx-line">
+              <span className="grid place-items-center w-10 h-10 rounded-xl bg-vx-accent/20 text-vx-accent-soft"><Icon className="w-5 h-5" /></span>
+              <div className="min-w-[200px] flex-1">
+                <div className="text-[14px] font-semibold text-white">{c.name}</div>
+                <div className="text-[12px] text-vx-muted">{c.path} · {used(c.id)} ürün</div>
+              </div>
+              <div className="flex gap-2">
+                <Btn variant="ghost" onClick={() => move(i, -1)} aria-label="Yukarı"><ArrowUp className="w-3.5 h-3.5" /></Btn>
+                <Btn variant="ghost" onClick={() => move(i, 1)} aria-label="Aşağı"><ArrowDown className="w-3.5 h-3.5" /></Btn>
+                <a href={c.path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-vx-line bg-vx-surface text-white hover:bg-vx-line" aria-label="Sayfayı gör"><ExternalLink className="w-3.5 h-3.5" /></a>
+                <Btn variant="ghost" onClick={() => setEditing(c)}><Pencil className="w-3.5 h-3.5" /> Düzenle</Btn>
+                <Btn variant="danger" onClick={() => remove(c)} aria-label="Sil"><Trash2 className="w-3.5 h-3.5" /></Btn>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+      <p className="mt-4 text-[11px] text-slate-500">Eklediğiniz kategori soldaki menüde, ana sayfada ve ürün sayfalarında Discord Hizmetleri / Web Geliştirme ile aynı görünümde yer alır. Alt kategoriler (ör. “Moderasyon”, “Sunucu Kurulumu”) ürün düzenlerken yazdığınız alt kategori adından otomatik oluşur.</p>
+      {editing !== undefined && <CategoryEditor item={editing} onClose={() => setEditing(undefined)} onSave={save} />}
+    </Card>
+  )
+}
+
+function CategoryEditor({ item, onClose, onSave }) {
+  const [f, setF] = useState(item || { id: '', name: '', icon: 'package', title: '', description: '', seoTitle: '', seoDescription: '' })
+  const [busy, setBusy] = useState(false)
+  const set = (k) => (v) => setF((x) => ({ ...x, [k]: v }))
+  return (
+    <Modal title={item ? `Kategoriyi düzenle: ${item.name}` : 'Yeni kategori'} onClose={onClose} wide>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <TextField label="Menü adı" value={f.name} onChange={set('name')} max={40} hint="Soldaki menüde ve sekmelerde görünür. Örn: Sunucu Kurulumu" />
+        <SelectField label="Simge" value={f.icon} onChange={set('icon')} options={ICON_OPTIONS} />
+        <div className="sm:col-span-2"><TextField label="Sayfa başlığı" value={f.title} onChange={set('title')} max={100} hint="Boşsa menü adı kullanılır." /></div>
+        <div className="sm:col-span-2"><AreaField label="Sayfa açıklaması" value={f.description} onChange={set('description')} rows={3} max={400} /></div>
+        <TextField label="SEO başlığı" value={f.seoTitle} onChange={set('seoTitle')} max={70} hint="Google sonuçlarındaki başlık (boşsa otomatik)." />
+        <TextField label="SEO açıklaması" value={f.seoDescription} onChange={set('seoDescription')} max={170} />
+        {!item && <p className="sm:col-span-2 text-[12px] text-vx-muted">Sayfa adresi otomatik oluşturulur: /kategori/{slugify(f.name) || '...'}</p>}
+      </div>
+      <div className="mt-6 flex gap-3">
+        <Btn disabled={busy || !f.name.trim() || (!item && slugify(f.name).length < 2)} onClick={async () => { setBusy(true); await onSave(f); setBusy(false) }}>{busy ? 'Kaydediliyor…' : 'Kaydet'}</Btn>
+        <Btn variant="ghost" onClick={onClose}>Vazgeç</Btn>
+      </div>
+    </Modal>
+  )
+}
+
 export default function Products() {
   const { data, error, loading, reload } = useLoad(() => admin.products(), [])
   const { focus } = useAdmin()
@@ -235,6 +325,9 @@ export default function Products() {
   const [editing, setEditing] = useState(focus === 'new' ? null : undefined) // undefined = closed, null = new, object = edit
   const [toast, push] = useToast()
   const products = data ? data.products : []
+  const categories = data ? data.categories : []
+  const catOptions = categories.map((c) => [c.id, c.name])
+  const catName = (id) => (categories.find((c) => c.id === id) || {}).name || id
   const subs = useMemo(() => Array.from(new Set(products.map((p) => p.subCategory).filter(Boolean))), [products])
 
   async function remove(p) {
@@ -319,7 +412,7 @@ export default function Products() {
                     <div className="text-[11px] text-vx-muted">{p.slug}</div>
                   </td>
                   <td className="py-2.5 pr-3 text-zinc-100">
-                    {CATEGORY[p.category]}
+                    {catName(p.category)}
                     {p.subCategory && <span className="text-vx-muted"> · {p.subCategory}</span>}
                   </td>
                   <td className="py-2.5 pr-3"><PriceCell key={`${p.slug}-${p.price}`} product={p} onSaved={reload} push={push} /></td>
@@ -345,12 +438,14 @@ export default function Products() {
         <p className="mt-4 text-[11px] text-zinc-400">Oklar ürünü kendi kategorisi içinde (Discord botları, Web siteleri…) yukarı/aşağı taşır ve sitedeki sırayı değiştirir. Fiyat kutusuna yazıp Enter’a basmanız yeterlidir. Siparişlerde fiyat her zaman sunucudaki bu değerden alınır.</p>
       </Card>
 
-      {data && <RenameSub products={products} onDone={reload} push={push} />}
+      {data && <CategoriesCard categories={categories} products={products} onSaved={reload} push={push} />}
+      {data && <RenameSub products={products} categories={categories} onDone={reload} push={push} />}
 
       {editing !== undefined && (
         <Editor
           product={editing}
           subs={subs}
+          categories={categories}
           onClose={() => setEditing(undefined)}
           onSaved={() => {
             setEditing(undefined)

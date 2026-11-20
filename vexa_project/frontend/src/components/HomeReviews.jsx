@@ -20,7 +20,7 @@ export default function HomeReviews() {
             <span className="text-[14px] text-vx-muted"><b className="text-white text-lg">{stats.average.toFixed(1)}</b> / 5 · {stats.count} yorum</span>
           </div>
         </div>
-        <Link to={`${siteConfig.routes.bots}#yorumlar`} className="inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
+        <Link to={`${siteConfig.routes.portfolio}#yorumlar`} className="inline-flex items-center gap-2 text-[14px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">
           Yorum yaz <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

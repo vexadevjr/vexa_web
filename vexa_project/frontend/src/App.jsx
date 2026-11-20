@@ -6,8 +6,7 @@ import Header from './components/Header.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import OrderModal from './components/OrderModal.jsx'
 import Home from './pages/Home.jsx'
-import DiscordBots from './pages/DiscordBots.jsx'
-import WebDev from './pages/WebDev.jsx'
+import CategoryPage from './pages/CategoryPage.jsx'
 import Portfolio from './pages/Portfolio.jsx'
 import Contact from './pages/Contact.jsx'
 import Account from './pages/Account.jsx'
@@ -89,7 +88,7 @@ function Announcement() {
 function PublicApp() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { authOpen, orderProduct, closeOrder } = useApp()
-  const { ready } = useSite()
+  const { ready, categories } = useSite()
   const { pathname } = useLocation()
 
   // lock the page behind the mobile menu drawer
@@ -119,8 +118,8 @@ function PublicApp() {
         <div key={pathname} className="vx-rise space-y-6">
         <Routes>
           <Route path={routes.home} element={<Home />} />
-          <Route path={routes.bots} element={<DiscordBots />} />
-          <Route path={routes.web} element={<WebDev />} />
+          {categories.map((c) => <Route key={c.id} path={c.path} element={<CategoryPage category={c} />} />)}
+          <Route path="/discord-botlari" element={<Navigate to={routes.bots} replace />} />
           <Route path={routes.portfolio} element={<Portfolio />} />
           <Route path={routes.contact} element={<Contact />} />
           <Route path={`${routes.product}/:slug`} element={<ProductDetail />} />

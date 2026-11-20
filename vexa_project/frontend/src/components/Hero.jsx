@@ -1,4 +1,6 @@
-import { Bot, Globe, Check, Zap, Headphones, BadgeCheck } from 'lucide-react'
+import { Check, Zap, Headphones, BadgeCheck } from 'lucide-react'
+import { iconFor } from '../lib/categories.js'
+import { useSite } from '../context/SiteContext.jsx'
 import Button from './Button.jsx'
 import StarBar from './StarBar.jsx'
 import { siteConfig } from '../config/siteConfig.js'
@@ -36,6 +38,10 @@ function BrandVisual() {
 
 export default function Hero() {
   const stats = useStats()
+  const { categories } = useSite()
+  const [c1, c2] = categories
+  const I1 = iconFor(c1 && c1.icon)
+  const I2 = iconFor(c2 && c2.icon)
   const rated = stats && stats.available && stats.reviewCount > 0
 
   return (
@@ -62,8 +68,8 @@ export default function Hero() {
           </ul>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="w-full sm:w-auto" to={siteConfig.routes.bots}><Bot className="w-5 h-5" /> Discord Botlarını Gör</Button>
-            <Button size="lg" variant="secondary" className="w-full sm:w-auto" to={siteConfig.routes.web}><Globe className="w-5 h-5" /> Web Sitesi Paketleri</Button>
+            {c1 && <Button size="lg" className="w-full sm:w-auto" to={c1.path}><I1 className="w-5 h-5" /> {c1.name}</Button>}
+            {c2 && <Button size="lg" variant="secondary" className="w-full sm:w-auto" to={c2.path}><I2 className="w-5 h-5" /> {c2.name}</Button>}
           </div>
 
           {rated && (
