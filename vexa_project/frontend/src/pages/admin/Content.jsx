@@ -19,10 +19,13 @@ const SECTIONS = [
     { k: 'telefon', l: 'Telefon', max: 40 },
     { k: 'kep', l: 'KEP adresi (varsa)', max: 120 },
   ] },
-  { key: 'announcement', label: 'Duyuru Bandı', kind: 'object', hint: 'Sitenin en üstünde görünen duyuru bandı. Kampanya veya bakım duyurusu için kullanın.', blank: { enabled: false, text: '', link: '' }, fields: [
+  { key: 'announcement', label: 'Duyuru Bandı', kind: 'object', hint: 'Sitenin en üstünde görünen duyuru bandı. Kampanya veya bakım duyurusu için kullanın.', blank: { enabled: false, title: '', text: '', link: '', linkText: '', style: 'bilgi' }, fields: [
     { k: 'enabled', t: 'bool', l: 'Sitede göster' },
+    { k: 'style', t: 'select', l: 'Görünüm', options: [['kampanya', 'Kampanya (turuncu-pembe)'], ['bilgi', 'Bilgi (mor-mavi)'], ['uyari', 'Uyarı (sarı)']] },
+    { k: 'title', l: 'Başlık (kalın, dikkat çekici)', max: 80 },
     { k: 'text', l: 'Duyuru metni', max: 300 },
     { k: 'link', l: 'Bağlantı (isteğe bağlı: /iletisim veya https://...)', max: 300 },
+    { k: 'linkText', l: 'Buton yazısı (örn. Fırsatı Gör)', max: 30 },
   ] },
   { key: 'contact', label: 'İletişim Bilgileri', kind: 'object', hint: 'İletişim sayfası ve alt bilgide görünür.', fields: [
     { k: 'email', l: 'E-posta', max: 120 },

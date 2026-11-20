@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LayoutDashboard, Package, Images, ExternalLink, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Package, Images, ExternalLink, FileText, MessageSquare, ShoppingBag, Star, Users, LogOut, Menu, X, ShieldCheck, Percent, ScrollText } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { AdminContext, Btn, TextField, Card } from './ui.jsx'
 import Dashboard from './Dashboard.jsx'
 import Products from './Products.jsx'
+import Discounts from './Discounts.jsx'
+import AuditLog from './AuditLog.jsx'
 import Content from './Content.jsx'
 import PortfolioAdmin from './PortfolioAdmin.jsx'
 import Tickets from './Tickets.jsx'
@@ -17,6 +19,7 @@ const GROUPS = [
     tabs: [
       { id: 'orders', label: 'Siparişler', icon: ShoppingBag, badge: 'newOrders' },
       { id: 'products', label: 'Ürünler & Fiyatlar', icon: Package },
+      { id: 'discounts', label: 'İndirimler', icon: Percent },
       { id: 'reviews', label: 'Yorumlar', icon: Star, badge: 'pendingReviews' },
     ],
   },
@@ -28,6 +31,10 @@ const GROUPS = [
     ],
   },
   {
+    title: 'Güvenlik',
+    tabs: [{ id: 'audit', label: 'İşlem Kayıtları', icon: ScrollText }],
+  },
+  {
     title: 'İçerik',
     tabs: [
       { id: 'portfolio', label: 'Portföy', icon: Images },
@@ -36,7 +43,7 @@ const GROUPS = [
   },
 ]
 const TABS = GROUPS.flatMap((g) => g.tabs)
-const SCREENS = { dashboard: Dashboard, products: Products, portfolio: PortfolioAdmin, content: Content, tickets: Tickets, orders: Orders, reviews: Reviews, users: Customers }
+const SCREENS = { dashboard: Dashboard, products: Products, discounts: Discounts, audit: AuditLog, portfolio: PortfolioAdmin, content: Content, tickets: Tickets, orders: Orders, reviews: Reviews, users: Customers }
 
 function Login({ onDone }) {
   const [cfg, setCfg] = useState(null)

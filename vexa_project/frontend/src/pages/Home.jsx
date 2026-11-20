@@ -12,8 +12,8 @@ export default function Home() {
   return (
     <div className="space-y-14 sm:space-y-20">
       <Hero />
-      <Reveal><PortfolioSlider /></Reveal>
       <Reveal><Featured /></Reveal>
+      <Reveal><PortfolioSlider /></Reveal>
       <Reveal><HowItWorks /></Reveal>
       <Reveal><WhyUs /></Reveal>
       <Reveal><HomeReviews /></Reveal>

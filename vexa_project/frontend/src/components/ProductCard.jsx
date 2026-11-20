@@ -25,7 +25,7 @@ export default function ProductCard({ product }) {
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
           {sale && <span className="px-2 h-6 inline-flex items-center rounded-md bg-rose-500 text-[11px] font-bold text-white shadow">%{sale.pct} İNDİRİM</span>}
-          {product.popular && <span className="px-2 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white shadow">Popüler</span>}
+          {product.popular && <span className="px-2 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white shadow">⭐ En Çok Tercih Edilen</span>}
         </div>
         {(product.images || []).length > 1 && <span className="absolute right-2 bottom-2 px-2 h-6 inline-flex items-center rounded-md bg-black/60 text-[11px] text-white">{product.images.length} fotoğraf</span>}
       </div>

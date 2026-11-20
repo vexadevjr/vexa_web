@@ -71,4 +71,7 @@ export const admin = {
   blockUser: (id, disabled) => call('PATCH', `/users/${id}`, { disabled }),
   deleteUser: (id) => call('DELETE', `/users/${id}`),
   users: (params) => call('GET', `/users${qs(params)}`),
+  applyDiscount: (scope, target, percent) => call('POST', '/discounts', { scope, target, percent }),
+  audit: (params) => call('GET', `/audit${qs(params)}`),
+  auditVerify: () => call('GET', '/audit/verify'),
 }
