@@ -121,3 +121,29 @@ A cookie banner (accept all / only necessary / manage) stores the choice in the 
 
 * **Admin -> Portföy**: add your past bots/sites with photos (auto-resized, stored in MongoDB and served from `/api/media/<id>`), description, tags and an optional project link. Visitors swipe or use the arrows to browse the photos; click opens a full-size viewer.
 * **Admin -> Ürünler & Fiyatlar**: the short name (slug) is editable, products can carry up to 6 sample photos, delivery time is free text ("5-7 iş günü"), and filling **Eski fiyat** turns a product into a discounted one (old price struck through, big sale price, "%N İNDİRİM" badge). The "Başlangıç" tag is a separate chip above the price so all price blocks line up.
+
+### Security headers
+
+Strict CSP without `'unsafe-inline'` / `'unsafe-eval'` (`script-src 'self'`, `style-src 'self' https://fonts.googleapis.com`, `style-src-attr 'none'`), `Permissions-Policy` (camera, microphone, geolocation, payment, USB ... disabled), HSTS (2 years, preload), `X-Frame-Options: DENY` + `frame-ancestors 'none'`, COOP/CORP same-origin, `nosniff`, `Referrer-Policy`, private `Cache-Control` on API responses, `/.well-known/security.txt`. Keep new code free of inline `<style>` blocks and `style="..."` markup (React inline style objects are fine).
+
+### Legal pages & consent evidence
+
+KVKK Aydınlatma Metni, Gizlilik Politikası, Kullanım Şartları, Mesafeli Satış Sözleşmesi + Ön Bilgilendirme, İptal/İade/Cayma and Çerez Politikası. **Fill in Admin -> Site Ayarları -> Yasal Bilgiler** (unvan, adres, vergi/MERSİS ...): these details appear as data controller / seller on the pages. Orders store the time and version of the accepted distance-sales contract, and registrations store the accepted terms version. The texts are templates written for this site's real data flows; have a lawyer review them (and check VERBİS obligations) before going live.
+
+### Product pages & portfolio slider
+
+Every product has its own page (`/urunler/<slug>`) with gallery, long description, included features, requirements, FAQ-style guarantees, related products, a sticky price card (mobile bottom bar) and its own SEO title/description/JSON-LD. The home page shows a swipeable slider of portfolio projects (hidden until you add projects in Admin -> Portföy).
+
+### Product page (marketplace layout)
+
+Gallery with thumbnails on the left and, on the same screen, title, rating, key points, price box (old price, %discount, savings, estimated delivery date from your delivery text, order button, trust points) on the right; below a sticky tab bar (Açıklama, Özellikler, Teknik Özellikler, Teslimat ve İade, Değerlendirmeler, SSS). Fill the **Teknik özellikler tablosu** ("Ad: Değer" per line) in Admin -> Ürünler & Fiyatlar. Listing cards are compact (image, name, 3 key points, price and buy button fit one screen). Only truthful conversion aids are used (real discount/savings, real reviews, price guarantee, free cancellation before work starts); no fake stock counters or countdowns, which are unlawful under Turkish consumer law.
+
+### Per-product order form (Discord server id, bot token, ...)
+
+In **Admin -> Ürünler & Fiyatlar -> (ürün) -> 5 · Sipariş formu** choose which questions the order form asks for that product and which are mandatory: Discord sunucu ID, bot token, bot adı, bot logosu (uploaded by the customer), sunucu linki, plus up to 3 custom questions. Values are validated on the server (snowflake id, token format, invite link). Bot tokens are encrypted with AES-256-GCM (`DATA_ENCRYPTION_KEY`), never returned by any list or customer endpoint, revealed in the admin only on click (every access is logged), and wiped automatically when the order is delivered or cancelled (or manually with "Sil"). Customers see only that a token was saved/deleted.
+
+### Categories, customers
+
+* **Admin -> Ürünler & Fiyatlar -> Kategoriler**: add, rename, reorder or delete shop categories. Each category automatically gets its own page (`/kategori/<id>`; built-ins keep `/discord-hizmetleri` and `/web-gelistirme`), a left-menu entry, home-page tab, footer link, SEO tags/sitemap entry and JSON-LD, with exactly the same layout as the built-in ones. A category that still has products cannot be deleted. Sub-categories (e.g. "Moderasyon", "Sunucu Kurulumu") are created from the products' sub-category field and appear as filter chips on the category page. `/discord-botlari` redirects (301) to `/discord-hizmetleri`.
+* **Discord kullanıcı adı** is now an optional per-product order field (Admin -> ürün -> Sipariş formu): switch it on and choose whether it is mandatory; web products no longer ask for it.
+* **Admin -> Müşteriler**: search, see order/ticket/review counts, block / unblock (immediately invalidates the session) or permanently delete an account (orders and tickets stay anonymised, reviews are removed).
