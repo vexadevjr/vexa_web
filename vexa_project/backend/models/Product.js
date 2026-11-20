@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const productSchema = new mongoose.Schema(
   {
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, match: /^[a-z0-9-]+$/ },
-    category: { type: String, required: true, enum: ['discord-bot', 'web', 'server', 'software'], index: true },
+    category: { type: String, required: true, match: /^[a-z0-9-]{2,40}$/, index: true }, // id of a shop category
     subCategory: { type: String, trim: true, default: '' },
     name: { type: String, required: true, trim: true, maxlength: 120 },
     tagline: { type: String, trim: true, default: '' },

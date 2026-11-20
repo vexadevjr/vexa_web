@@ -15,7 +15,6 @@ const rules = {
   productSlug: { required: true, max: 60 },
   name: { required: true, min: 2, max: 80 },
   email: { type: 'email', required: true },
-  discord: { max: 40 },
   note: { max: 1000, multiline: true },
 }
 
@@ -43,7 +42,7 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
       productName: product.name,
       price: product.price,
       currency: product.currency || 'TRY',
-      customer: { name: value.name, email: value.email, discord: value.discord || '' },
+      customer: { name: value.name, email: value.email, discord: (parsed.fields.find((f) => f.key === 'discordUsername') || {}).value || '' },
       note: value.note || '',
       delivery: product.delivery || (product.deliveryDays ? `${product.deliveryDays} iş günü` : ''),
       fields: parsed.fields,

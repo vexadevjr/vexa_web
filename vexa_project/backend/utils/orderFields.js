@@ -7,6 +7,7 @@ const MEDIA = /^\/api\/media\/[a-f0-9]{24}$/
 
 // Order-form fields an admin can switch on per product. `secret` values are encrypted at rest and purged after delivery/cancellation.
 const PRESETS = {
+  discordUsername: { label: 'Discord Kullanıcı Adı', check: (v) => (v.length >= 2 && v.length <= 40) || 'Discord kullanıcı adınızı girin (2-40 karakter).' },
   discordServerId: { label: 'Discord Sunucu ID', check: (v) => /^\d{17,20}$/.test(v) || 'Geçerli bir Discord sunucu ID girin (17-20 haneli sayı).' },
   botToken: {
     label: 'Discord Bot Token',

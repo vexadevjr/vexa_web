@@ -16,6 +16,7 @@ const Media = require('../models/Media')
 const { validators, CONTENT_KEYS, MEDIA_URL } = require('../utils/contentSchema')
 const { normalizeDefs, publicFields } = require('../utils/orderFields')
 const { decrypt } = require('../utils/secretBox')
+const { getCategories } = require('../services/categories')
 const { text, bool, num, arr } = require('../utils/sanitize')
 const { str } = require('../utils/validate')
 
@@ -235,7 +236,6 @@ router.get('/visitors', async (req, res, next) => {
 })
 
 // ───────── products & categories ─────────
-const CATEGORIES = ['discord-bot', 'web', 'server', 'software']
 
 function productInput(b, { creating }) {
   const o = b && typeof b === 'object' ? b : {}
@@ -247,7 +247,7 @@ function productInput(b, { creating }) {
     const slug = str(o.slug, 60).toLowerCase()
     set('slug', slug, !/^[a-z0-9-]{2,60}$/.test(slug))
   }
-  if ('category' in o || creating) set('category', o.category, !CATEGORIES.includes(o.category))
+  if ('category' in o || creating) set('category', o.category, !/^[a-z0-9-]{2,40}$/.test(String(o.category || '')))
   if ('subCategory' in o || creating) out.subCategory = text(o.subCategory, 40)
   if ('name' in o || creating) {
     const name = text(o.name, 120)
@@ -296,7 +296,7 @@ router.get('/products', async (req, res, next) => {
   try {
     await seedCatalogIfNeeded()
     const products = await Product.find().sort({ sort: 1, createdAt: 1 }).select('-__v').lean()
-    res.json({ products: products.map((p) => ({ ...p, id: String(p._id), _id: undefined })), categories: CATEGORIES })
+    res.json({ products: products.map((p) => ({ ...p, id: String(p._id), _id: undefined })), categories: await getCategories() })
   } catch (err) {
     next(err)
   }
@@ -307,6 +307,7 @@ router.post('/products', async (req, res, next) => {
     await seedCatalogIfNeeded()
     const { out, errors } = productInput(req.body, { creating: true })
     if (errors.length) return res.status(400).json({ message: `Geçersiz alan: ${errors.join(', ')}` })
+    if (!(await getCategories()).some((c) => c.id === out.category)) return res.status(400).json({ message: 'Geçersiz kategori.' })
     if (await Product.exists({ slug: out.slug })) return res.status(409).json({ message: 'Bu kısa ad (slug) zaten kullanılıyor.' })
     const count = await Product.estimatedDocumentCount()
     const product = await Product.create({ sort: count, ...out })
@@ -321,6 +322,7 @@ router.put('/products/:slug', async (req, res, next) => {
     const slug = str(req.params.slug, 60)
     const { out, errors } = productInput(req.body, { creating: false })
     if (errors.length) return res.status(400).json({ message: `Geçersiz alan: ${errors.join(', ')}` })
+    if (out.category && !(await getCategories()).some((c) => c.id === out.category)) return res.status(400).json({ message: 'Geçersiz kategori.' })
     if (out.slug && out.slug !== slug && (await Product.exists({ slug: out.slug }))) return res.status(409).json({ message: 'Bu kısa ad (slug) başka bir üründe kullanılıyor.' })
     const r = await Product.updateOne({ slug }, { $set: out }, { runValidators: true })
     if (!r.matchedCount) return res.status(404).json({ message: 'Ürün bulunamadı.' })
@@ -345,7 +347,8 @@ router.post('/products-reorder', async (req, res, next) => {
   try {
     const category = req.body && req.body.category
     const order = arr(req.body && req.body.order, 200, (s) => str(s, 60) || undefined)
-    if (!CATEGORIES.includes(category) || !order || !order.length) return res.status(400).json({ message: 'Geçersiz istek.' })
+    const ids = (await getCategories()).map((c) => c.id)
+    if (!ids.includes(category) || !order || !order.length) return res.status(400).json({ message: 'Geçersiz istek.' })
     const all = await Product.find().sort({ sort: 1, createdAt: 1 }).select('slug category').lean()
     const mine = new Set(all.filter((p) => p.category === category).map((p) => p.slug))
     const wanted = order.filter((s) => mine.has(s))
@@ -366,7 +369,8 @@ router.post('/products-rename-sub', async (req, res, next) => {
     const category = req.body && req.body.category
     const from = text(req.body && req.body.from, 40)
     const to = text(req.body && req.body.to, 40)
-    if (!CATEGORIES.includes(category) || !from || !to) return res.status(400).json({ message: 'Geçersiz istek.' })
+    const ids = (await getCategories()).map((c) => c.id)
+    if (!ids.includes(category) || !from || !to) return res.status(400).json({ message: 'Geçersiz istek.' })
     const r = await Product.updateMany({ category, subCategory: from }, { $set: { subCategory: to } })
     res.json({ updated: r.modifiedCount })
   } catch (err) {
@@ -416,6 +420,11 @@ router.put('/content/:key', async (req, res, next) => {
     if (!CONTENT_KEYS.includes(key)) return res.status(404).json({ message: 'Bilinmeyen içerik.' })
     const value = validators[key](req.body && req.body.value)
     if (value === undefined || value === null) return res.status(400).json({ message: 'Geçersiz içerik. (Bağlantılar yalnızca https:// ile başlamalıdır.)' })
+    if (key === 'categories') {
+      const used = await Product.distinct('category')
+      const missing = used.filter((id) => !value.some((c) => c.id === id))
+      if (missing.length) return res.status(400).json({ message: `Bu kategorilerde ürün var, önce ürünleri taşıyın veya silin: ${missing.join(', ')}` })
+    }
     await Setting.updateOne({ key: `content:${key}` }, { $set: { value } }, { upsert: true })
     res.json({ ok: true, value })
   } catch (err) {
@@ -620,16 +629,66 @@ router.delete('/reviews/:id', async (req, res, next) => {
 router.get('/users', async (req, res, next) => {
   try {
     const p = page(req)
+    const filter = {}
+    if (req.query.status === 'blocked') filter.disabled = true
+    const q = str(req.query.q, 60)
+    if (q) {
+      const rx = new RegExp(esc(q), 'i')
+      filter.$or = [{ name: rx }, { email: rx }]
+    }
     const [rows, total] = await Promise.all([
-      User.find().sort({ createdAt: -1 }).skip((p - 1) * PER).limit(PER).lean(),
-      User.estimatedDocumentCount(),
+      User.find(filter).sort({ createdAt: -1 }).skip((p - 1) * PER).limit(PER).lean(),
+      User.countDocuments(filter),
     ])
+    const ids = rows.map((u) => u._id)
+    const count = async (Model) => Object.fromEntries((await Model.aggregate([{ $match: { user: { $in: ids } } }, { $group: { _id: '$user', n: { $sum: 1 } } }])).map((r) => [String(r._id), r.n]))
+    const [orders, tickets, reviews] = await Promise.all([count(Order), count(Message), count(Review)])
     res.json({
-      users: rows.map((u) => ({ id: String(u._id), name: u.name, email: u.email, google: Boolean(u.googleId), discord: Boolean(u.discordId), emailVerified: u.emailVerified, createdAt: u.createdAt })),
+      users: rows.map((u) => ({
+        id: String(u._id), name: u.name, email: u.email, google: Boolean(u.googleId), discord: Boolean(u.discordId), emailVerified: u.emailVerified, createdAt: u.createdAt,
+        disabled: Boolean(u.disabled), termsAcceptedAt: u.termsAcceptedAt || null, orders: orders[String(u._id)] || 0, tickets: tickets[String(u._id)] || 0, reviews: reviews[String(u._id)] || 0,
+      })),
       total,
       page: p,
       perPage: PER,
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// block / unblock: a blocked customer cannot log in, order, review or write tickets
+router.patch('/users/:id', async (req, res, next) => {
+  try {
+    const id = objectId(req.params.id)
+    if (!id || typeof (req.body && req.body.disabled) !== 'boolean') return res.status(400).json({ message: 'Geçersiz istek.' })
+    const u = await User.findByIdAndUpdate(id, { $set: { disabled: req.body.disabled, disabledAt: req.body.disabled ? new Date() : null } })
+    if (!u) return res.status(404).json({ message: 'Müşteri bulunamadı.' })
+    if (req.body.disabled) require('../middleware/auth').blocked.add(id)
+    else require('../middleware/auth').blocked.delete(id)
+    console.warn(`[audit] admin ${req.body.disabled ? 'blocked' : 'unblocked'} user ${id}`)
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// delete a customer account: orders/tickets are kept anonymously (accounting), reviews are removed
+router.delete('/users/:id', async (req, res, next) => {
+  try {
+    const id = objectId(req.params.id)
+    if (!id) return res.status(400).json({ message: 'Geçersiz istek.' })
+    const u = await User.findById(id)
+    if (!u) return res.status(404).json({ message: 'Müşteri bulunamadı.' })
+    await Promise.all([
+      Order.updateMany({ user: u._id }, { $set: { user: null } }),
+      Message.updateMany({ user: u._id }, { $set: { user: null } }),
+      Review.deleteMany({ user: u._id }),
+    ])
+    await User.deleteOne({ _id: u._id })
+    require('../middleware/auth').blocked.delete(id)
+    console.warn(`[audit] admin deleted user ${id}`)
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }

@@ -136,6 +136,9 @@ app.use('/api', (req, res) => {
 const distPath = path.join(__dirname, '..', 'frontend', 'dist')
 const indexHtml = path.join(distPath, 'index.html')
 
+// renamed pages keep working (and keep their search ranking) through permanent redirects
+app.get('/discord-botlari', (req, res) => res.redirect(301, '/discord-hizmetleri'))
+
 // RFC 9116 security contact
 app.get(['/.well-known/security.txt', '/security.txt'], async (req, res) => {
   const email = (await require('./data/catalog').loadSiteConfig()).contact?.email || ''

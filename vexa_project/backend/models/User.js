@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String, default: '', maxlength: 500 }, // https image URL from Google / Discord
     termsAcceptedAt: { type: Date, default: null },
     termsVersion: { type: String, default: '', maxlength: 20 },
+    disabled: { type: Boolean, default: false, index: true }, // blocked by an admin
+    disabledAt: { type: Date, default: null },
     emailVerified: { type: Boolean, default: false },
     googleId: { type: String, index: { unique: true, sparse: true } },
     discordId: { type: String, index: { unique: true, sparse: true } },

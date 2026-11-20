@@ -39,6 +39,7 @@ async function getData() {
     contact: { ...(cfg.contact || {}), ...(content.contact || {}) },
     links: { ...(cfg.links || {}), ...(content.links || {}) },
     routes: (cfg.routes) || {},
+    categories: content.categories || cfg.categories || [],
   }
   dataCache = { at: Date.now(), value }
   return value
@@ -48,12 +49,13 @@ const priceText = (p) => (p.price == null ? 'Teklif alın' : `${p.priceFrom ? 'B
 const productsOf = (d, cat) => d.products.filter((p) => p.category === cat)
 
 // ---- product pages: /urunler/<slug> ----
-const LABEL = { 'discord-bot': 'Discord Botu', web: 'Web Sitesi', server: 'Sunucu', software: 'Yazılım' }
+const catOf = (d, p) => d.categories.find((c) => c.id === p.category) || { name: 'Hizmetler', path: '/' }
+const categoryPage = (d, c) => ({ category: c, title: c.seoTitle || `${c.name} | Vexstar`, description: c.seoDescription || c.description || `${c.name} hizmetleri.`, h1: c.title || c.name, changefreq: 'weekly', priority: '0.9' })
 function productPage(d, p) {
   const base = trim(`${p.tagline || ''} ${p.description || ''}`.trim(), 160)
   return {
     product: p,
-    title: p.metaTitle || trim(`${p.name} | ${LABEL[p.category] || 'Hizmet'} Paketi – Vexstar`, 70),
+    title: p.metaTitle || trim(`${p.name} | ${catOf(d, p).name} – Vexstar`, 70),
     description: p.metaDescription || base || `${p.name} hizmeti: net fiyat ve hızlı teslimat.`,
     h1: p.name,
     image: p.images && p.images[0],
@@ -61,7 +63,6 @@ function productPage(d, p) {
     priority: '0.8',
   }
 }
-const listPath = (p) => (p.category === 'web' ? '/web-gelistirme' : '/discord-botlari')
 
 // ---- structured data ----
 function organization(d) {
@@ -136,18 +137,18 @@ function graph(d, path, page) {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${SITE}/` },
-        { '@type': 'ListItem', position: 2, name: LABEL[p.category] === 'Web Sitesi' ? 'Web Geliştirme' : 'Discord Botları', item: `${SITE}${listPath(p)}` },
+        { '@type': 'ListItem', position: 2, name: catOf(d, p).name, item: `${SITE}${catOf(d, p).path}` },
         { '@type': 'ListItem', position: 3, name: p.name, item: `${SITE}${path}` },
       ],
     })
-    nodes.push({ ...productNode(d, p, listPath(p)), url: `${SITE}${path}`, '@id': `${SITE}${path}#product` })
+    nodes.push({ ...productNode(d, p, catOf(d, p).path), url: `${SITE}${path}`, '@id': `${SITE}${path}#product` })
     nodes[nodes.length - 1].offers && (nodes[nodes.length - 1].offers.url = `${SITE}${path}`)
   } else {
     const crumb = breadcrumb(path, (page.h1 || page.title).split(':')[0])
     if (crumb) nodes.push(crumb)
   }
-  if (!page.product && (path === '/discord-botlari' || path === '/web-gelistirme')) {
-    const list = productsOf(d, path === '/web-gelistirme' ? 'web' : 'discord-bot')
+  if (page.category) {
+    const list = productsOf(d, page.category.id)
     if (list.length) {
       nodes.push({ '@type': 'ItemList', name: page.h1, itemListElement: list.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: productNode(d, p, path) })) })
     }
@@ -166,19 +167,15 @@ function productList(d, list, path) {
 const faqHtml = (faq) => (faq.length ? `<h2>Sık Sorulan Sorular</h2><dl>${faq.map((f) => `<dt>${esc(f.q)}</dt><dd>${esc(f.a)}</dd>`).join('')}</dl>` : '')
 
 function snapshot(d, path, page) {
-  const nav = `<nav aria-label="Ana menü"><a href="/">Ana Sayfa</a> <a href="/discord-botlari">Discord Botları</a> <a href="/web-gelistirme">Web Geliştirme</a> <a href="/portfoy">Portföy</a> <a href="/iletisim">İletişim</a></nav>`
+  const nav = `<nav aria-label="Ana menü"><a href="/">Ana Sayfa</a> ${d.categories.map((c) => `<a href="${esc(c.path)}">${esc(c.name)}</a>`).join(' ')} <a href="/portfoy">Portföy</a> <a href="/iletisim">İletişim</a></nav>`
   let body = `<h1>${esc(page.h1 || page.title)}</h1><p>${esc(page.description)}</p>`
-  const bots = productsOf(d, 'discord-bot')
-  const web = productsOf(d, 'web')
   if (page.product) {
     const p = page.product
     body += `<p>${esc(p.tagline || '')}</p>${p.details ? `<p>${esc(p.details)}</p>` : `<p>${esc(p.description || '')}</p>`}<ul>${(p.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${(p.requirements || []).length ? `<h2>Teknik özellikler</h2><ul>${(p.specs || []).map((s) => `<li>${esc(s.k)}: ${esc(s.v)}</li>`).join('')}</ul><h2>Teslim için gerekenler</h2><ul>${p.requirements.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}<p>Fiyat: ${esc(priceText(p))}${p.oldPrice && p.price != null && p.oldPrice > p.price ? ` (indirim öncesi ${Number(p.oldPrice).toLocaleString('tr-TR')} ₺)` : ''}</p><p>Teslim: ${esc(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : 'Kapsama göre'))}</p>`
   } else if (path === '/') {
-    body += `<h2>Discord Bot Yaptırma</h2><p>Moderasyon, ticket, müzik, ekonomi ve özel komutlar içeren, sunucunuza göre hazırlanan Discord botları.</p>${productList(d, bots, '/discord-botlari')}`
-    body += `<h2>Web Sitesi Yaptırma</h2><p>Mobil uyumlu, hızlı ve SEO’ya hazır kurumsal tanıtım siteleri ve e-ticaret web siteleri.</p>${productList(d, web, '/web-gelistirme')}`
+    body += d.categories.map((c) => `<h2>${esc(c.name)}</h2><p>${esc(c.description || '')}</p>${productList(d, productsOf(d, c.id), c.path)}`).join('')
     body += faqHtml(d.faq)
-  } else if (path === '/discord-botlari') body += productList(d, bots, path)
-  else if (path === '/web-gelistirme') body += productList(d, web, path)
+  } else if (page.category) body += `<p>${esc(page.category.description || '')}</p>${productList(d, productsOf(d, page.category.id), path)}`
   else if (path === '/portfoy') body += `<ul>${d.portfolio.map((p) => `<li><h3>${esc(p.title)}</h3><p>${esc(p.client)} · ${esc(p.category)}</p><p>${esc(p.result)}</p></li>`).join('')}</ul>`
   else if (path === '/iletisim') body += `<p>E-posta: ${esc(d.contact.email || '')}</p><p>${esc(d.contact.hours || '')}</p>${faqHtml(d.faq)}`
   // kept off-screen (not display:none) until React replaces it; identical to what the app renders
@@ -239,7 +236,8 @@ async function renderPage(template, rawPath) {
   const d = await getData()
   const pm = path.match(/^\/urunler\/([a-z0-9-]+)$/)
   const prod = pm ? d.products.find((x) => x.slug === pm[1]) : null
-  const known = prod ? productPage(d, prod) : d.seo.pages[path]
+  const cat = d.categories.find((c) => c.path === path)
+  const known = prod ? productPage(d, prod) : cat ? categoryPage(d, cat) : d.seo.pages[path]
   const noindex = NOINDEX_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))
   let page = known
   let status = 200
@@ -271,7 +269,7 @@ async function robots(req, res) {
 async function sitemap(req, res) {
   const d = await getData()
   const day = new Date().toISOString().slice(0, 10)
-  const entries = [...Object.entries(d.seo.pages), ...d.products.filter((p) => p.category === 'discord-bot' || p.category === 'web').map((p) => [`/urunler/${p.slug}`, { changefreq: 'weekly', priority: '0.8' }])]
+  const entries = [...Object.entries(d.seo.pages), ...d.categories.map((c) => [c.path, { changefreq: 'weekly', priority: '0.9' }]), ...d.products.map((p) => [`/urunler/${p.slug}`, { changefreq: 'weekly', priority: '0.8' }])]
   const urls = entries
     .map(([p, v]) => `  <url>\n    <loc>${esc(SITE + (p === '/' ? '/' : p))}</loc>\n    <lastmod>${day}</lastmod>\n    <changefreq>${v.changefreq || 'monthly'}</changefreq>\n    <priority>${v.priority || '0.5'}</priority>\n  </url>`)
     .join('\n')

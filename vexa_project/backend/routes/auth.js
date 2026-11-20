@@ -63,6 +63,7 @@ router.post('/login', requireDb, authLimiter, async (req, res, next) => {
     const user = await User.findOne({ email: value.email }).select('+passwordHash')
     const hash = user && user.passwordHash ? user.passwordHash : DUMMY_HASH
     const match = await bcrypt.compare(value.password, hash)
+    if (user && user.disabled) return res.status(403).json({ message: 'Hesabınız askıya alınmıştır. Destek için bizimle iletişime geçin.' })
     if (!user || !user.passwordHash || !match) {
       return res.status(401).json({ message: 'E-posta veya şifre hatalı. Google/Discord ile kayıt olduysanız o seçeneği kullanın.' })
     }
@@ -208,6 +209,7 @@ router.post('/exchange', requireDb, authLimiter, async (req, res, next) => {
     codes.delete(code)
     if (!entry || entry.exp < Date.now()) return res.status(400).json({ message: 'Giriş bağlantısının süresi doldu. Lütfen tekrar deneyin.' })
     const user = await User.findById(entry.userId).select('+passwordHash')
+    if (user && user.disabled) return res.status(400).json({ message: 'Hesabınız askıya alınmıştır.' })
     if (!user) return res.status(400).json({ message: 'Hesap bulunamadı.' })
     res.json({ token: sign(user), user: publicUser(user) })
   } catch (err) {

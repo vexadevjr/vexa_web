@@ -78,6 +78,30 @@ const validators = {
       return title && to && desc ? { title, icon: SERVICE_ICONS.includes(o.icon) ? o.icon : 'settings', to, desc } : undefined
     }),
 
+  categories: (v) => {
+    const BUILTIN = { 'discord-bot': '/discord-hizmetleri', web: '/web-gelistirme' }
+    const ICON_IDS = ['discord', 'code', 'server', 'package', 'sparkles', 'shield', 'cpu', 'gamepad']
+    const seen = new Set()
+    const list = arr(v, 12, (i) => {
+      const o = obj(i)
+      const id = o && text(o.id, 40)
+      const name = o && text(o.name, 40)
+      if (!id || !name || !/^[a-z0-9-]{2,40}$/.test(id) || seen.has(id)) return undefined
+      seen.add(id)
+      return {
+        id,
+        path: BUILTIN[id] || `/kategori/${id}`, // computed on the server, never taken from the client
+        name,
+        icon: ICON_IDS.includes(o.icon) ? o.icon : 'package',
+        title: text(o.title, 100) || name,
+        description: text(o.description, 400, true),
+        seoTitle: text(o.seoTitle, 70),
+        seoDescription: text(o.seoDescription, 170),
+      }
+    })
+    return list && list.length ? list : undefined
+  },
+
   legal: (v) => {
     const o = obj(v)
     if (!o) return undefined
