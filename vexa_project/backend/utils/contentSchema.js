@@ -115,8 +115,11 @@ const validators = {
     if (!o) return undefined
     const link = o.link ? internalPath(o.link) || url(o.link) : ''
     if (link === null) return undefined
-    const STYLES = ['kampanya', 'bilgi', 'uyari']
-    return { enabled: bool(o.enabled), title: text(o.title, 80), text: text(o.text, 300), link: link || '', linkText: text(o.linkText, 30), style: STYLES.includes(o.style) ? o.style : 'bilgi' }
+    const STYLES = ['kampanya', 'bilgi', 'uyari', 'basari']
+    // optional end time: the banner counts down to it and hides itself afterwards
+    const end = o.endsAt ? new Date(o.endsAt) : null
+    const endsAt = end && !Number.isNaN(end.getTime()) ? end.toISOString() : ''
+    return { enabled: bool(o.enabled), title: text(o.title, 80), text: text(o.text, 300), link: link || '', linkText: text(o.linkText, 30), style: STYLES.includes(o.style) ? o.style : 'bilgi', endsAt }
   },
 }
 
