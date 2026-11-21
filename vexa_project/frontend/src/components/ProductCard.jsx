@@ -8,7 +8,7 @@ import { siteConfig } from '../config/siteConfig.js'
 import { deliveryLabel, discountInfo, productPath } from '../lib/format.js'
 
 // Compact listing card. The whole card opens the product page (stretched link); the buy button stays separately clickable.
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, categoryName = '' }) {
   const { openOrder } = useApp()
   const quote = product.price == null
   const cover = (product.images || [])[0]
@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-col flex-1 px-2 pt-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-vx-accent-soft">{product.subCategory}</div>
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-vx-accent-soft">{categoryName ? `${categoryName}${product.subCategory ? ' · ' : ''}` : ''}{product.subCategory}</div>
         <h3 className="mt-1 text-[17px] font-semibold leading-snug text-white">
           <Link to={to} className="after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-vx-accent-text after:rounded-2xl group-hover:text-vx-accent-soft transition-colors">{product.name}</Link>
         </h3>

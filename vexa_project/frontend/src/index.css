@@ -138,3 +138,12 @@ input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-te
 
 /* crawler-only text snapshot injected by the server (replaced once the app mounts); no inline style needed under the strict CSP */
 .vx-snapshot { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; overflow: hidden; }
+
+/* ───── hero / announcement motion ───── */
+@keyframes vx-spin { to { transform: rotate(360deg); } }
+.vx-spin-slow { animation: vx-spin 60s linear infinite; }
+.vx-spin-rev { animation: vx-spin 90s linear infinite reverse; }
+@keyframes vx-gradient { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.vx-gradient-text { background-size: 200% auto; animation: vx-gradient 7s ease-in-out infinite; }
+@keyframes vx-ann-in { from { opacity: 0; transform: translateY(-10px) scale(0.99); } to { opacity: 1; transform: none; } }
+.vx-ann-in { animation: vx-ann-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }

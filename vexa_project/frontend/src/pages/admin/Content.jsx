@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
 import { siteConfig } from '../../config/siteConfig.js'
+import AnnouncementBanner from '../../components/AnnouncementBanner.jsx'
 import { Card, Btn, Empty, TextField, AreaField, SelectField, CheckField, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
 const ICON_OPTS = [['lock', 'Kilit'], ['shield', 'Kalkan'], ['clock', 'Saat'], ['refresh', 'Yenile']]
@@ -21,11 +22,12 @@ const SECTIONS = [
   ] },
   { key: 'announcement', label: 'Duyuru Bandı', kind: 'object', hint: 'Sitenin en üstünde görünen duyuru bandı. Kampanya veya bakım duyurusu için kullanın.', blank: { enabled: false, title: '', text: '', link: '', linkText: '', style: 'bilgi' }, fields: [
     { k: 'enabled', t: 'bool', l: 'Sitede göster' },
-    { k: 'style', t: 'select', l: 'Görünüm', options: [['kampanya', 'Kampanya (turuncu-pembe)'], ['bilgi', 'Bilgi (mor-mavi)'], ['uyari', 'Uyarı (sarı)']] },
+    { k: 'style', t: 'select', l: 'Görünüm', options: [['kampanya', 'Kampanya (turuncu-pembe)'], ['bilgi', 'Bilgi (mor-mavi)'], ['uyari', 'Uyarı (sarı)'], ['basari', 'Yeni / Başarı (yeşil)']] },
     { k: 'title', l: 'Başlık (kalın, dikkat çekici)', max: 80 },
     { k: 'text', l: 'Duyuru metni', max: 300 },
     { k: 'link', l: 'Bağlantı (isteğe bağlı: /iletisim veya https://...)', max: 300 },
     { k: 'linkText', l: 'Buton yazısı (örn. Fırsatı Gör)', max: 30 },
+    { k: 'endsAt', t: 'datetime', l: 'Bitiş tarihi (isteğe bağlı) — geri sayım gösterir, süre dolunca duyuru kendiliğinden kalkar' },
   ] },
   { key: 'contact', label: 'İletişim Bilgileri', kind: 'object', hint: 'İletişim sayfası ve alt bilgide görünür.', fields: [
     { k: 'email', l: 'E-posta', max: 120 },
@@ -82,7 +84,24 @@ function TagsInput({ label, value, onChange }) {
   )
 }
 
+// ISO <-> <input type=datetime-local> (local time)
+const toLocalInput = (iso) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
 function FieldInput({ f, value, onChange }) {
+  if (f.t === 'datetime') {
+    return (
+      <div>
+        <TextField label={f.l} type="datetime-local" value={toLocalInput(value)} onChange={(v) => onChange(v ? new Date(v).toISOString() : '')} />
+        {value && <button type="button" onClick={() => onChange('')} className="mt-1.5 text-[12px] text-vx-accent-soft hover:text-white">Bitiş tarihini kaldır</button>}
+      </div>
+    )
+  }
   if (f.t === 'bool') return <CheckField label={f.l} checked={value} onChange={onChange} />
   if (f.t === 'area') return <AreaField label={f.l} value={value} onChange={onChange} rows={3} max={f.max || 2000} />
   if (f.t === 'select') return <SelectField label={f.l} value={value} onChange={onChange} options={f.options} />
@@ -141,6 +160,12 @@ function SectionEditor({ section, initial, onSaved, onReset }) {
     >
       {toast}
       {section.hint && <p className="mb-4 text-[12px] text-vx-muted">{section.hint}</p>}
+      {section.key === 'announcement' && (
+        <div className="mb-5">
+          <div className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Canlı önizleme</div>
+          <AnnouncementBanner data={{ ...value, enabled: true }} preview />
+        </div>
+      )}
       {!isList && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {section.fields.map((f) => (
