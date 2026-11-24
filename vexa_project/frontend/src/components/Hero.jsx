@@ -6,7 +6,7 @@ import { iconFor } from '../lib/categories.js'
 import { useSite } from '../context/SiteContext.jsx'
 import useProducts from '../hooks/useProducts.js'
 import { useCountUp, useDiscordStats, useStats } from '../hooks/useLive.js'
-import { formatPrice, productPath } from '../lib/format.js'
+import { formatPrice, productPath, termsOf } from '../lib/format.js'
 import { external } from '../lib/scroll.js'
 import vLogo from '../assets/vexstar-logo.png'
 
@@ -42,7 +42,7 @@ function BrandVisual({ featured, routes }) {
       <Bubble float to={routes.contact} icon={Headphones} label="Destek" title="7/24 Destek" sub="Talep oluştur" className="absolute top-3 left-0 w-[240px]" />
       <Bubble float delay={0.9} to={routes.orders} icon={PackageCheck} label="Hesabım" title="Sipariş takibi" sub="Durumu adım adım izle" className="absolute top-[42%] right-0 w-[240px]" />
       {featured && (
-        <Bubble float delay={1.8} to={productPath(featured)} icon={Sparkles} label={featured.popular ? 'En çok tercih edilen' : 'Öne çıkan paket'} title={featured.name} sub={featured.price == null ? 'Teklif alın' : formatPrice(featured.price)} className="absolute bottom-3 left-0 w-[250px]" />
+        <Bubble float delay={1.8} to={productPath(featured)} icon={Sparkles} label={featured.popular ? 'En çok tercih edilen' : 'Öne çıkan paket'} title={featured.name} sub={featured.price == null ? 'Teklif alın' : `${formatPrice(featured.price)}${termsOf(featured).length ? ' / ay' : ''}`} className="absolute bottom-3 left-0 w-[250px]" />
       )}
     </div>
   )
@@ -71,7 +71,7 @@ function TrustStats() {
   const { links } = useSite()
   const cells = []
   if (discord && discord.available && discord.members > 0) {
-    cells.push({ key: 'd', icon: DiscordIcon, value: discord.members, label: 'Discord topluluk üyesi', sub: discord.online > 0 ? `${nf(discord.online)} çevrimiçi` : '', href: links.discord })
+    cells.push({ key: 'd', icon: DiscordIcon, value: discord.members, label: 'Discord topluluk üyesi', href: links.discord })
   }
   if (stats && stats.available && stats.customers > 0) cells.push({ key: 'c', icon: Users, value: stats.customers, label: 'Kayıtlı müşteri' })
   if (stats && stats.available && stats.completedOrders > 0) cells.push({ key: 'o', icon: PackageCheck, value: stats.completedOrders, label: 'Teslim edilen sipariş' })
@@ -113,7 +113,7 @@ export default function Hero() {
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:hidden">
               <Bubble to={routes.contact} icon={Headphones} label="Destek" title="7/24 Destek" sub="Talep oluştur" />
               <Bubble to={routes.orders} icon={PackageCheck} label="Hesabım" title="Sipariş takibi" sub="Durumu adım adım izle" />
-              {featured && <Bubble to={productPath(featured)} icon={Sparkles} label={featured.popular ? 'En çok tercih edilen' : 'Öne çıkan paket'} title={featured.name} sub={featured.price == null ? 'Teklif alın' : formatPrice(featured.price)} className="sm:col-span-2" />}
+              {featured && <Bubble to={productPath(featured)} icon={Sparkles} label={featured.popular ? 'En çok tercih edilen' : 'Öne çıkan paket'} title={featured.name} sub={featured.price == null ? 'Teklif alın' : `${formatPrice(featured.price)}${termsOf(featured).length ? ' / ay' : ''}`} className="sm:col-span-2" />}
             </div>
 
             <TrustStats />

@@ -9,7 +9,8 @@ import TrustBadges from './TrustBadges.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
 import { useSite } from '../context/SiteContext.jsx'
-import { formatPrice, deliveryLabel, discountInfo } from '../lib/format.js'
+import TermPicker from './TermPicker.jsx'
+import { formatPrice, deliveryLabel, discountInfo, termLabel, termsOf, totalFor } from '../lib/format.js'
 import OrderFields from './OrderFields.jsx'
 import { validateOrderFields } from '../config/orderFields.js'
 
@@ -57,8 +58,12 @@ export default function OrderModal({ product, onClose }) {
   const [done, setDone] = useState(null)
   const [accepted, setAccepted] = useState(false)
   const [extra, setExtra] = useState({})
+  const terms = termsOf(product)
+  const [months, setMonths] = useState(() => (product._term && terms.includes(product._term) ? product._term : terms[0] || 1))
   if (!user) return null
   const sale = discountInfo(product)
+  const mm = terms.length ? months : 1
+  const total = totalFor(product.price, mm)
   const cover = (product.images || [])[0]
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -82,7 +87,7 @@ export default function OrderModal({ product, onClose }) {
     setBusy(true)
     setServerError('')
     try {
-      const data = await api.createOrder({ productSlug: product.slug, note: form.note, fields: extra, legalAccepted: true })
+      const data = await api.createOrder({ productSlug: product.slug, note: form.note, fields: extra, termMonths: terms.length ? months : 1, legalAccepted: true })
       setDone(data.order)
     } catch (err) {
       setErrors(err.errors || {})
@@ -134,9 +139,12 @@ export default function OrderModal({ product, onClose }) {
             </div>
           </div>
           <div className="mt-5 rounded-xl bg-vx-surface border border-vx-line px-4">
-            {sale && <Row k="Liste fiyatı" v={<span className="line-through decoration-rose-400/70 decoration-2 text-zinc-400">{formatPrice(sale.old)}</span>} />}
-            {sale && <Row k={`İndirim (%${sale.pct})`} v={<span className="text-emerald-400">−{formatPrice(sale.old - product.price)}</span>} />}
-            <Row k={product.priceFrom ? 'Başlangıç fiyatı' : 'Ödenecek tutar'} v={formatPrice(product.price)} strong />
+            {terms.length > 0 && <div className="py-3 border-b border-vx-line/70"><div className="mb-2 text-[13px] text-vx-muted">Abonelik süresi</div><TermPicker product={product} value={months} onChange={setMonths} /></div>}
+            {sale && <Row k="Aylık liste fiyatı" v={<span className="line-through text-zinc-500">{formatPrice(sale.old)}</span>} />}
+            {sale && <Row k={`İndirim (%${sale.pct})`} v={<span className="text-emerald-400">−{formatPrice(totalFor(sale.old - product.price, mm))}</span>} />}
+            {terms.length > 0 && <Row k="Aylık fiyat" v={formatPrice(product.price)} />}
+            {terms.length > 0 && <Row k="Süre" v={termLabel(months)} />}
+            <Row k={terms.length ? 'Toplam' : product.priceFrom ? 'Başlangıç fiyatı' : 'Ödenecek tutar'} v={formatPrice(total)} strong />
           </div>
           <div className="mt-6 flex justify-end"><Button onClick={() => setStep(2)}>Devam Et <ArrowRight className="w-4 h-4" /></Button></div>
         </div>
@@ -166,7 +174,8 @@ export default function OrderModal({ product, onClose }) {
             <Row k="E-posta" v={user.email} />
             {filled.map(({ d, v }) => <Row key={d.key} k={d.label} v={v.length > 60 ? `${v.slice(0, 60)}…` : v} />)}
             {form.note.trim() && <Row k="Not" v={form.note.length > 80 ? `${form.note.slice(0, 80)}…` : form.note} />}
-            <Row k="Toplam" v={formatPrice(product.price)} strong />
+            {terms.length > 0 && <Row k="Süre" v={`${termLabel(months)} (aylık ${formatPrice(product.price)})`} />}
+            <Row k="Toplam" v={formatPrice(total)} strong />
           </div>
           <button type="button" onClick={() => setStep(2)} className="mt-2 text-[12.5px] font-semibold text-vx-accent-text hover:text-vx-accent-soft">Bilgileri düzenle</button>
 

@@ -6,7 +6,7 @@ import Modal from '../Modal.jsx'
 import { inputCls } from '../Field.jsx'
 import { api } from '../../lib/api.js'
 import { siteConfig } from '../../config/siteConfig.js'
-import { formatPrice } from '../../lib/format.js'
+import { formatPrice, termLabel } from '../../lib/format.js'
 
 const { routes } = siteConfig
 const card = 'rounded-2xl bg-vx-card border border-vx-line'
@@ -130,9 +130,10 @@ function OrderCard({ order, onCancel }) {
         <span className={`inline-flex items-center h-8 px-3.5 rounded-full border text-[13px] font-semibold ${tone}`}>{label}</span>
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-xl bg-vx-surface border border-vx-line">
+      <dl className="mt-4 grid grid-cols-2 lg:grid-cols-5 gap-4 p-4 rounded-xl bg-vx-surface border border-vx-line">
         <div><dt className="text-[12px] text-vx-muted">Sipariş no</dt><dd className="mt-1"><CopyNo no={order.orderNo} /></dd></div>
         <div><dt className="text-[12px] text-vx-muted">Sipariş tarihi</dt><dd className="mt-1 text-[14px] text-zinc-100">{dayOnly(order.createdAt)}</dd></div>
+        <div><dt className="text-[12px] text-vx-muted">Abonelik</dt><dd className="mt-1 text-[14px] text-zinc-100">{order.monthlyPrice ? termLabel(order.termMonths || 1) : '-'}</dd></div>
         <div><dt className="text-[12px] text-vx-muted">Tutar</dt><dd className="mt-1 text-[16px] font-bold tabular-nums text-white">{formatPrice(order.price)}</dd></div>
         <div><dt className="text-[12px] text-vx-muted">Tahmini teslim</dt><dd className="mt-1 text-[14px] text-zinc-100">{order.delivery || 'Kapsama göre'}</dd></div>
       </dl>

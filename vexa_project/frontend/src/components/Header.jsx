@@ -28,7 +28,7 @@ export default function Header({ onMenu }) {
 
         <div className={`hidden md:block ${ann ? 'w-[210px] lg:w-[250px] xl:w-[320px] shrink-0' : 'flex-1 max-w-[476px]'}`}><SearchBox /></div>
 
-        {ann && <div className="hidden md:flex flex-1 min-w-0 justify-center"><AnnouncementPill data={ann} className="w-full max-w-[640px]" /></div>}
+        {ann && <div className="hidden md:flex flex-1 min-w-0 justify-center"><AnnouncementPill data={ann} className="w-full max-w-[720px]" /></div>}
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 shrink-0">
           <button onClick={() => setSearchOpen((o) => !o)} className="md:hidden w-11 h-11 grid place-items-center rounded-xl bg-vx-card border border-vx-line text-white" aria-label={searchOpen ? 'Aramayı kapat' : 'Ara'} aria-expanded={searchOpen}>
@@ -46,7 +46,7 @@ export default function Header({ onMenu }) {
         </div>
       </div>
 
-      {ann && <div className="md:hidden px-4 pb-2.5"><AnnouncementPill data={ann} className="w-full h-9" /></div>}
+      {ann && <div className="md:hidden px-4 pb-2.5"><AnnouncementPill data={ann} className="w-full" /></div>}
 
       {searchOpen && (
         <div className="md:hidden px-4 pb-3 [&>div]:max-w-none">

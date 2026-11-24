@@ -15,7 +15,8 @@ import ReviewForm from '../components/ReviewForm.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { useSite } from '../context/SiteContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
-import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel } from '../lib/format.js'
+import TermPicker from '../components/TermPicker.jsx'
+import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel, termLabel, termsOf, totalFor } from '../lib/format.js'
 
 const { routes } = siteConfig
 
@@ -43,6 +44,7 @@ export default function ProductDetail() {
   const ann = useActiveAnnouncement()
   const p = products.find((x) => x.slug === slug)
   const [active, setActive] = useState('genel')
+  const [months, setMonths] = useState(null)
 
   const paragraphs = useMemo(() => (p ? (p.details || p.description || '').split(/\n{2,}/).map((s) => s.trim()).filter(Boolean) : []), [p])
   const rate = p ? ratingOf(ratings, p) : null
@@ -77,6 +79,11 @@ export default function ProductDetail() {
   const listName = cat ? cat.name : 'Ürünler'
   const quote = p.price == null
   const sale = discountInfo(p)
+  const terms = termsOf(p)
+  const m = terms.includes(months) ? months : terms[0] || 1
+  const grand = quote ? null : totalFor(p.price, m)
+  const oldTotal = sale ? totalFor(sale.old, m) : null
+  const saving = sale ? totalFor(sale.old - p.price, terms.length ? m : 1) : 0
   const eta = estimateDelivery(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''))
   const related = products.filter((x) => x.category === p.category && x.slug !== p.slug).slice(0, 3)
   const topFeatures = (p.features || []).slice(0, 4)
@@ -85,13 +92,13 @@ export default function ProductDetail() {
     : [
         { k: 'Hizmet türü', v: listName },
         ...(p.subCategory ? [{ k: 'Kategori', v: p.subCategory }] : []),
-        ...(p.period ? [{ k: 'Ödeme türü', v: p.period }] : []),
+        ...(terms.length ? [{ k: 'Ödeme türü', v: 'Aylık abonelik (1, 3, 6 veya 12 ay)' }] : p.period ? [{ k: 'Ödeme türü', v: p.period }] : []),
         { k: 'Teslim süresi', v: deliveryLabel(p) },
         { k: 'Teslim sonrası destek', v: 'Dahil' },
         { k: 'Sipariş takibi', v: 'Hesabım → Siparişlerim' },
       ]
   const go = (id) => document.getElementById(id) && document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' })
-  const order = () => openOrder(p)
+  const order = () => openOrder(p, terms.length ? m : null)
   const askTo = `${routes.contact}?konu=${encodeURIComponent(p.name)}`
 
   return (
@@ -131,24 +138,41 @@ export default function ProductDetail() {
           )}
 
           {/* buy box */}
-          <div className="mt-auto rounded-2xl bg-vx-card border border-vx-accent/40 p-5 shadow-[0_20px_50px_-30px_rgba(124,58,237,0.8)]">
+          <div className="mt-auto rounded-2xl bg-vx-card border border-vx-accent/30 p-5">
             {sale && (
-              <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-500/40 bg-gradient-to-r from-rose-500/25 via-orange-500/10 to-transparent px-4 py-3">
-                <span className="grid place-items-center w-10 h-10 shrink-0 rounded-full bg-rose-500 text-white shadow-lg shadow-rose-500/30"><Tag className="w-5 h-5" /></span>
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3">
+                <span className="grid place-items-center w-9 h-9 shrink-0 rounded-full bg-rose-500/90 text-white"><Tag className="w-4 h-4" /></span>
                 <div className="min-w-0 leading-snug">
-                  <div className="text-[14px] font-bold text-white">Kampanyalı fiyat · %{sale.pct} indirim</div>
-                  <div className="text-[13px] text-rose-100/90">Liste fiyatına göre <b className="text-white">{formatPrice(sale.old - p.price)}</b> daha uygun</div>
+                  <div className="text-[14px] font-semibold text-white">%{sale.pct} indirim</div>
+                  <div className="text-[13px] text-zinc-300">{terms.length ? `${termLabel(m)} abonelikte` : 'Liste fiyatına göre'} <b className="text-white">{formatPrice(saving)}</b> tasarruf</div>
                 </div>
               </div>
             )}
-            <div>
-              {p.priceFrom && !quote && <div className="text-[12px] font-bold uppercase tracking-wide text-vx-accent-soft">Başlangıç fiyatı</div>}
-              <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-[42px] font-black leading-none tracking-tight tabular-nums text-white">{quote ? 'Teklif alın' : formatPrice(p.price)}</span>
-                {sale && <span className="text-[19px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70 decoration-2">{formatPrice(sale.old)}</span>}
+            {quote ? (
+              <div>
+                <div className="text-[34px] font-black leading-none tracking-tight text-white">Teklif alın</div>
+                <div className="mt-1 text-[13px] text-vx-muted">İhtiyacınıza göre özel fiyat</div>
               </div>
-              <div className="mt-1 text-[13px] text-vx-muted">{quote ? 'İhtiyacınıza göre özel fiyat' : p.period}</div>
-            </div>
+            ) : terms.length ? (
+              <>
+                <div className="text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Abonelik süresi</div>
+                <div className="mt-2"><TermPicker product={p} value={m} onChange={setMonths} /></div>
+                <dl className="mt-4 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[14px]">
+                  <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
+                  <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
+                  <div className="flex items-baseline justify-between gap-4 px-4 py-3.5"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[26px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
+                </dl>
+              </>
+            ) : (
+              <div>
+                {p.priceFrom && <div className="text-[12px] font-bold uppercase tracking-wide text-vx-accent-soft">Başlangıç fiyatı</div>}
+                <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
+                  <span className="text-[38px] font-black leading-none tracking-tight tabular-nums text-white">{formatPrice(p.price)}</span>
+                  {sale && <span className="text-[18px] tabular-nums text-zinc-500 line-through">{formatPrice(sale.old)}</span>}
+                </div>
+                <div className="mt-1 text-[13px] text-vx-muted">{p.period}</div>
+              </div>
+            )}
 
             <div className="mt-4 flex items-start gap-3 p-3 rounded-xl bg-vx-surface border border-vx-line">
               <Truck className="w-5 h-5 mt-0.5 shrink-0 text-vx-accent-text" />
@@ -176,7 +200,7 @@ export default function ProductDetail() {
       </div>
 
       {/* ───── section tabs ───── */}
-      <div className={`sticky z-20 -mx-4 sm:mx-0 px-4 sm:px-0 bg-vx-bg/95 backdrop-blur-xl border-b border-vx-line ${ann ? 'top-[116px] md:top-[68px]' : 'top-[68px]'}`}>
+      <div className={`sticky z-20 -mx-4 sm:mx-0 px-4 sm:px-0 bg-vx-bg/95 backdrop-blur-xl border-b border-vx-line ${ann ? 'top-[130px] md:top-[68px]' : 'top-[68px]'}`}>
         <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
           {tabs.map(([id, label]) => (
             <button key={id} role="tab" aria-selected={active === id} onClick={() => go(id)} className={`shrink-0 h-12 px-4 text-[14px] font-semibold border-b-2 transition-colors ${active === id ? 'border-vx-accent-text text-white' : 'border-transparent text-vx-muted hover:text-white'}`}>{label}</button>
@@ -266,8 +290,9 @@ export default function ProductDetail() {
 
       <div data-bottom-bar className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-4 py-3 bg-vx-surface/95 backdrop-blur-xl border-t border-vx-line flex items-center gap-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
         <div className="min-w-0">
-          {sale && <div className="text-[12px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70">{formatPrice(sale.old)}</div>}
-          <div className="text-[20px] font-black tabular-nums text-white leading-tight">{quote ? 'Teklif alın' : formatPrice(p.price)}</div>
+          {sale && !quote && <div className="text-[12px] tabular-nums text-zinc-500 line-through">{formatPrice(terms.length ? oldTotal : sale.old)}</div>}
+          <div className="text-[20px] font-black tabular-nums text-white leading-tight">{quote ? 'Teklif alın' : formatPrice(terms.length ? grand : p.price)}</div>
+          {!quote && terms.length > 0 && <div className="text-[11.5px] text-vx-muted">{termLabel(m)} toplam</div>}
         </div>
         <div className="ml-auto shrink-0 w-[160px]">{quote ? <Button size="md" to={askTo} className="w-full">Teklif İste</Button> : <Button size="md" onClick={order} className="w-full">Sipariş Ver</Button>}</div>
       </div>

@@ -99,7 +99,7 @@ function PublicApp() {
 
       <Header onMenu={() => setMenuOpen(true)} />
 
-      <main className={`lg:ml-[215px] px-4 sm:px-8 lg:px-12 pb-8 space-y-6 ${ann ? 'pt-[calc(142px+env(safe-area-inset-top))] md:pt-[calc(92px+env(safe-area-inset-top))]' : 'pt-[calc(92px+env(safe-area-inset-top))]'}`}>
+      <main className={`lg:ml-[215px] px-4 sm:px-8 lg:px-12 pb-8 space-y-6 ${ann ? 'pt-[calc(156px+env(safe-area-inset-top))] md:pt-[calc(92px+env(safe-area-inset-top))]' : 'pt-[calc(92px+env(safe-area-inset-top))]'}`}>
         <div key={pathname} className="vx-rise space-y-6">
         <Routes>
           <Route path={routes.home} element={<Home />} />

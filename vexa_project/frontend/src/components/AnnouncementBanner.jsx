@@ -48,12 +48,12 @@ export default function AnnouncementPill({ data, className = '' }) {
   if (!data) return null
   const t = STYLES[data.style] || STYLES.bilgi
   const Icon = t.icon
-  const cls = `group relative flex items-center gap-2.5 h-11 max-w-full min-w-0 overflow-hidden rounded-full bg-gradient-to-r ${t.wrap} ${t.glow} ${t.dark ? 'text-zinc-900' : 'text-white'} pl-1.5 pr-3 sm:pr-4 ${className}`
+  const cls = `group relative flex items-center gap-2.5 min-h-[44px] py-1.5 max-w-full min-w-0 overflow-hidden rounded-2xl bg-gradient-to-r ${t.wrap} ${t.glow} ${t.dark ? 'text-zinc-900' : 'text-white'} pl-2 pr-3 sm:pr-4 ${className}`
   const body = (
     <>
       <span aria-hidden="true" className="shimmer-line" />
-      <span className={`relative grid place-items-center w-8 h-8 shrink-0 rounded-full ${t.dark ? 'bg-black/10' : 'bg-white/20'}`}><Icon className="w-4 h-4" /></span>
-      <span className="relative min-w-0 flex-1 truncate text-[13px] leading-none">
+      <span className={`relative grid place-items-center w-8 h-8 shrink-0 self-center rounded-full ${t.dark ? 'bg-black/10' : 'bg-white/20'}`}><Icon className="w-4 h-4" /></span>
+      <span className="relative min-w-0 flex-1 text-[12.5px] leading-[1.3] line-clamp-2 break-words">
         {data.title && <b className="font-extrabold">{data.title}</b>}
         {data.title && data.text && <span className="mx-1.5 opacity-60">•</span>}
         {data.text && <span className="font-medium opacity-95">{data.text}</span>}

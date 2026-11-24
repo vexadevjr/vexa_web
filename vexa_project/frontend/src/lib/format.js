@@ -7,9 +7,16 @@ export function formatPrice(value) {
   return `${Number(value).toLocaleString(locale)} ${symbol}`
 }
 
+// Subscription terms: the product price is the MONTHLY price, the customer picks 1 / 3 / 6 / 12 months.
+export const ALL_TERMS = [1, 3, 6, 12]
+export const termsOf = (p) => (Array.isArray(p.terms) ? p.terms : ALL_TERMS)
+export const termLabel = (m) => (m === 12 ? 'Yıllık' : `${m} Aylık`)
+export const totalFor = (price, months) => Math.round(Number(price) * months * 100) / 100
+export const termsSummary = (terms) => terms.map((m) => (m === 12 ? 'Yıllık' : `${m} ay`)).join(' · ')
+
 export function priceLabel(product) {
   if (product.price == null) return 'Teklif alın'
-  return `${product.priceFrom ? 'Başlangıç ' : ''}${formatPrice(product.price)}`
+  return `${product.priceFrom ? 'Başlangıç ' : ''}${formatPrice(product.price)}${termsOf(product).length ? ' / ay' : ''}`
 }
 
 // free text from the admin ("5-7 iş günü"); older products fall back to their numeric day count

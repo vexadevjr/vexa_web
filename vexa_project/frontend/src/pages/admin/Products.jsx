@@ -7,7 +7,7 @@ import { ICON_OPTIONS, iconFor, slugify } from '../../lib/categories.js'
 import { Card, Btn, Badge, Empty, TextField, AreaField, SelectField, CheckField, ImageUploader, useAdmin, useLoad, useToast, confirmDo } from './ui.jsx'
 
 
-const BLANK = { slug: '', category: '', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'tek seferlik', delivery: '', images: [], details: '', requirements: '', specs: '', orderFields: [], metaTitle: '', metaDescription: '', popular: false, active: true }
+const BLANK = { slug: '', category: '', subCategory: '', name: '', tagline: '', description: '', features: '', tags: '', price: '', oldPrice: '', priceFrom: false, period: 'aylık', terms: [1, 3, 6, 12], delivery: '', images: [], details: '', requirements: '', specs: '', orderFields: [], metaTitle: '', metaDescription: '', popular: false, active: true }
 
 const toForm = (p) => ({
   ...BLANK,
@@ -16,6 +16,7 @@ const toForm = (p) => ({
   oldPrice: p.oldPrice == null ? '' : String(p.oldPrice),
   delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
   images: p.images || [],
+  terms: Array.isArray(p.terms) ? p.terms : [1, 3, 6, 12],
   details: p.details || '',
   orderFields: p.orderFields || [],
   specs: (p.specs || []).map((r) => `${r.k}: ${r.v}`).join('\n'),
@@ -39,6 +40,7 @@ function toPayload(f, creating) {
     price: f.price === '' ? null : Number(f.price),
     priceFrom: f.priceFrom,
     period: f.period,
+    terms: f.terms,
     oldPrice: f.oldPrice === '' ? null : Number(f.oldPrice),
     delivery: f.delivery,
     deliveryDays: null,
@@ -135,9 +137,17 @@ function Editor({ product, subs, categories, onClose, onSaved }) {
         </div>
 
         <h4 className="sm:col-span-2 mt-3 text-[12px] font-bold uppercase tracking-[0.14em] text-vx-accent-text">2 · Fiyat ve teslim</h4>
-        <TextField label="Satış fiyatı (₺)" type="number" value={f.price} onChange={set('price')} max={10} hint="Müşterinin ödeyeceği fiyat. Boş bırakırsanız “Teklif alın” görünür." />
-        <TextField label="Eski fiyat (₺) — indirim için" type="number" value={f.oldPrice} onChange={set('oldPrice')} max={10} hint="Dolu ve satış fiyatından yüksekse üstü çizili görünür, %indirim rozeti eklenir. İndirimi kaldırmak için boşaltın." />
-        <TextField label="Dönem etiketi" value={f.period} onChange={set('period')} max={40} placeholder="tek seferlik" />
+        <TextField label="Aylık fiyat (₺)" type="number" value={f.price} onChange={set('price')} max={10} hint="Bir aylık abonelik bedeli. Boş bırakırsanız “Teklif alın” görünür." />
+        <TextField label="Eski aylık fiyat (₺) — indirim için" type="number" value={f.oldPrice} onChange={set('oldPrice')} max={10} hint="Dolu ve satış fiyatından yüksekse üstü çizili görünür, %indirim rozeti eklenir. İndirimi kaldırmak için boşaltın." />
+        <div className="sm:col-span-2">
+          <span className="block mb-1.5 text-[12px] font-medium text-zinc-200">Abonelik süreleri</span>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            {[[1, '1 Aylık'], [3, '3 Aylık'], [6, '6 Aylık'], [12, 'Yıllık']].map(([n, l]) => (
+              <CheckField key={n} label={l} checked={f.terms.includes(n)} onChange={(on) => set('terms')(on ? [...f.terms, n].sort((a, b) => a - b) : f.terms.filter((x) => x !== n))} />
+            ))}
+          </div>
+          <span className="block mt-1 text-[11px] text-zinc-400">Müşteri seçtiği süreye göre aylık fiyat × ay kadar öder. Hiçbiri seçilmezse ürün tek seferlik satılır.</span>
+        </div>
         <TextField label="Teslim süresi" value={f.delivery} onChange={set('delivery')} max={60} placeholder="5-7 iş günü" hint="Serbest yazın: “5-7 iş günü”, “24 saat içinde”, “Kapsama göre” ..." />
         <div className="sm:col-span-2"><CheckField label="“Başlangıç” etiketi göster (fiyat bu tutardan başlar)" checked={f.priceFrom} onChange={set('priceFrom')} /></div>
 
@@ -359,7 +369,7 @@ export default function Products() {
       const copy = { ...p }
       const body = {
         slug: `${p.slug}-kopya`.slice(0, 60), category: p.category, subCategory: p.subCategory, name: `${p.name} (Kopya)`.slice(0, 120), tagline: p.tagline, description: p.description,
-        features: p.features, tags: p.tags, price: p.price, oldPrice: p.oldPrice, priceFrom: p.priceFrom, period: p.period, delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
+        features: p.features, tags: p.tags, price: p.price, oldPrice: p.oldPrice, priceFrom: p.priceFrom, period: p.period, terms: p.terms, delivery: p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''),
         popular: false, active: false, images: p.images, details: p.details, requirements: p.requirements, metaTitle: '', metaDescription: '',
       }
       void copy
@@ -399,7 +409,7 @@ export default function Products() {
               <tr className="text-vx-muted border-b border-vx-line">
                 <th className="py-2 pr-3 font-medium">Ürün</th>
                 <th className="py-2 pr-3 font-medium">Kategori</th>
-                <th className="py-2 pr-3 font-medium">Fiyat (₺)</th>
+                <th className="py-2 pr-3 font-medium">Aylık fiyat (₺)</th>
                 <th className="py-2 pr-3 font-medium">Durum</th>
                 <th className="py-2 font-medium text-right">İşlem</th>
               </tr>

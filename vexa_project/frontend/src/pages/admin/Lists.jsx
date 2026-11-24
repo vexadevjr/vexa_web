@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Star, BadgeCheck } from 'lucide-react'
 import { admin } from '../../lib/adminApi.js'
-import { formatPrice } from '../../lib/format.js'
+import { formatPrice, termLabel } from '../../lib/format.js'
 import { Card, Btn, Badge, Empty, Pager, useAdmin, useLoad, useToast, fmtDate, confirmDo } from './ui.jsx'
 
 const ORDER_STATUS = [
@@ -73,6 +73,7 @@ function OrderRow({ o, onChange }) {
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-[13px] pt-3">
             <div><dt className="inline text-vx-muted">E-posta: </dt><dd className="inline"><a className="text-vx-accent-soft break-all" href={`mailto:${o.customer.email}`}>{o.customer.email}</a></dd></div>
             <div><dt className="inline text-vx-muted">Discord: </dt><dd className="inline text-zinc-100">{o.customer.discord || '—'}</dd></div>
+            <div><dt className="inline text-vx-muted">Abonelik: </dt><dd className="inline text-zinc-100">{o.monthlyPrice ? `${termLabel(o.termMonths || 1)} (aylık ${formatPrice(o.monthlyPrice)})` : '—'}</dd></div>
             <div><dt className="inline text-vx-muted">Teslim tahmini: </dt><dd className="inline text-zinc-100">{o.delivery || '—'}</dd></div>
             <div><dt className="inline text-vx-muted">Hesap: </dt><dd className="inline text-zinc-100">{o.user ? 'Üye' : 'Misafir'}</dd></div>
             <div className="sm:col-span-2"><dt className="inline text-vx-muted">Sözleşme onayı: </dt><dd className="inline text-zinc-100">{o.legalAcceptedAt ? `${fmtDate(o.legalAcceptedAt)} (sürüm ${o.legalVersion || '-'})` : 'Kayıt yok (eski sipariş)'}</dd></div>

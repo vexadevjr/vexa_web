@@ -111,7 +111,8 @@ export function AppProvider({ children }) {
 
   // ordering needs an account: guests are sent to login / register first and returned to the order afterwards
   const openOrder = useCallback(
-    (product) => {
+    (base, months) => {
+      const product = months ? { ...base, _term: months } : base
       if (!user) {
         pendingOrder.current = product
         setAuthNotice('Sipariş vermek için giriş yapın veya kayıt olun.')
