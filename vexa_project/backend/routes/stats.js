@@ -4,6 +4,7 @@ const Order = require('../models/Order')
 const User = require('../models/User')
 const { isConnected } = require('../config/db')
 const { reviewStats } = require('./reviews')
+const { getDiscordStats } = require('../services/discordStats')
 
 // Real, live numbers only: nothing here is typed in by hand.
 router.get('/', async (req, res, next) => {
@@ -16,6 +17,15 @@ router.get('/', async (req, res, next) => {
     ])
     res.set('Cache-Control', 'public, max-age=30')
     res.json({ available: true, satisfaction: reviews.satisfaction, reviewCount: reviews.count, average: reviews.average, completedOrders, customers })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/discord', async (req, res, next) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=300')
+    res.json(await getDiscordStats())
   } catch (err) {
     next(err)
   }

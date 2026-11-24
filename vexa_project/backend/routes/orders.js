@@ -2,7 +2,8 @@
 const router = require('express').Router()
 const Order = require('../models/Order')
 const requireDb = require('../middleware/requireDb')
-const { optionalAuth, requireAuth } = require('../middleware/auth')
+const { requireAuth } = require('../middleware/auth')
+const User = require('../models/User')
 const { form: formLimiter, upload: uploadLimiter } = require('../middleware/limiters')
 const Media = require('../models/Media')
 const { sniff } = require('../utils/imageSniff')
@@ -13,15 +14,15 @@ const { makeNo } = require('../utils/ids')
 
 const rules = {
   productSlug: { required: true, max: 60 },
-  name: { required: true, min: 2, max: 80 },
-  email: { type: 'email', required: true },
   note: { max: 1000, multiline: true },
 }
 
-// Create an order. Works for guests and logged-in users. The price always comes from the
+// Create an order. Login is required: name and e-mail come from the account. The price always comes from the
 // server-side catalog, never from the request body.
-router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) => {
+router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => {
   try {
+    const account = await User.findById(req.auth.sub)
+    if (!account) return res.status(401).json({ message: 'Oturum geçersiz. Lütfen tekrar giriş yapın.' })
     const { value, errors, ok } = validate(rules, req.body)
     if (req.body && req.body.legalAccepted !== true) errors.legal = 'Devam etmek için Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu’nu onaylamanız gerekir.'
     if (!ok || errors.legal) return fail(res, errors)
@@ -37,12 +38,12 @@ router.post('/', requireDb, formLimiter, optionalAuth, async (req, res, next) =>
 
     const order = await Order.create({
       orderNo: makeNo('VX'),
-      user: req.auth ? req.auth.sub : null,
+      user: account._id,
       productSlug: product.slug,
       productName: product.name,
       price: product.price,
       currency: product.currency || 'TRY',
-      customer: { name: value.name, email: value.email, discord: (parsed.fields.find((f) => f.key === 'discordUsername') || {}).value || '' },
+      customer: { name: account.name, email: account.email, discord: (parsed.fields.find((f) => f.key === 'discordUsername') || {}).value || '' },
       note: value.note || '',
       delivery: product.delivery || (product.deliveryDays ? `${product.deliveryDays} iş günü` : ''),
       fields: parsed.fields,
