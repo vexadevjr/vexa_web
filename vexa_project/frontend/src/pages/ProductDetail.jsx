@@ -110,35 +110,35 @@ export default function ProductDetail() {
       </nav>
 
       {/* ───── above the fold: gallery on the left, everything needed to buy on the right ───── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] gap-5 items-start">
+      <div className="product-detail-top grid grid-cols-1 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] gap-5 items-stretch">
         <ProductGallery images={p.images || []} name={p.name} />
 
-        <div className="flex flex-col gap-4">
-          <div>
+        <div className="product-detail-summary flex flex-col min-w-0 h-full">
+          <div className="product-detail-heading">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-surface border border-vx-line text-[11px] font-semibold uppercase tracking-wide text-vx-accent-soft">{listName}</span>
               {p.subCategory && <span className="text-[12px] text-vx-muted">{p.subCategory}</span>}
               {p.popular && <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white">En çok tercih edilen</span>}
             </div>
-            <h1 className="mt-3 text-[28px] sm:text-[32px] font-extrabold leading-tight tracking-tight text-white">{p.name}</h1>
+            <h1 className="mt-2 text-[25px] sm:text-[27px] font-extrabold leading-tight tracking-tight text-white">{p.name}</h1>
             {total > 0 ? (
               <button onClick={() => go('yorumlar')} className="mt-2 inline-flex items-center gap-2 text-[14px] text-vx-muted hover:text-white">
                 <StarBar value={avg} className="w-4 h-4" /> <b className="text-white">{avg.toFixed(1)}</b> · {total} değerlendirme
               </button>
             ) : (
-              <div className="mt-2 text-[13px] text-vx-muted">Bu ürün için henüz değerlendirme yok</div>
+              <div className="mt-1.5 text-[12px] text-vx-muted">Bu ürün için henüz değerlendirme yok</div>
             )}
-            {p.tagline && <p className="mt-3 text-[15px] leading-relaxed text-zinc-300">{p.tagline}</p>}
+            {p.tagline && <p className="mt-2 text-[14px] leading-snug text-zinc-300">{p.tagline}</p>}
           </div>
 
           {topFeatures.length > 0 && (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2">
-              {topFeatures.map((f) => <li key={f} className="flex items-start gap-2 text-[14px] text-zinc-100"><Check className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" />{f}</li>)}
+            <ul className="product-detail-top-features grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-3">
+              {topFeatures.map((f) => <li key={f} className="flex items-start gap-2 text-[13px] leading-snug text-zinc-100"><Check className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" />{f}</li>)}
             </ul>
           )}
 
           {/* buy box */}
-          <div className="mt-1 rounded-2xl bg-vx-card border border-vx-accent/30 p-4 sm:p-[18px]">
+          <div className="product-detail-buybox mt-auto rounded-2xl bg-vx-card border border-vx-accent/30 p-3 sm:p-3.5">
             {sale && (
               <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3">
                 <span className="grid place-items-center w-9 h-9 shrink-0 rounded-full bg-rose-500/90 text-white"><Tag className="w-4 h-4" /></span>
@@ -155,13 +155,13 @@ export default function ProductDetail() {
               </div>
             ) : terms.length ? (
               <>
-                <div className="text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Abonelik süresi</div>
-                <div className="mt-2"><TermPicker product={p} value={m} onChange={setMonths} discounts={termDiscounts} /></div>
-                <dl className="mt-3 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[13px] sm:text-[14px]">
-                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
-                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
-                  {(Number(termDiscounts[m]) || 0) > 0 && <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">Toplu ödeme indirimi (%{termDiscounts[m]})</dt><dd className="font-semibold text-emerald-400">−{formatPrice(totalFor(p.price, m) - grand)}</dd></div>}
-                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-3"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[23px] sm:text-[24px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-vx-muted">Abonelik süresi</div>
+                <div className="mt-1.5"><TermPicker product={p} value={m} onChange={setMonths} discounts={termDiscounts} /></div>
+                <dl className="product-detail-price-table mt-2 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[12px] sm:text-[13px]">
+                  <div className="flex items-baseline justify-between gap-4 px-3 py-2"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
+                  <div className="flex items-baseline justify-between gap-4 px-3 py-2"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
+                  {(Number(termDiscounts[m]) || 0) > 0 && <div className="flex items-baseline justify-between gap-4 px-3 py-2"><dt className="text-vx-muted">Toplu ödeme indirimi (%{termDiscounts[m]})</dt><dd className="font-semibold text-emerald-400">−{formatPrice(totalFor(p.price, m) - grand)}</dd></div>}
+                  <div className="flex items-baseline justify-between gap-4 px-3 py-2"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[20px] sm:text-[21px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
                 </dl>
               </>
             ) : (
@@ -175,30 +175,31 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <div className="mt-3 flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl bg-vx-surface border border-vx-line">
-              <Truck className="w-5 h-5 mt-0.5 shrink-0 text-vx-accent-text" />
-              <div className="text-[13px] leading-snug">
+            <div className="product-detail-delivery mt-2 flex items-start gap-2 p-2 rounded-xl bg-vx-surface border border-vx-line">
+              <Truck className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" />
+              <div className="text-[12px] leading-snug">
                 <div className="text-zinc-100"><b>Teslim süresi:</b> {deliveryLabel(p)}</div>
                 {eta && <div className="text-vx-muted">Bugün sipariş verirseniz tahmini teslim: <b className="text-zinc-100">{eta}</b></div>}
               </div>
             </div>
 
-            <div className="product-detail-actions mt-3 flex flex-col sm:flex-row gap-2.5">
+            <div className="product-detail-actions mt-2 flex flex-col sm:flex-row gap-2">
               {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : <Button size="lg" onClick={order} className="product-detail-action flex-1">Hemen Sipariş Ver</Button>}
               <Button size="lg" variant="secondary" to={askTo} className="product-detail-action"><MessageSquare className="w-4 h-4" /> Soru Sor</Button>
             </div>
 
-            <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5">
-              {TRUST.map(({ icon: Icon, title, text }) => (
-                <li key={title} className="flex items-start gap-2.5">
-                  <Icon className="w-5 h-5 mt-0.5 shrink-0 text-vx-accent-text" />
-                  <div className="text-[12px] leading-snug"><div className="font-semibold text-white">{title}</div><div className="text-vx-muted">{text}</div></div>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>
+
+      <ul className="product-detail-trust grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-5 gap-y-3 rounded-xl border border-vx-line bg-vx-card/70 px-4 py-3">
+        {TRUST.map(({ icon: Icon, title, text }) => (
+          <li key={title} className="flex items-start gap-2.5 min-w-0">
+            <Icon className="w-4 h-4 mt-0.5 shrink-0 text-vx-accent-text" />
+            <div className="text-[12px] leading-snug"><div className="font-semibold text-white">{title}</div><div className="text-vx-muted">{text}</div></div>
+          </li>
+        ))}
+      </ul>
 
       {/* ───── section tabs ───── */}
       <div className={`sticky z-20 -mx-4 sm:mx-0 px-4 sm:px-0 bg-vx-bg/95 backdrop-blur-xl border-b border-vx-line ${ann ? 'top-[130px] md:top-[68px]' : 'top-[68px]'}`}>
@@ -209,7 +210,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 max-w-5xl">
+      <div className="product-detail-sections grid grid-cols-1 gap-5 w-full max-w-none">
         {paragraphs.length > 0 && (
           <Panel id="genel" title="Ürün açıklaması">
             <div className="space-y-4 max-w-3xl text-[16px] leading-[1.75] text-zinc-200">
