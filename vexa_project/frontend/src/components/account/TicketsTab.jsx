@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, LifeBuoy, Plus } from 'lucide-react'
+import { ArrowLeft, LifeBuoy, Plus, MessageCircle, ChevronRight } from 'lucide-react'
 import Button from '../Button.jsx'
 import TicketThread, { StatusChip } from '../TicketThread.jsx'
 import { api } from '../../lib/api.js'
@@ -53,7 +53,15 @@ export default function TicketsTab() {
   const current = tickets.find((t) => t.ticketNo === sel)
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] gap-5 items-start">
+    <div className="space-y-5">
+      <section className={`${card} flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5`}>
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-xl border border-vx-accent-text/20 bg-vx-accent/15 text-vx-accent-text"><MessageCircle className="h-5 w-5" /></span>
+          <div><p className="text-[14px] font-bold text-white">Destek merkezi</p><p className="mt-0.5 text-[12px] text-vx-muted">Destek ekibimizle olan görüşmelerinizi buradan yönetin.</p></div>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-vx-line bg-vx-surface px-3 py-2 text-[12px] font-semibold text-zinc-200"><span className="h-2 w-2 rounded-full bg-emerald-400" /> {tickets.length} talep <ChevronRight className="h-3.5 w-3.5 text-vx-muted" /></div>
+      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] gap-5 items-start">
       <div className={`${card} overflow-hidden ${sel ? 'hidden lg:block' : ''}`}>
         <div className="px-4 pt-4 pb-3 border-b border-vx-line space-y-3">
           <div className="flex items-center justify-between">
@@ -100,6 +108,7 @@ export default function TicketsTab() {
         ) : (
           <p className="py-16 text-center text-[14px] text-vx-muted">Konuşmayı görmek için soldan bir talep seçin.</p>
         )}
+      </div>
       </div>
     </div>
   )

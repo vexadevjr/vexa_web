@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, LifeBuoy, Settings, Check, X, Plus, ShieldAlert } from 'lucide-react'
+import { Package, LifeBuoy, Settings, Check, X, Plus, ShieldAlert, ChevronRight, Sparkles, ShieldCheck, UserRound } from 'lucide-react'
 import Avatar from '../components/Avatar.jsx'
 import Button from '../components/Button.jsx'
 import Field, { inputCls } from '../components/Field.jsx'
@@ -164,26 +164,55 @@ export default function Account() {
   const title = TABS.find((t) => pathname.startsWith(t.to))?.label || TABS[0].label
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-6 items-start">
-      <aside className={`${card} p-4`}>
-        <div className="flex items-center gap-3 pb-4 mb-3 border-b border-vx-line">
-          <Avatar user={user} className="w-12 h-12 text-[18px] shrink-0" />
-          <div className="min-w-0">
-            <div className="text-[14px] font-semibold text-white truncate">{user.name}</div>
-            <div className="text-[12px] text-vx-muted truncate">{user.email}</div>
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-[26px] border border-vx-line bg-vx-card px-5 py-6 sm:px-7 sm:py-7">
+        <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-vx-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-44 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <Avatar user={user} className="w-[68px] h-[68px] text-[25px] ring-4 ring-white/5" />
+              <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-vx-card bg-emerald-500 text-white"><ShieldCheck className="h-3.5 w-3.5" /></span>
+            </div>
+            <div className="min-w-0">
+              <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-vx-accent-text"><UserRound className="h-3.5 w-3.5" /> Vexstar hesabım</div>
+              <h1 className="truncate text-xl font-bold tracking-tight text-white sm:text-2xl">Merhaba, {user.name}</h1>
+              <p className="mt-1 truncate text-[13px] text-vx-muted">{user.email}</p>
+            </div>
+          </div>
+          <div className="relative flex items-center gap-2 self-start rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[12px] font-semibold text-emerald-300 sm:self-center">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.7)]" /> Hesabınız aktif
           </div>
         </div>
-        <nav className="flex lg:flex-col gap-1 overflow-x-auto" aria-label="Hesap menüsü">
-          {TABS.map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to} className={({ isActive }) => `flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] font-medium whitespace-nowrap transition-colors ${isActive ? 'bg-vx-accent text-white' : 'text-vx-muted hover:text-white hover:bg-vx-surface'}`}>
-              <Icon className="w-4 h-4 shrink-0" /> {label}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
-      <div className="space-y-5 min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
-        <Screen />
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[248px_minmax(0,1fr)] gap-5 lg:gap-6 items-start">
+        <aside className={`${card} p-3 sm:p-4`}>
+          <div className="px-3 pb-3 pt-1 text-[10px] font-bold uppercase tracking-[.18em] text-vx-muted">Hesap yönetimi</div>
+          <nav className="flex lg:flex-col gap-1 overflow-x-auto" aria-label="Hesap menüsü">
+            {TABS.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} className={({ isActive }) => `group flex min-w-max items-center gap-3 rounded-xl px-3 h-12 text-[13px] font-semibold transition-all ${isActive ? 'bg-vx-accent text-white shadow-lg shadow-vx-accent/20' : 'text-vx-muted hover:text-white hover:bg-vx-surface'}`}>
+                <span className={`grid h-8 w-8 place-items-center rounded-lg ${pathname.startsWith(to) ? 'bg-white/15' : 'bg-vx-surface group-hover:bg-vx-line'}`}><Icon className="w-4 h-4 shrink-0" /></span>
+                {label}
+                <ChevronRight className={`ml-auto hidden h-4 w-4 lg:block ${pathname.startsWith(to) ? 'opacity-80' : 'opacity-0 group-hover:opacity-60'}`} />
+              </NavLink>
+            ))}
+          </nav>
+          <div className="mt-4 hidden rounded-xl border border-vx-line bg-vx-surface/70 p-3 lg:block">
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-zinc-200"><Sparkles className="h-4 w-4 text-vx-accent-text" /> Vexstar destek</div>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-vx-muted">Sipariş ve hesap işlemlerinizi tek yerden kolayca yönetin.</p>
+          </div>
+        </aside>
+        <main className="min-w-0 space-y-5">
+          <div className="flex items-end justify-between gap-3 px-1">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-vx-accent-text">Kontrol paneli</p>
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-white sm:text-2xl">{title}</h2>
+            </div>
+            <span className="hidden items-center gap-1.5 text-[11px] text-vx-muted sm:flex"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Güvenli hesap alanı</span>
+          </div>
+          <Screen />
+        </main>
       </div>
     </div>
   )

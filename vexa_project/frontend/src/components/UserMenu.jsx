@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, Package, Settings, LifeBuoy, LogOut } from 'lucide-react'
+import { ChevronDown, Package, Settings, LifeBuoy, LogOut, ShieldCheck, ChevronRight } from 'lucide-react'
 import Avatar from './Avatar.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
@@ -70,20 +70,27 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 top-14 z-40 w-[260px] rounded-2xl bg-vx-card border border-vx-line shadow-xl shadow-black/50 overflow-hidden">
-          <div className="flex items-center gap-3 px-4 py-4 border-b border-vx-line">
-            <Avatar user={user} className="w-10 h-10 text-[15px] shrink-0" />
-            <div className="min-w-0">
-              <div className="text-[14px] font-semibold text-white truncate">{user.name}</div>
-              <div className="text-[12px] text-vx-muted truncate">{user.email}</div>
+        <div role="menu" className="absolute right-0 top-14 z-40 w-[286px] overflow-hidden rounded-[20px] border border-vx-line bg-vx-card shadow-2xl shadow-black/60">
+          <div className="relative overflow-hidden border-b border-vx-line bg-gradient-to-br from-vx-accent/20 via-vx-card to-vx-card px-4 py-4">
+            <div className="pointer-events-none absolute -right-8 -top-12 h-28 w-28 rounded-full bg-vx-accent/20 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <Avatar user={user} className="w-12 h-12 text-[16px] shrink-0 ring-2 ring-white/10" />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[14px] font-bold text-white">{user.name}</div>
+                <div className="mt-0.5 truncate text-[11px] text-vx-muted">{user.email}</div>
+                <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300"><ShieldCheck className="h-3 w-3" /> Hesap aktif</div>
+              </div>
             </div>
           </div>
           <div className="p-2">
+            <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[.16em] text-vx-muted">Hesabım</div>
             {items.map(({ label, icon: Icon, to }) => (
-              <Link key={to} to={to} role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 h-11 px-3 rounded-xl text-[14px] text-zinc-100 hover:text-white hover:bg-vx-surface transition-colors">
-                <Icon className="w-[18px] h-[18px] text-vx-accent-text" /> {label}
+              <Link key={to} to={to} role="menuitem" onClick={() => setOpen(false)} className="group flex items-center gap-3 rounded-xl px-3 h-11 text-[13px] font-medium text-zinc-200 transition-colors hover:bg-vx-surface hover:text-white">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-vx-surface text-vx-accent-text group-hover:bg-vx-line"><Icon className="h-4 w-4" /></span>
+                <span className="flex-1">{label}</span><ChevronRight className="h-4 w-4 text-vx-muted opacity-0 transition-opacity group-hover:opacity-100" />
               </Link>
             ))}
+            <div className="my-2 border-t border-vx-line" />
             <button
               role="menuitem"
               onClick={() => {
@@ -91,9 +98,9 @@ export default function UserMenu() {
                 logout()
                 navigate(routes.home)
               }}
-              className="w-full flex items-center gap-3 h-11 px-3 rounded-xl text-[14px] text-rose-300 hover:bg-rose-500/10 transition-colors"
+              className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-[13px] font-semibold text-rose-300 transition-colors hover:bg-rose-500/10"
             >
-              <LogOut className="w-[18px] h-[18px]" /> Çıkış Yap
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-rose-500/10"><LogOut className="h-4 w-4" /></span> Çıkış Yap
             </button>
           </div>
         </div>

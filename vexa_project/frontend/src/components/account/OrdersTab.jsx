@@ -208,6 +208,13 @@ export default function OrdersTab() {
 
   return (
     <div className="space-y-5">
+      <section className={`${card} flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5`}>
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-xl border border-vx-accent-text/20 bg-vx-accent/15 text-vx-accent-text"><Package className="h-5 w-5" /></span>
+          <div><p className="text-[14px] font-bold text-white">Sipariş geçmişiniz</p><p className="mt-0.5 text-[12px] text-vx-muted">Tüm hizmetlerinizi ve teslimat süreçlerini takip edin.</p></div>
+        </div>
+        <div className="rounded-xl border border-vx-line bg-vx-surface px-4 py-2 text-right"><div className="text-lg font-bold tabular-nums text-white">{orders.length}</div><div className="text-[10px] font-semibold uppercase tracking-wider text-vx-muted">Toplam sipariş</div></div>
+      </section>
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Sipariş durumu">
         {FILTERS.map(([k, l]) => (
           <button key={k} role="tab" aria-selected={filter === k} onClick={() => setFilter(k)} className={`h-10 px-4 rounded-full text-[13px] font-semibold border transition-colors ${filter === k ? 'bg-vx-accent border-vx-accent text-white' : 'bg-vx-card border-vx-line text-vx-muted hover:text-white'}`}>
