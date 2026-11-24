@@ -11,6 +11,8 @@ const productSchema = new mongoose.Schema(
     description: { type: String, trim: true, default: '' },
     features: { type: [String], default: [] },
     tags: { type: [String], default: [] },
+    // subscription lengths offered for this product, in months (price is the MONTHLY price); empty = one-time price
+    terms: { type: [Number], default: [1, 3, 6, 12] },
     price: { type: Number, default: null, min: 0 }, // null = "teklif al"
     oldPrice: { type: Number, default: null, min: 0 }, // original price shown struck-through when discounted
     priceFrom: { type: Boolean, default: false },

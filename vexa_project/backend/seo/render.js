@@ -45,7 +45,8 @@ async function getData() {
   return value
 }
 
-const priceText = (p) => (p.price == null ? 'Teklif alın' : `${p.priceFrom ? 'Başlangıç ' : ''}${Number(p.price).toLocaleString('tr-TR')} ₺`)
+const hasTerms = (p) => !Array.isArray(p.terms) || p.terms.length > 0
+const priceText = (p) => (p.price == null ? 'Teklif alın' : `${p.priceFrom ? 'Başlangıç ' : ''}${Number(p.price).toLocaleString('tr-TR')} ₺${hasTerms(p) ? ' / ay' : ''}`)
 const productsOf = (d, cat) => d.products.filter((p) => p.category === cat)
 
 // ---- product pages: /urunler/<slug> ----

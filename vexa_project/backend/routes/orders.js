@@ -33,6 +33,11 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       return res.status(400).json({ message: 'Bu hizmet için lütfen teklif formunu kullanın.' })
     }
 
+    // subscription length: the price is monthly, the total is monthly price x months (calculated here, never taken from the request)
+    const terms = Array.isArray(product.terms) ? product.terms : [1, 3, 6, 12]
+    const months = terms.length ? Number(req.body.termMonths) : 1
+    if (terms.length && !terms.includes(months)) return res.status(400).json({ message: 'Geçersiz abonelik süresi.' })
+
     const parsed = parseOrderFields(product.orderFields, req.body.fields)
     if (Object.keys(parsed.errors).length) return fail(res, parsed.errors)
 
@@ -41,7 +46,9 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       user: account._id,
       productSlug: product.slug,
       productName: product.name,
-      price: product.price,
+      price: Math.round(product.price * months * 100) / 100,
+      termMonths: months,
+      monthlyPrice: product.price,
       currency: product.currency || 'TRY',
       customer: { name: account.name, email: account.email, discord: (parsed.fields.find((f) => f.key === 'discordUsername') || {}).value || '' },
       note: value.note || '',
@@ -57,6 +64,7 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
         orderNo: order.orderNo,
         productName: order.productName,
         price: order.price,
+        termMonths: order.termMonths,
         currency: order.currency,
         status: order.status,
       },
@@ -72,7 +80,7 @@ router.get('/mine', requireDb, requireAuth, async (req, res, next) => {
     const orders = await Order.find({ user: req.auth.sub })
       .sort({ createdAt: -1 })
       .limit(50)
-      .select('orderNo productSlug productName price currency status note delivery history fields secretsPurgedAt cancelReason cancelledBy createdAt updatedAt -_id')
+      .select('orderNo productSlug productName price termMonths monthlyPrice currency status note delivery history fields secretsPurgedAt cancelReason cancelledBy createdAt updatedAt -_id')
       .lean()
     // sensitive values (bot tokens) never leave the server
     res.json({ orders: orders.map((o) => ({ ...o, fields: publicFields(o.fields) })) })
@@ -120,7 +128,7 @@ router.post('/:orderNo/cancel', requireDb, formLimiter, requireAuth, async (req,
     await order.save()
     res.json({
       order: {
-        orderNo: order.orderNo, productSlug: order.productSlug, productName: order.productName, price: order.price, currency: order.currency,
+        orderNo: order.orderNo, productSlug: order.productSlug, productName: order.productName, price: order.price, termMonths: order.termMonths, monthlyPrice: order.monthlyPrice, currency: order.currency,
         status: order.status, note: order.note, delivery: order.delivery, history: order.history, cancelReason: order.cancelReason,
         cancelledBy: order.cancelledBy, createdAt: order.createdAt, updatedAt: order.updatedAt, fields: publicFields(order.fields), secretsPurgedAt: order.secretsPurgedAt,
       },

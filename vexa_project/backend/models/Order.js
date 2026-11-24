@@ -7,7 +7,9 @@ const orderSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     productSlug: { type: String, required: true },
     productName: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 }, // snapshot taken from the catalog on the server
+    price: { type: Number, required: true, min: 0 }, // total for the chosen term, calculated on the server
+    termMonths: { type: Number, default: 1 },
+    monthlyPrice: { type: Number, default: null },
     currency: { type: String, default: 'TRY' },
     customer: {
       name: { type: String, required: true, maxlength: 80 },

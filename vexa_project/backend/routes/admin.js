@@ -288,6 +288,7 @@ function productInput(b, { creating }) {
   if ('metaDescription' in o) out.metaDescription = text(o.metaDescription, 170)
   if ('priceFrom' in o) out.priceFrom = bool(o.priceFrom)
   if ('period' in o) out.period = text(o.period, 40)
+  if ('terms' in o) out.terms = (Array.isArray(o.terms) ? [...new Set(o.terms.map(Number).filter((n) => [1, 3, 6, 12].includes(n)))] : []).sort((a, b) => a - b)
   if ('deliveryDays' in o) {
     const n = num(o.deliveryDays, { min: 0, max: 365, nullable: true, int: true })
     set('deliveryDays', n, Number.isNaN(n))
