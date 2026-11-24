@@ -147,3 +147,40 @@ input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-te
 .vx-gradient-text { background-size: 200% auto; animation: vx-gradient 7s ease-in-out infinite; }
 @keyframes vx-ann-in { from { opacity: 0; transform: translateY(-10px) scale(0.99); } to { opacity: 1; transform: none; } }
 .vx-ann-in { animation: vx-ann-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+
+/* Product detail: compact, measured subscription controls. These scoped rules
+   intentionally bypass the legacy global text-size accessibility overrides above. */
+.product-term-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 124px));
+  justify-content: start;
+  gap: 8px;
+}
+.product-term-option {
+  box-sizing: border-box;
+  width: 124px;
+  height: 50px;
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+}
+.product-term-label { font-size: 12px !important; line-height: 1.2 !important; }
+.product-term-price { font-size: 10.5px !important; line-height: 1.2 !important; margin-top: 3px; }
+.product-term-discount { font-size: 9px !important; line-height: 1.1 !important; margin-top: 2px; }
+.product-detail-actions .product-detail-action {
+  height: 46px !important;
+  min-height: 46px !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  gap: 8px !important;
+}
+@media (max-width: 640px) {
+  .product-term-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .product-term-option { width: 100%; }
+}

@@ -27,7 +27,7 @@ export default function ProductGallery({ images = [], name }) {
     <div className="flex flex-col min-w-0">
       <div className="relative">
         <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full min-h-[260px] aspect-[16/9] overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
-          <FitImage src={list[cur]} alt={`${name} ${cur + 1}`} loading="eager" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0" imgClass="!object-cover" />
+          <FitImage src={list[cur]} alt={`${name} ${cur + 1}`} loading="eager" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0" imgClass="" />
         </button>
         {list.length > 1 && (
           <>

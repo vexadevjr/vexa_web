@@ -183,9 +183,9 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <div className="mt-3 flex flex-col sm:flex-row gap-2.5">
-              {quote ? <Button size="lg" to={askTo} className="flex-1">Teklif İste</Button> : <Button size="lg" onClick={order} className="flex-1">Hemen Sipariş Ver</Button>}
-              <Button size="lg" variant="secondary" to={askTo}><MessageSquare className="w-4 h-4" /> Soru Sor</Button>
+            <div className="product-detail-actions mt-3 flex flex-col sm:flex-row gap-2.5">
+              {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : <Button size="lg" onClick={order} className="product-detail-action flex-1">Hemen Sipariş Ver</Button>}
+              <Button size="lg" variant="secondary" to={askTo} className="product-detail-action"><MessageSquare className="w-4 h-4" /> Soru Sor</Button>
             </div>
 
             <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5">
