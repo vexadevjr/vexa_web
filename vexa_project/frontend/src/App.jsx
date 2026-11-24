@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import AnnouncementBanner from './components/AnnouncementBanner.jsx'
+import { useActiveAnnouncement } from './components/AnnouncementBanner.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Header from './components/Header.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -70,15 +70,11 @@ function Splash() {
   )
 }
 
-function Announcement() {
-  const { announcement } = useSite()
-  return <AnnouncementBanner data={announcement} />
-}
-
 function PublicApp() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { authOpen, orderProduct, closeOrder } = useApp()
   const { ready, categories } = useSite()
+  const ann = useActiveAnnouncement()
   const { pathname } = useLocation()
 
   // lock the page behind the mobile menu drawer
@@ -103,8 +99,7 @@ function PublicApp() {
 
       <Header onMenu={() => setMenuOpen(true)} />
 
-      <main className="lg:ml-[215px] px-4 sm:px-8 lg:px-12 pb-8 pt-[calc(92px+env(safe-area-inset-top))] space-y-6">
-        <Announcement />
+      <main className={`lg:ml-[215px] px-4 sm:px-8 lg:px-12 pb-8 space-y-6 ${ann ? 'pt-[calc(142px+env(safe-area-inset-top))] md:pt-[calc(92px+env(safe-area-inset-top))]' : 'pt-[calc(92px+env(safe-area-inset-top))]'}`}>
         <div key={pathname} className="vx-rise space-y-6">
         <Routes>
           <Route path={routes.home} element={<Home />} />

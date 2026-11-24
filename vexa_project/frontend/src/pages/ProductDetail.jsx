@@ -8,8 +8,10 @@ import ProductCard from '../components/ProductCard.jsx'
 import StarBar from '../components/StarBar.jsx'
 import Faq from '../components/Faq.jsx'
 import NotFound from './NotFound.jsx'
+import { useActiveAnnouncement } from '../components/AnnouncementBanner.jsx'
 import useProducts from '../hooks/useProducts.js'
-import { useReviews } from '../hooks/useLive.js'
+import { useProductReviews, useRatings, ratingOf } from '../hooks/useLive.js'
+import ReviewForm from '../components/ReviewForm.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { useSite } from '../context/SiteContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
@@ -18,7 +20,7 @@ import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel }
 const { routes } = siteConfig
 
 const Panel = ({ id, title, children, className = '' }) => (
-  <section id={id} className={`scroll-mt-20 rounded-2xl bg-vx-card border border-vx-line p-5 sm:p-7 ${className}`}>
+  <section id={id} className={`scroll-mt-40 rounded-2xl bg-vx-card border border-vx-line p-5 sm:p-7 ${className}`}>
     <h2 className="text-[22px] font-bold tracking-tight text-white">{title}</h2>
     <div className="mt-4">{children}</div>
   </section>
@@ -35,14 +37,17 @@ export default function ProductDetail() {
   const { slug } = useParams()
   const products = useProducts()
   const { openOrder } = useApp()
-  const { reviews } = useReviews()
+  const ratings = useRatings()
+  const { reviews: mine, reload: reloadReviews } = useProductReviews(slug)
   const { categories } = useSite()
+  const ann = useActiveAnnouncement()
   const p = products.find((x) => x.slug === slug)
   const [active, setActive] = useState('genel')
 
   const paragraphs = useMemo(() => (p ? (p.details || p.description || '').split(/\n{2,}/).map((s) => s.trim()).filter(Boolean) : []), [p])
-  const mine = useMemo(() => (p ? reviews.filter((r) => r.product === p.name) : []), [reviews, p])
-  const avg = mine.length ? Math.round((mine.reduce((a, r) => a + r.rating, 0) / mine.length) * 10) / 10 : 0
+  const rate = p ? ratingOf(ratings, p) : null
+  const avg = rate ? rate.average : 0
+  const total = rate ? rate.count : 0
 
   const tabs = useMemo(() => {
     if (!p) return []
@@ -51,10 +56,10 @@ export default function ProductDetail() {
       (p.features || []).length && ['ozellikler', 'Özellikler'],
       ['teknik', 'Teknik Özellikler'],
       ['teslimat', 'Teslimat ve İade'],
-      ['yorumlar', `Değerlendirmeler${mine.length ? ` (${mine.length})` : ''}`],
+      ['yorumlar', `Değerlendirmeler${total ? ` (${total})` : ''}`],
       ['sss', 'Sık Sorulanlar'],
     ].filter(Boolean)
-  }, [p, paragraphs.length, mine.length])
+  }, [p, paragraphs.length, total])
 
   // highlight the tab of the section being read
   useEffect(() => {
@@ -109,9 +114,9 @@ export default function ProductDetail() {
               {p.popular && <span className="px-2.5 h-6 inline-flex items-center rounded-md bg-vx-accent text-[11px] font-semibold text-white">En çok tercih edilen</span>}
             </div>
             <h1 className="mt-3 text-[28px] sm:text-[32px] font-extrabold leading-tight tracking-tight text-white">{p.name}</h1>
-            {mine.length > 0 ? (
+            {total > 0 ? (
               <button onClick={() => go('yorumlar')} className="mt-2 inline-flex items-center gap-2 text-[14px] text-vx-muted hover:text-white">
-                <StarBar value={avg} className="w-4 h-4" /> <b className="text-white">{avg.toFixed(1)}</b> · {mine.length} değerlendirme
+                <StarBar value={avg} className="w-4 h-4" /> <b className="text-white">{avg.toFixed(1)}</b> · {total} değerlendirme
               </button>
             ) : (
               <div className="mt-2 text-[13px] text-vx-muted">Bu ürün için henüz değerlendirme yok</div>
@@ -171,7 +176,7 @@ export default function ProductDetail() {
       </div>
 
       {/* ───── section tabs ───── */}
-      <div className="sticky top-0 z-20 -mx-4 sm:mx-0 px-4 sm:px-0 bg-vx-bg/90 backdrop-blur-xl border-b border-vx-line">
+      <div className={`sticky z-20 -mx-4 sm:mx-0 px-4 sm:px-0 bg-vx-bg/95 backdrop-blur-xl border-b border-vx-line ${ann ? 'top-[116px] md:top-[68px]' : 'top-[68px]'}`}>
         <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
           {tabs.map(([id, label]) => (
             <button key={id} role="tab" aria-selected={active === id} onClick={() => go(id)} className={`shrink-0 h-12 px-4 text-[14px] font-semibold border-b-2 transition-colors ${active === id ? 'border-vx-accent-text text-white' : 'border-transparent text-vx-muted hover:text-white'}`}>{label}</button>
@@ -227,16 +232,13 @@ export default function ProductDetail() {
 
         <Panel id="yorumlar" title="Müşteri değerlendirmeleri">
           {mine.length === 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-xl bg-vx-surface border border-vx-line">
-              <p className="text-[14px] text-vx-muted">Bu ürün için henüz değerlendirme yok. Satın aldıysanız deneyiminizi paylaşan ilk kişi olabilirsiniz.</p>
-              <Button size="sm" variant="secondary" to={`${listTo}#yorumlar`}>Değerlendirme yaz</Button>
-            </div>
+            <p className="text-[14px] text-vx-muted">Bu ürün için henüz değerlendirme yok.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
               <div className="text-center md:text-left">
                 <div className="text-5xl font-black text-white">{avg.toFixed(1)}</div>
                 <div className="mt-2 flex md:block justify-center"><StarBar value={avg} className="w-5 h-5" /></div>
-                <div className="mt-1 text-[13px] text-vx-muted">{mine.length} değerlendirme</div>
+                <div className="mt-1 text-[13px] text-vx-muted">{total} değerlendirme</div>
               </div>
               <ul className="space-y-3">
                 {mine.slice(0, 6).map((r) => (
@@ -249,16 +251,17 @@ export default function ProductDetail() {
               </ul>
             </div>
           )}
+          <ReviewForm product={p} onDone={reloadReviews} />
         </Panel>
 
         {related.length > 0 && (
-          <section id="benzer" className="scroll-mt-20">
+          <section id="benzer" className="scroll-mt-40">
             <h2 className="text-[22px] font-bold tracking-tight text-white">Benzer paketler</h2>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">{related.map((r) => <ProductCard key={r.slug} product={r} />)}</div>
           </section>
         )}
 
-        <div id="sss" className="scroll-mt-20"><Faq /></div>
+        <div id="sss" className="scroll-mt-40"><Faq /></div>
       </div>
 
       <div data-bottom-bar className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-4 py-3 bg-vx-surface/95 backdrop-blur-xl border-t border-vx-line flex items-center gap-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>

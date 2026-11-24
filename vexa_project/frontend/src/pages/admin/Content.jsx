@@ -163,7 +163,7 @@ function SectionEditor({ section, initial, onSaved, onReset }) {
       {section.key === 'announcement' && (
         <div className="mb-5">
           <div className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Canlı önizleme</div>
-          <AnnouncementBanner data={{ ...value, enabled: true }} preview />
+          <div className="flex items-center justify-center h-[68px] px-4 rounded-xl border border-vx-line bg-vx-bg/85"><AnnouncementBanner data={value} className="w-full max-w-[640px]" /></div>
         </div>
       )}
       {!isList && (

@@ -17,98 +17,6 @@ const Stars = ({ value, className = 'w-4 h-4' }) => (
   </div>
 )
 
-function ReviewForm({ onDone }) {
-  const { user, openAuth } = useApp()
-  const products = useProducts()
-  const [rating, setRating] = useState(0)
-  const [hover, setHover] = useState(0)
-  const [text, setText] = useState('')
-  const [product, setProduct] = useState('')
-  const [mine, setMine] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  const [sent, setSent] = useState('')
-
-  useEffect(() => {
-    if (!user) return
-    api
-      .myReview()
-      .then((d) => {
-        if (d.review) {
-          setMine(d.review)
-          setRating(d.review.rating)
-          setText(d.review.text)
-          setProduct(d.review.product || '')
-        }
-      })
-      .catch(() => {})
-  }, [user])
-
-  if (!user) {
-    return (
-      <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-vx-surface border border-vx-line">
-        <p className="text-[14px] text-vx-muted">Yorum yazabilmek için giriş yapmanız gerekir.</p>
-        <Button size="sm" onClick={() => openAuth('login')}>
-          Giriş yap ve yorum yaz
-        </Button>
-      </div>
-    )
-  }
-
-  async function submit(e) {
-    e.preventDefault()
-    setError('')
-    if (!rating) return setError('Lütfen yıldız vererek puanlayın.')
-    if (text.trim().length < 10) return setError('Yorumunuz en az 10 karakter olmalıdır.')
-    setBusy(true)
-    try {
-      const d = await api.postReview({ rating, text, product })
-      setSent(d.message)
-      onDone && onDone()
-    } catch (err) {
-      setError((err.errors && (err.errors.text || err.errors.rating)) || err.message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="mt-8 p-6 rounded-2xl bg-vx-surface border border-vx-line space-y-4">
-      <h3 className="text-[16px] font-semibold text-white">{mine ? 'Yorumunuzu düzenleyin' : 'Deneyiminizi paylaşın'}</h3>
-      {mine && (
-        <p className="text-[12px] text-vx-muted">
-          Mevcut yorumunuzun durumu: {mine.status === 'approved' ? 'yayında' : mine.status === 'pending' ? 'onay bekliyor' : 'yayınlanmadı'}. Düzenlerseniz yeniden onaya gönderilir.
-        </p>
-      )}
-      <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} type="button" aria-label={`${n} yıldız`} onMouseEnter={() => setHover(n)} onClick={() => setRating(n)}>
-            <Star className={`w-7 h-7 transition-colors ${n <= (hover || rating) ? 'fill-vx-accent-soft text-vx-accent-soft' : 'text-zinc-500'}`} />
-          </button>
-        ))}
-      </div>
-      <select className={inputCls} value={product} onChange={(e) => setProduct(e.target.value)} aria-label="Hizmet">
-        <option value="">Hangi hizmeti aldınız? (isteğe bağlı)</option>
-        {products.map((p) => (
-          <option key={p.slug} value={p.name}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <textarea className={`${inputCls} h-28 py-3 resize-none`} value={text} onChange={(e) => setText(e.target.value)} maxLength={600} placeholder="Yorumunuz (en az 10 karakter)" />
-      {error && (
-        <p role="alert" className="text-[13px] text-rose-400">
-          {error}
-        </p>
-      )}
-      {sent && <p className="text-[13px] text-emerald-400">{sent}</p>}
-      <Button type="submit" size="sm" disabled={busy}>
-        {busy ? 'Gönderiliyor…' : mine ? 'Yorumu Güncelle' : 'Yorumu Gönder'}
-      </Button>
-    </form>
-  )
-}
-
 export default function Reviews() {
   const { loading, reviews, stats, reload } = useReviews()
 
@@ -127,7 +35,7 @@ export default function Reviews() {
       </div>
 
       {!loading && reviews.length === 0 && (
-        <div className="mt-5 p-6 rounded-2xl bg-vx-card border border-vx-line text-[14px] text-vx-muted">Henüz yayınlanmış yorum yok. İlk yorumu siz yazın.</div>
+        <div className="mt-5 p-6 rounded-2xl bg-vx-card border border-vx-line text-[14px] text-vx-muted">Henüz yayınlanmış yorum yok.</div>
       )}
 
       {reviews.length > 0 && (
@@ -155,7 +63,6 @@ export default function Reviews() {
         </div>
       )}
 
-      <ReviewForm onDone={reload} />
     </section>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Flame, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import ProductCard from './ProductCard.jsx'
 import Reveal from './Reveal.jsx'
 import useProducts from '../hooks/useProducts.js'
@@ -25,9 +25,7 @@ export default function Featured() {
       <div aria-hidden="true" className="pointer-events-none absolute -inset-x-6 -top-10 h-64 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(124,58,237,0.16),transparent_70%)]" />
       <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div>
-          <span className="vx-eyebrow inline-flex items-center gap-1.5"><Flame className="w-3.5 h-3.5" /> En çok tercih edilenler</span>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Popüler Paketler</h2>
-          <p className="mt-1.5 max-w-xl text-[14px] leading-relaxed text-vx-muted">Müşterilerimizin en çok seçtiği paketler: net fiyat, belli teslim süresi ve teslim sonrası destek.</p>
         </div>
         <div className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-vx-line bg-vx-card text-[12px] font-semibold text-zinc-200">
           <span className="w-2 h-2 rounded-full bg-emerald-400" /> {picks.length} paket

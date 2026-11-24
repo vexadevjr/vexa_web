@@ -13,7 +13,6 @@ import { formatPrice, deliveryLabel, discountInfo } from '../lib/format.js'
 import OrderFields from './OrderFields.jsx'
 import { validateOrderFields } from '../config/orderFields.js'
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const STEPS = ['Paket', 'Bilgiler', 'Onay']
 
 function Stepper({ step }) {
@@ -51,13 +50,14 @@ export default function OrderModal({ product, onClose }) {
   const navigate = useNavigate()
   const siteConfig = useSite()
   const [step, setStep] = useState(1)
-  const [form, setForm] = useState({ name: user ? user.name : '', email: user ? user.email : '', note: '' })
+  const [form, setForm] = useState({ note: '' })
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
   const [accepted, setAccepted] = useState(false)
   const [extra, setExtra] = useState({})
+  if (!user) return null
   const sale = discountInfo(product)
   const cover = (product.images || [])[0]
 
@@ -65,8 +65,6 @@ export default function OrderModal({ product, onClose }) {
 
   function validateInfo() {
     const next = {}
-    if (form.name.trim().length < 2) next.name = 'Ad soyad girin.'
-    if (!EMAIL.test(form.email.trim())) next.email = 'Geçerli bir e-posta adresi girin.'
     Object.assign(next, validateOrderFields(product.orderFields, extra))
     setErrors(next)
     return Object.keys(next).length === 0
@@ -84,7 +82,7 @@ export default function OrderModal({ product, onClose }) {
     setBusy(true)
     setServerError('')
     try {
-      const data = await api.createOrder({ productSlug: product.slug, ...form, fields: extra, legalAccepted: true })
+      const data = await api.createOrder({ productSlug: product.slug, note: form.note, fields: extra, legalAccepted: true })
       setDone(data.order)
     } catch (err) {
       setErrors(err.errors || {})
@@ -107,11 +105,10 @@ export default function OrderModal({ product, onClose }) {
           </div>
         </div>
         <p className="mt-5 text-[14px] leading-relaxed text-zinc-200">
-          {done.productName} siparişiniz bize ulaştı. En geç 24 saat içinde {form.email} adresinden sizinle iletişime geçeceğiz. Ödeme bu aşamada alınmadı; talebiniz onaylandıktan sonra ödeme bilgileri iletilir.
+          {done.productName} siparişiniz alındı. En geç 24 saat içinde {user.email} adresinden sizinle iletişime geçeceğiz. Ödeme bu aşamada alınmadı; sipariş onaylandıktan sonra ödeme bilgileri iletilir.
         </p>
-        {!user && <p className="mt-3 text-[13px] text-vx-muted">Siparişlerinizi hesabınızdan adım adım takip etmek için bir sonraki siparişte giriş yaparak devam edin.</p>}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {user && <Button size="sm" onClick={() => { onClose(); navigate(siteConfig.routes.orders) }}><Package className="w-4 h-4" /> Siparişlerime git</Button>}
+          <Button size="sm" onClick={() => { onClose(); navigate(siteConfig.routes.orders) }}><Package className="w-4 h-4" /> Siparişlerime git</Button>
           {siteConfig.links.payment && <Button size="sm" href={siteConfig.links.payment} external>Ödeme bilgileri</Button>}
           <Button variant="secondary" size="sm" onClick={onClose}>Kapat</Button>
         </div>
@@ -147,12 +144,6 @@ export default function OrderModal({ product, onClose }) {
 
       {step === 2 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Ad soyad" error={errors.name}>
-            <input className={inputCls} value={form.name} onChange={set('name')} autoComplete="name" maxLength={80} />
-          </Field>
-          <Field label="E-posta" error={errors.email}>
-            <input className={inputCls} type="email" value={form.email} onChange={set('email')} autoComplete="email" maxLength={254} />
-          </Field>
           <OrderFields product={product} values={extra} onChange={(k, v) => setExtra((x) => ({ ...x, [k]: v }))} errors={errors} />
           <div className="sm:col-span-2">
             <Field label="Notunuz (isteğe bağlı)" error={errors.note}>
@@ -171,8 +162,8 @@ export default function OrderModal({ product, onClose }) {
         <form onSubmit={submit} noValidate>
           <div className="rounded-xl bg-vx-surface border border-vx-line px-4">
             <Row k="Paket" v={product.name} />
-            <Row k="Ad soyad" v={form.name} />
-            <Row k="E-posta" v={form.email} />
+            <Row k="Sipariş sahibi" v={user.name} />
+            <Row k="E-posta" v={user.email} />
             {filled.map(({ d, v }) => <Row key={d.key} k={d.label} v={v.length > 60 ? `${v.slice(0, 60)}…` : v} />)}
             {form.note.trim() && <Row k="Not" v={form.note.length > 80 ? `${form.note.slice(0, 80)}…` : form.note} />}
             <Row k="Toplam" v={formatPrice(product.price)} strong />

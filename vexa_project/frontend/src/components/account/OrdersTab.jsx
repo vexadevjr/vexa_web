@@ -163,6 +163,7 @@ function OrderCard({ order, onCancel }) {
         <Link to={`${routes.contact}?siparis=${encodeURIComponent(order.orderNo)}`} className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-vx-line text-[14px] font-semibold text-zinc-100 hover:border-vx-accent-text/60 hover:bg-vx-surface transition-colors">
           <LifeBuoy className="w-4 h-4 text-vx-accent-text" /> Bu sipariş için destek al
         </Link>
+        {order.status === 'teslim-edildi' && order.productSlug && <Link to={`${routes.product}/${order.productSlug}#yorumlar`} className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-vx-accent text-[14px] font-semibold text-white hover:bg-vx-accent-hover transition-colors">Ürünü değerlendir</Link>}
         {canCancel && <button onClick={() => onCancel(order)} className="h-10 px-4 rounded-xl text-[14px] font-semibold text-rose-300 border border-rose-500/40 hover:bg-rose-500/10 transition-colors">Siparişi iptal et</button>}
         {order.status === 'hazirlaniyor' && <span className="text-[12px] text-vx-muted">Çalışma başladığı için iptal talebinizi destek üzerinden iletin.</span>}
       </div>

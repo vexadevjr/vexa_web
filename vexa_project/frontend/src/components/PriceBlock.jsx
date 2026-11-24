@@ -13,7 +13,7 @@ export default function PriceBlock({ product, large = false, compact = false }) 
           {sale && <span className="px-1.5 h-5 inline-flex items-center rounded bg-rose-500 text-[11px] font-bold text-white">%{sale.pct}</span>}
         </div>
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="text-[26px] font-black tracking-tight tabular-nums text-white leading-none">{quote ? 'Teklif alın' : formatPrice(product.price)}</span>
+          <span className="text-[30px] font-black tracking-tight tabular-nums text-white leading-none">{quote ? 'Teklif alın' : formatPrice(product.price)}</span>
           {sale && <span className="text-[14px] tabular-nums text-zinc-400/70 line-through decoration-rose-400/70 decoration-2">{formatPrice(sale.old)}</span>}
         </div>
         <div className="mt-1 h-4 text-[12px] text-vx-muted">{quote ? '' : product.period}</div>

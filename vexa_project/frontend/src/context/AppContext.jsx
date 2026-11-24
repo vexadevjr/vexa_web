@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { api, tokenStore } from '../lib/api.js'
 
 const AppContext = createContext(null)
@@ -30,6 +30,7 @@ export function AppProvider({ children }) {
   const [authTab, setAuthTab] = useState('login')
   const [orderProduct, setOrderProduct] = useState(null)
   const [authNotice, setAuthNotice] = useState('')
+  const pendingOrder = useRef(null) // product the visitor wanted to order before logging in
 
   // restore an existing session
   useEffect(() => {
@@ -55,6 +56,11 @@ export function AppProvider({ children }) {
     setUser(data.user)
     setAuthOpen(false)
     setAuthNotice('')
+    // continue the order the visitor started before signing in
+    if (pendingOrder.current) {
+      setOrderProduct(pendingOrder.current)
+      pendingOrder.current = null
+    }
   }, [])
 
   // Returning from Google / Discord: /?oauth=<one-time code> (success) or /?auth_error=<reason> (failure)
@@ -98,9 +104,25 @@ export function AppProvider({ children }) {
     setAuthTab(tab)
     setAuthOpen(true)
   }, [])
-  const closeAuth = useCallback(() => setAuthOpen(false), [])
+  const closeAuth = useCallback(() => {
+    setAuthOpen(false)
+    pendingOrder.current = null
+  }, [])
 
-  const openOrder = useCallback((product) => setOrderProduct(product), [])
+  // ordering needs an account: guests are sent to login / register first and returned to the order afterwards
+  const openOrder = useCallback(
+    (product) => {
+      if (!user) {
+        pendingOrder.current = product
+        setAuthNotice('Sipariş vermek için giriş yapın veya kayıt olun.')
+        setAuthTab('login')
+        setAuthOpen(true)
+        return
+      }
+      setOrderProduct(product)
+    },
+    [user]
+  )
   const closeOrder = useCallback(() => setOrderProduct(null), [])
 
   const value = useMemo(
