@@ -11,6 +11,7 @@ const { parseOrderFields, publicFields } = require('../utils/orderFields')
 const { findProductBySlug } = require('../services/products')
 const { validate, fail, str } = require('../utils/validate')
 const { makeNo } = require('../utils/ids')
+const Setting = require('../models/Setting')
 
 const rules = {
   productSlug: { required: true, max: 60 },
@@ -38,6 +39,11 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
     const months = terms.length ? Number(req.body.termMonths) : 1
     if (terms.length && !terms.includes(months)) return res.status(400).json({ message: 'Geçersiz abonelik süresi.' })
 
+    const pricingRow = await Setting.findOne({ key: 'pricing:term-discounts' }).lean()
+    const termDiscounts = (pricingRow && pricingRow.value) || {}
+    const pct = terms.length ? Number(termDiscounts[months]) || 0 : 0
+    const finalPrice = Math.round(product.price * months * (1 - pct / 100) * 100) / 100
+
     const parsed = parseOrderFields(product.orderFields, req.body.fields)
     if (Object.keys(parsed.errors).length) return fail(res, parsed.errors)
 
@@ -46,7 +52,7 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       user: account._id,
       productSlug: product.slug,
       productName: product.name,
-      price: Math.round(product.price * months * 100) / 100,
+      price: finalPrice,
       termMonths: months,
       monthlyPrice: product.price,
       currency: product.currency || 'TRY',

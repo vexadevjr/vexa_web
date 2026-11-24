@@ -2,6 +2,7 @@
 const router = require('express').Router()
 const { getAllProducts, findProductBySlug } = require('../services/products')
 const { str, norm } = require('../utils/validate')
+const Setting = require('../models/Setting')
 
 const CATEGORIES = ['discord-bot', 'web', 'server', 'software']
 
@@ -20,7 +21,8 @@ router.get('/', async (req, res, next) => {
         norm([p.name, p.tagline, p.subCategory, ...(p.tags || []), ...(p.features || [])].join(' ')).includes(q)
       )
     }
-    res.json({ products })
+    const pricing = await Setting.findOne({ key: 'pricing:term-discounts' }).lean()
+    res.json({ products, termDiscounts: (pricing && pricing.value) || { 1: 0, 3: 0, 6: 0, 12: 0 } })
   } catch (err) {
     next(err)
   }

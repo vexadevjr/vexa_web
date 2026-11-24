@@ -399,6 +399,29 @@ router.post('/products-rename-sub', async (req, res, next) => {
   }
 })
 
+// ───────── subscription term discounts ─────────
+router.get('/term-discounts', async (req, res, next) => {
+  try {
+    const row = await Setting.findOne({ key: 'pricing:term-discounts' }).lean()
+    res.json({ discounts: (row && row.value) || { 1: 0, 3: 0, 6: 0, 12: 0 } })
+  } catch (err) { next(err) }
+})
+
+router.put('/term-discounts', async (req, res, next) => {
+  try {
+    const input = req.body && req.body.discounts || {}
+    const discounts = {}
+    for (const months of [1, 3, 6, 12]) {
+      const value = Number(input[months] ?? 0)
+      if (!Number.isFinite(value) || value < 0 || value > 90) return res.status(400).json({ message: 'İndirim oranları 0 ile 90 arasında olmalıdır.' })
+      discounts[months] = Math.round(value * 100) / 100
+    }
+    await Setting.updateOne({ key: 'pricing:term-discounts' }, { $set: { value: discounts } }, { upsert: true })
+    await audit.record(req, 'indirim', 'SURE_INDIRIM_DUZENLE', 'Abonelik sürelerine göre indirim oranları güncellendi', { discounts })
+    res.json({ ok: true, discounts })
+  } catch (err) { next(err) }
+})
+
 // ───────── discounts (per product or per category) ─────────
 // percent > 0: the current price becomes the "old price" (or keeps the existing one) and the sale price is lowered.
 // percent = 0: the discount is removed and the original price is restored. Quote-only products (no price) are skipped.
