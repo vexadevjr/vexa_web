@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, Package, Settings, LifeBuoy, LogOut, ShieldCheck, ChevronRight } from 'lucide-react'
+import { ChevronDown, Package, Settings, LifeBuoy, LogOut, ShieldCheck, ChevronRight, UserRound } from 'lucide-react'
 import Avatar from './Avatar.jsx'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
@@ -50,6 +50,7 @@ export default function UserMenu() {
   }
 
   const items = [
+    { label: 'Profilim', icon: UserRound, to: routes.profile },
     { label: 'Siparişlerim', icon: Package, to: routes.orders },
     { label: 'Destek Taleplerim', icon: LifeBuoy, to: routes.tickets },
     { label: 'Ayarlar', icon: Settings, to: routes.settings },

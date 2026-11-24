@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, LifeBuoy, Settings, Check, X, Plus, ShieldAlert, ChevronRight, Sparkles, ShieldCheck, UserRound } from 'lucide-react'
+import { Package, LifeBuoy, Settings, Check, X, Plus, ShieldAlert, ChevronRight, Sparkles, ShieldCheck, UserRound, Mail, ArrowUpRight } from 'lucide-react'
 import Avatar from '../components/Avatar.jsx'
 import Button from '../components/Button.jsx'
 import Field, { inputCls } from '../components/Field.jsx'
@@ -16,6 +16,7 @@ import { formatPrice, dateLabel } from '../lib/format.js'
 const { routes } = siteConfig
 
 const TABS = [
+  { to: routes.profile, label: 'Profilim', icon: UserRound },
   { to: routes.orders, label: 'Siparişlerim', icon: Package },
   { to: routes.tickets, label: 'Destek Taleplerim', icon: LifeBuoy },
   { to: routes.settings, label: 'Ayarlar', icon: Settings },
@@ -24,6 +25,49 @@ const TABS = [
 const card = 'rounded-2xl bg-vx-card border border-vx-line'
 function Notice({ ok, children }) {
   return <p role={ok ? 'status' : 'alert'} className={`text-[13px] ${ok ? 'text-emerald-400' : 'text-rose-400'}`}>{children}</p>
+}
+
+function ProfileTab() {
+  const { user } = useApp()
+  const details = [
+    { label: 'Ad Soyad / Kullanıcı adı', value: user.name, icon: UserRound },
+    { label: 'E-posta adresi', value: user.email, icon: Mail },
+    { label: 'Hesap durumu', value: 'Aktif', icon: ShieldCheck },
+  ]
+
+  return (
+    <div className="space-y-5 max-w-3xl">
+      <section className={`${card} overflow-hidden`}>
+        <div className="border-b border-vx-line bg-gradient-to-r from-vx-accent/15 via-vx-card to-vx-card px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <Avatar user={user} className="h-16 w-16 shrink-0 text-[23px] ring-2 ring-vx-accent/30" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-vx-accent-text">Vexstar üye hesabı</p>
+                <h3 className="mt-1 truncate text-xl font-bold text-white">{user.name}</h3>
+                <p className="mt-1 truncate text-[12px] text-vx-muted">{user.email}</p>
+              </div>
+            </div>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[11px] font-semibold text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Hesap aktif</span>
+          </div>
+        </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
+          {details.map(({ label, value, icon: Icon }) => (
+            <div key={label} className="flex min-w-0 items-center gap-3 rounded-xl border border-vx-line bg-vx-surface/70 p-3.5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-vx-accent/10 text-vx-accent-text"><Icon className="h-4 w-4" /></span>
+              <div className="min-w-0"><p className="text-[10px] font-medium text-vx-muted">{label}</p><p className="mt-1 truncate text-[13px] font-semibold text-white">{value}</p></div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className={`${card} p-5 sm:p-6`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div><h3 className="text-[15px] font-bold text-white">Hesap bilgilerini yönet</h3><p className="mt-1 text-[12px] text-vx-muted">Kullanıcı adınızı, şifrenizi ve hesap tercihlerinizi güncelleyin.</p></div>
+          <Link to={routes.settings} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-vx-accent px-4 text-[12px] font-semibold text-white transition-colors hover:bg-vx-accent-hover">Hesap ayarları <ArrowUpRight className="h-4 w-4" /></Link>
+        </div>
+      </section>
+    </div>
+  )
 }
 
 function SettingsTab() {
@@ -160,7 +204,7 @@ export default function Account() {
     )
   }
 
-  const Screen = pathname.startsWith(routes.tickets) ? TicketsTab : pathname.startsWith(routes.settings) ? SettingsTab : OrdersTab
+  const Screen = pathname.startsWith(routes.profile) ? ProfileTab : pathname.startsWith(routes.tickets) ? TicketsTab : pathname.startsWith(routes.settings) ? SettingsTab : OrdersTab
   const title = TABS.find((t) => pathname.startsWith(t.to))?.label || TABS[0].label
 
   return (

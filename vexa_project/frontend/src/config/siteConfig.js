@@ -131,6 +131,7 @@ export const siteConfig = {
     contact: '/iletisim',
     panel: '/panel',
     account: '/hesap',
+    profile: '/hesap/profilim',
     orders: '/hesap/siparislerim',
     tickets: '/hesap/destek',
     settings: '/hesap/ayarlar',
