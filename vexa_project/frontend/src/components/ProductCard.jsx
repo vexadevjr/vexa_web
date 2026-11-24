@@ -2,20 +2,26 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Check, Clock } from 'lucide-react'
 import Button from './Button.jsx'
 import FitImage from './FitImage.jsx'
-import PriceBlock from './PriceBlock.jsx'
 import StarBar from './StarBar.jsx'
 import { useRatings, ratingOf } from '../hooks/useLive.js'
 import { useApp } from '../context/AppContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
-import { deliveryLabel, discountInfo, productPath } from '../lib/format.js'
+import { deliveryLabel, discountInfo, productPath, termsOf, totalFor, discountedTotalFor, formatPrice } from '../lib/format.js'
+import { useSite } from '../context/SiteContext.jsx'
 
 // Compact listing card. The whole card opens the product page (stretched link); the buy button stays separately clickable.
 export default function ProductCard({ product, categoryName = '' }) {
   const { openOrder } = useApp()
+  const { termMonths, termDiscounts } = useSite()
   const rate = ratingOf(useRatings(), product)
   const quote = product.price == null
   const cover = (product.images || [])[0]
   const sale = discountInfo(product)
+  const terms = termsOf(product)
+  const months = terms.includes(termMonths) ? termMonths : (terms[0] || 1)
+  const termPct = terms.length ? Number(termDiscounts?.[months]) || 0 : 0
+  const termTotal = terms.length && product.price != null ? discountedTotalFor(product.price, months, termDiscounts) : product.price
+  const termOldTotal = terms.length && product.price != null ? totalFor(product.price, months) : null
   const to = productPath(product)
 
   return (
@@ -52,11 +58,13 @@ export default function ProductCard({ product, categoryName = '' }) {
 
         <div className="mt-auto pt-3">
           <div className="flex items-end justify-between gap-3 border-t border-vx-line pt-3">
-            <PriceBlock product={product} compact />
+            <div className="min-w-0">
+              {product.price == null ? <div className="text-[22px] font-black text-white">Teklif alın</div> : <><div className="flex items-baseline gap-2 flex-wrap"><span className="text-[24px] font-black tracking-tight tabular-nums text-white">{formatPrice(terms.length ? termTotal : product.price)}</span>{termPct > 0 && <span className="text-[13px] text-vx-muted line-through">{formatPrice(termOldTotal)}</span>}</div>{terms.length > 0 && termPct > 0 && <div className="mt-1 text-[11px] text-emerald-400">Seçilen döneme özel %{termPct} indirim</div>}</>}
+            </div>
             <div className="pb-1 text-right text-[12px] text-vx-muted"><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />{deliveryLabel(product)}</div>
           </div>
           <div className="relative z-10 mt-3 flex items-center gap-2">
-            {quote ? <Button size="sm" to={`${siteConfig.routes.contact}?konu=${encodeURIComponent(product.name)}`} className="flex-1">Teklif İste</Button> : <Button size="sm" onClick={() => openOrder(product)} className="flex-1">Sipariş Ver</Button>}
+            {quote ? <Button size="sm" to={`${siteConfig.routes.contact}?konu=${encodeURIComponent(product.name)}`} className="flex-1">Teklif İste</Button> : <Button size="sm" onClick={() => openOrder(terms.length ? { ...product, _term: months } : product)} className="flex-1">Sipariş Ver</Button>}
             <Link to={to} className="inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-[13px] font-semibold text-vx-accent-soft hover:text-white transition-colors" aria-label={`${product.name} detayları`}>Detay <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
         </div>

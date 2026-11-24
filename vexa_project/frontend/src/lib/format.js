@@ -12,6 +12,7 @@ export const ALL_TERMS = [1, 3, 6, 12]
 export const termsOf = (p) => (Array.isArray(p.terms) ? p.terms : ALL_TERMS)
 export const termLabel = (m) => (m === 12 ? 'Yıllık' : `${m} Aylık`)
 export const totalFor = (price, months) => Math.round(Number(price) * months * 100) / 100
+export const discountedTotalFor = (price, months, discounts = {}) => Math.round(totalFor(price, months) * (1 - (Number(discounts[months]) || 0) / 100) * 100) / 100
 export const termsSummary = (terms) => terms.map((m) => (m === 12 ? 'Yıllık' : `${m} ay`)).join(' · ')
 
 export function priceLabel(product) {

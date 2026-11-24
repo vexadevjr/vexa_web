@@ -72,6 +72,8 @@ export const admin = {
   deleteUser: (id) => call('DELETE', `/users/${id}`),
   users: (params) => call('GET', `/users${qs(params)}`),
   applyDiscount: (scope, target, percent) => call('POST', '/discounts', { scope, target, percent }),
+  termDiscounts: () => call('GET', '/term-discounts'),
+  saveTermDiscounts: (discounts) => call('PUT', '/term-discounts', { discounts }),
   audit: (params) => call('GET', `/audit${qs(params)}`),
   auditVerify: () => call('GET', '/audit/verify'),
 }

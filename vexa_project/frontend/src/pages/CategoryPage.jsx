@@ -10,7 +10,7 @@ import { useSite } from '../context/SiteContext.jsx'
 
 // One page for every shop category (built-in or added from the admin panel): same look, different products.
 export default function CategoryPage({ category }) {
-  const { routes } = useSite()
+  const { routes, termMonths, setTermMonths } = useSite()
   const all = useProducts()
   const [filter, setFilter] = useState('Tümü')
   const items = useMemo(() => all.filter((p) => p.category === category.id), [all, category.id])
@@ -24,6 +24,7 @@ export default function CategoryPage({ category }) {
       <PageHeader title={category.title || category.name} description={category.description} />
 
       <section>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         {chips.length > 2 && (
           <div className="flex flex-wrap gap-2" role="tablist" aria-label={`${category.name} alt kategorileri`}>
             {chips.map((c) => (
@@ -33,6 +34,8 @@ export default function CategoryPage({ category }) {
             ))}
           </div>
         )}
+        {items.some((p) => p.price != null && (Array.isArray(p.terms) ? p.terms.length : true)) && <div className="flex items-center justify-end gap-2 shrink-0"><span className="text-[12px] text-vx-muted">Ödeme dönemi</span><div className="inline-flex rounded-xl border border-vx-line bg-vx-card p-1" aria-label="Ödeme dönemi seçimi">{[[1,'Aylık'],[3,'3 Ay'],[6,'6 Ay'],[12,'Yıllık']].map(([m,l]) => <button key={m} type="button" onClick={() => setTermMonths(m)} className={`px-3 py-2 rounded-lg text-[12px] font-semibold transition-colors ${termMonths === m ? 'bg-vx-accent text-white shadow' : 'text-vx-muted hover:text-white'}`}>{l}</button>)}</div></div>}
+        </div>
         {items.length === 0 && (
           <div className="mt-6 rounded-2xl bg-vx-card border border-vx-line p-10 text-center">
             <p className="text-[16px] font-semibold text-white">Bu kategoride şu an ürün yok</p>

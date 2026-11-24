@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { admin } from '../../lib/adminApi.js'
 import { formatPrice, discountInfo } from '../../lib/format.js'
 import { Card, Btn, Badge, Empty, SelectField, TextField, useLoad, useToast, confirmDo } from './ui.jsx'
@@ -12,6 +12,11 @@ export default function Discounts() {
   const [target, setTarget] = useState('')
   const [percent, setPercent] = useState('10')
   const [busy, setBusy] = useState(false)
+  const [termRates, setTermRates] = useState({ 1: '0', 3: '0', 6: '0', 12: '0' })
+  const [termBusy, setTermBusy] = useState(false)
+  const [termLoaded, setTermLoaded] = useState(false)
+
+  useEffect(() => { admin.termDiscounts().then((r) => { setTermRates({ 1: String(r.discounts?.[1] ?? 0), 3: String(r.discounts?.[3] ?? 0), 6: String(r.discounts?.[6] ?? 0), 12: String(r.discounts?.[12] ?? 0) }); setTermLoaded(true) }).catch((e) => push(e.message, 'err')) }, [])
 
   const products = (data && data.products) || []
   const categories = (data && data.categories) || []
@@ -39,6 +44,14 @@ export default function Discounts() {
   return (
     <div className="space-y-6">
       {toast}
+      <Card title="Ödeme Dönemine Göre İndirimler">
+        <p className="text-[13px] text-vx-muted mb-4">Toplu ödeme yapan müşterilere uygulanacak oranları buradan belirleyin. Bu oranlar aylık fiyat üzerinden seçilen toplam süreye uygulanır. 0 girilen dönemlerde indirim uygulanmaz.</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+          {[[1, 'Aylık'], [3, '3 Aylık'], [6, '6 Aylık'], [12, 'Yıllık']].map(([m, label]) => <TextField key={m} label={`${label} indirimi (%)`} type="number" value={termRates[m]} onChange={(v) => setTermRates((x) => ({ ...x, [m]: v }))} max={5} hint="0–90 arası" />)}
+        </div>
+        <div className="mt-4 flex justify-end"><Btn disabled={!termLoaded || termBusy || [1,3,6,12].some((m) => !Number.isFinite(Number(termRates[m])) || Number(termRates[m]) < 0 || Number(termRates[m]) > 90)} onClick={async () => { setTermBusy(true); try { const r = await admin.saveTermDiscounts(Object.fromEntries([1,3,6,12].map((m) => [m, Number(termRates[m])]))); setTermRates(Object.fromEntries([1,3,6,12].map((m) => [m, String(r.discounts[m])]))); push('Ödeme dönemi indirimleri kaydedildi.') } catch (e) { push(e.message, 'err') } finally { setTermBusy(false) } }}>{termBusy ? 'Kaydediliyor…' : 'Dönem İndirimlerini Kaydet'}</Btn></div>
+      </Card>
+
       <Card title="İndirim Uygula">
         {error && <p className="text-rose-400 text-[13px] mb-3">{error}</p>}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">

@@ -10,7 +10,7 @@ import { useApp } from '../context/AppContext.jsx'
 import { api } from '../lib/api.js'
 import { useSite } from '../context/SiteContext.jsx'
 import TermPicker from './TermPicker.jsx'
-import { formatPrice, deliveryLabel, discountInfo, termLabel, termsOf, totalFor } from '../lib/format.js'
+import { formatPrice, deliveryLabel, discountInfo, termLabel, termsOf, totalFor, discountedTotalFor } from '../lib/format.js'
 import OrderFields from './OrderFields.jsx'
 import { validateOrderFields } from '../config/orderFields.js'
 
@@ -50,6 +50,7 @@ export default function OrderModal({ product, onClose }) {
   const { user } = useApp()
   const navigate = useNavigate()
   const siteConfig = useSite()
+  const termDiscounts = siteConfig.termDiscounts || {}
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({ note: '' })
   const [errors, setErrors] = useState({})
@@ -63,7 +64,8 @@ export default function OrderModal({ product, onClose }) {
   if (!user) return null
   const sale = discountInfo(product)
   const mm = terms.length ? months : 1
-  const total = totalFor(product.price, mm)
+  const termPct = terms.length ? Number(termDiscounts[mm]) || 0 : 0
+  const total = terms.length ? discountedTotalFor(product.price, mm, termDiscounts) : totalFor(product.price, mm)
   const cover = (product.images || [])[0]
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -139,11 +141,12 @@ export default function OrderModal({ product, onClose }) {
             </div>
           </div>
           <div className="mt-5 rounded-xl bg-vx-surface border border-vx-line px-4">
-            {terms.length > 0 && <div className="py-3 border-b border-vx-line/70"><div className="mb-2 text-[13px] text-vx-muted">Abonelik süresi</div><TermPicker product={product} value={months} onChange={setMonths} /></div>}
+            {terms.length > 0 && <div className="py-3 border-b border-vx-line/70"><div className="mb-2 text-[13px] text-vx-muted">Abonelik süresi</div><TermPicker product={product} value={months} onChange={setMonths} discounts={termDiscounts} /></div>}
             {sale && <Row k="Aylık liste fiyatı" v={<span className="line-through text-zinc-500">{formatPrice(sale.old)}</span>} />}
             {sale && <Row k={`İndirim (%${sale.pct})`} v={<span className="text-emerald-400">−{formatPrice(totalFor(sale.old - product.price, mm))}</span>} />}
             {terms.length > 0 && <Row k="Aylık fiyat" v={formatPrice(product.price)} />}
             {terms.length > 0 && <Row k="Süre" v={termLabel(months)} />}
+            {termPct > 0 && <Row k={`Toplu ödeme indirimi (%${termPct})`} v={<span className="text-emerald-400">−{formatPrice(totalFor(product.price, mm) - total)}</span>} />}
             <Row k={terms.length ? 'Toplam' : product.priceFrom ? 'Başlangıç fiyatı' : 'Ödenecek tutar'} v={formatPrice(total)} strong />
           </div>
           <div className="mt-6 flex justify-end"><Button onClick={() => setStep(2)}>Devam Et <ArrowRight className="w-4 h-4" /></Button></div>

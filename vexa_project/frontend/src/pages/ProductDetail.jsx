@@ -16,7 +16,7 @@ import { useApp } from '../context/AppContext.jsx'
 import { useSite } from '../context/SiteContext.jsx'
 import { siteConfig } from '../config/siteConfig.js'
 import TermPicker from '../components/TermPicker.jsx'
-import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel, termLabel, termsOf, totalFor } from '../lib/format.js'
+import { deliveryLabel, discountInfo, estimateDelivery, formatPrice, dateLabel, termLabel, termsOf, totalFor, discountedTotalFor } from '../lib/format.js'
 
 const { routes } = siteConfig
 
@@ -40,7 +40,7 @@ export default function ProductDetail() {
   const { openOrder } = useApp()
   const ratings = useRatings()
   const { reviews: mine, reload: reloadReviews } = useProductReviews(slug)
-  const { categories } = useSite()
+  const { categories, termDiscounts = {} } = useSite()
   const ann = useActiveAnnouncement()
   const p = products.find((x) => x.slug === slug)
   const [active, setActive] = useState('genel')
@@ -81,7 +81,7 @@ export default function ProductDetail() {
   const sale = discountInfo(p)
   const terms = termsOf(p)
   const m = terms.includes(months) ? months : terms[0] || 1
-  const grand = quote ? null : totalFor(p.price, m)
+  const grand = quote ? null : (terms.length ? discountedTotalFor(p.price, m, termDiscounts) : totalFor(p.price, m))
   const oldTotal = sale ? totalFor(sale.old, m) : null
   const saving = sale ? totalFor(sale.old - p.price, terms.length ? m : 1) : 0
   const eta = estimateDelivery(p.delivery || (p.deliveryDays ? `${p.deliveryDays} iş günü` : ''))
@@ -156,10 +156,11 @@ export default function ProductDetail() {
             ) : terms.length ? (
               <>
                 <div className="text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Abonelik süresi</div>
-                <div className="mt-2"><TermPicker product={p} value={m} onChange={setMonths} /></div>
+                <div className="mt-2"><TermPicker product={p} value={m} onChange={setMonths} discounts={termDiscounts} /></div>
                 <dl className="mt-4 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[14px]">
                   <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
                   <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
+                  {(Number(termDiscounts[m]) || 0) > 0 && <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">Toplu ödeme indirimi (%{termDiscounts[m]})</dt><dd className="font-semibold text-emerald-400">−{formatPrice(totalFor(p.price, m) - grand)}</dd></div>}
                   <div className="flex items-baseline justify-between gap-4 px-4 py-3.5"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[26px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
                 </dl>
               </>

@@ -15,6 +15,8 @@ export function SiteProvider({ children }) {
   const [content, setContent] = useState((cached && cached.content) || {})
   const [products, setProducts] = useState((cached && cached.products) || null)
   const [ready, setReady] = useState(Boolean(cached))
+  const [termDiscounts, setTermDiscounts] = useState((cached && cached.termDiscounts) || { 1: 0, 3: 0, 6: 0, 12: 0 })
+  const [termMonths, setTermMonths] = useState(1)
 
   useEffect(() => {
     let alive = true
@@ -23,9 +25,11 @@ export function SiteProvider({ children }) {
       if (!alive) return
       const nextContent = c.status === 'fulfilled' && c.value && c.value.content ? c.value.content : null
       const nextProducts = p.status === 'fulfilled' && p.value && Array.isArray(p.value.products) && p.value.products.length ? p.value.products : null
+      const nextDiscounts = p.status === 'fulfilled' && p.value && p.value.termDiscounts ? p.value.termDiscounts : null
+      if (nextDiscounts) setTermDiscounts(nextDiscounts)
       if (nextContent) setContent(nextContent)
       if (nextProducts) setProducts(nextProducts)
-      if (nextContent || nextProducts) writeCache({ content: nextContent || content, products: nextProducts || products })
+      if (nextContent || nextProducts || nextDiscounts) writeCache({ content: nextContent || content, products: nextProducts || products, termDiscounts: nextDiscounts || termDiscounts })
       setReady(true)
     })
     return () => {
@@ -42,9 +46,10 @@ export function SiteProvider({ children }) {
       contact: { ...siteConfig.contact, ...(content.contact || {}) },
       links: { ...siteConfig.links, ...(content.links || {}) },
       products: products || siteConfig.catalog,
+      termDiscounts, termMonths, setTermMonths,
       ready,
     }),
-    [content, products, ready]
+    [content, products, ready, termDiscounts, termMonths]
   )
 
   return <SiteContext.Provider value={site}>{children}</SiteContext.Provider>
