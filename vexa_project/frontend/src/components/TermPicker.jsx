@@ -17,11 +17,11 @@ export default function TermPicker({ product, value, onChange, discounts = {} })
             role="radio"
             aria-checked={on}
             onClick={() => onChange(m)}
-            className={`rounded-xl border px-2 py-2.5 text-center transition-colors ${on ? 'border-vx-accent bg-vx-accent/15 text-white' : 'border-vx-line bg-vx-surface text-zinc-300 hover:border-vx-accent-text/40 hover:text-white'}`}
+            className={`min-h-[62px] rounded-lg border px-1.5 py-2 text-center transition-colors ${on ? 'border-vx-accent bg-vx-accent/15 text-white' : 'border-vx-line bg-vx-surface text-zinc-300 hover:border-vx-accent-text/40 hover:text-white'}`}
           >
-            <span className="block text-[13px] font-semibold">{termLabel(m)}</span>
-            <span className={`mt-0.5 block text-[11.5px] tabular-nums ${on ? 'text-vx-accent-soft' : 'text-vx-muted'}`}>{formatPrice(discountedTotalFor(product.price, m, discounts))}</span>
-            {(Number(discounts[m]) || 0) > 0 && <span className="block text-[10px] text-emerald-400">%{discounts[m]} indirim</span>}
+            <span className="block text-[12px] sm:text-[12.5px] font-semibold">{termLabel(m)}</span>
+            <span className={`mt-0.5 block text-[10.5px] sm:text-[11px] tabular-nums ${on ? 'text-vx-accent-soft' : 'text-vx-muted'}`}>{formatPrice(discountedTotalFor(product.price, m, discounts))}</span>
+            {(Number(discounts[m]) || 0) > 0 && <span className="block text-[9px] sm:text-[9.5px] text-emerald-400">%{discounts[m]} indirim</span>}
           </button>
         )
       })}

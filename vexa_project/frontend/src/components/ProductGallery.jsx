@@ -24,9 +24,9 @@ export default function ProductGallery({ images = [], name }) {
   const go = (d) => setI((x) => (x + d + list.length) % list.length)
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="relative flex-1 flex flex-col">
-        <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full flex-1 min-h-[260px] aspect-[4/3] xl:aspect-auto overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
+    <div className="flex flex-col min-w-0">
+      <div className="relative">
+        <button type="button" onClick={() => setView(cur)} aria-label="Fotoğrafı büyüt" className="relative block w-full min-h-[260px] aspect-[16/9] overflow-hidden rounded-2xl border border-vx-line bg-vx-surface cursor-zoom-in">
           <FitImage src={list[cur]} alt={`${name} ${cur + 1}`} loading="eager" onError={() => setBroken((b) => ({ ...b, [list[cur]]: true }))} className="absolute inset-0" />
         </button>
         {list.length > 1 && (

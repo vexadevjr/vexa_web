@@ -110,7 +110,7 @@ export default function ProductDetail() {
       </nav>
 
       {/* ───── above the fold: gallery on the left, everything needed to buy on the right ───── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-6 items-stretch">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] gap-5 items-start">
         <ProductGallery images={p.images || []} name={p.name} />
 
         <div className="flex flex-col gap-4">
@@ -138,7 +138,7 @@ export default function ProductDetail() {
           )}
 
           {/* buy box */}
-          <div className="mt-auto rounded-2xl bg-vx-card border border-vx-accent/30 p-5">
+          <div className="mt-1 rounded-2xl bg-vx-card border border-vx-accent/30 p-4 sm:p-[18px]">
             {sale && (
               <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3">
                 <span className="grid place-items-center w-9 h-9 shrink-0 rounded-full bg-rose-500/90 text-white"><Tag className="w-4 h-4" /></span>
@@ -157,11 +157,11 @@ export default function ProductDetail() {
               <>
                 <div className="text-[12px] font-semibold uppercase tracking-wide text-vx-muted">Abonelik süresi</div>
                 <div className="mt-2"><TermPicker product={p} value={m} onChange={setMonths} discounts={termDiscounts} /></div>
-                <dl className="mt-4 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[14px]">
-                  <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
-                  <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
-                  {(Number(termDiscounts[m]) || 0) > 0 && <div className="flex items-baseline justify-between gap-4 px-4 py-3"><dt className="text-vx-muted">Toplu ödeme indirimi (%{termDiscounts[m]})</dt><dd className="font-semibold text-emerald-400">−{formatPrice(totalFor(p.price, m) - grand)}</dd></div>}
-                  <div className="flex items-baseline justify-between gap-4 px-4 py-3.5"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[26px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
+                <dl className="mt-3 rounded-xl border border-vx-line bg-vx-surface divide-y divide-vx-line text-[13px] sm:text-[14px]">
+                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">{p.priceFrom ? 'Aylık fiyat (başlangıç)' : 'Aylık fiyat'}</dt><dd className="tabular-nums font-semibold text-white">{sale && <span className="mr-2 text-[13px] font-normal text-zinc-500 line-through">{formatPrice(sale.old)}</span>}{formatPrice(p.price)}</dd></div>
+                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">Süre</dt><dd className="font-semibold text-white">{termLabel(m)}</dd></div>
+                  {(Number(termDiscounts[m]) || 0) > 0 && <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5"><dt className="text-vx-muted">Toplu ödeme indirimi (%{termDiscounts[m]})</dt><dd className="font-semibold text-emerald-400">−{formatPrice(totalFor(p.price, m) - grand)}</dd></div>}
+                  <div className="flex items-baseline justify-between gap-4 px-3.5 py-3"><dt className="font-semibold text-zinc-200">Toplam</dt><dd className="tabular-nums text-white"><span className="text-[23px] sm:text-[24px] font-black leading-none">{formatPrice(grand)}</span>{sale && <span className="ml-2 text-[14px] text-zinc-500 line-through">{formatPrice(oldTotal)}</span>}</dd></div>
                 </dl>
               </>
             ) : (
@@ -175,7 +175,7 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <div className="mt-4 flex items-start gap-3 p-3 rounded-xl bg-vx-surface border border-vx-line">
+            <div className="mt-3 flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl bg-vx-surface border border-vx-line">
               <Truck className="w-5 h-5 mt-0.5 shrink-0 text-vx-accent-text" />
               <div className="text-[13px] leading-snug">
                 <div className="text-zinc-100"><b>Teslim süresi:</b> {deliveryLabel(p)}</div>
@@ -183,12 +183,12 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <div className="mt-3 flex flex-col sm:flex-row gap-2.5">
               {quote ? <Button size="lg" to={askTo} className="flex-1">Teklif İste</Button> : <Button size="lg" onClick={order} className="flex-1">Hemen Sipariş Ver</Button>}
               <Button size="lg" variant="secondary" to={askTo}><MessageSquare className="w-4 h-4" /> Soru Sor</Button>
             </div>
 
-            <ul className="mt-4 grid grid-cols-2 gap-3">
+            <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5">
               {TRUST.map(({ icon: Icon, title, text }) => (
                 <li key={title} className="flex items-start gap-2.5">
                   <Icon className="w-5 h-5 mt-0.5 shrink-0 text-vx-accent-text" />
