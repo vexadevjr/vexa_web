@@ -473,3 +473,131 @@ input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-te
   .vx-hero-stat-cell { min-height: 62px; padding: 12px !important; }
   .vx-hero-panel::after { width: 90vw; right: -40%; top: -24%; }
 }
+
+
+/* Authentication modal: premium Vexstar presentation; form behavior remains untouched. */
+.auth-modal {
+  border-color: rgba(167, 139, 250, .28) !important;
+  background: #17151e !important;
+  box-shadow: 0 34px 100px -38px rgba(0,0,0,.96), 0 0 0 1px rgba(167,139,250,.07), 0 0 70px -42px rgba(124,58,237,.58) !important;
+}
+.auth-modal > div:first-child { min-height:58px; padding:15px 22px 13px !important; border-color:rgba(255,255,255,.075) !important; background:rgba(255,255,255,.018); }
+.auth-modal > div:first-child h2 { font-size:14px !important; letter-spacing:.015em !important; color:#f5f2ff; }
+.auth-modal > div:last-child { padding:0 !important; }
+.auth-layout { display:grid; grid-template-columns:minmax(250px,.78fr) minmax(0,1.22fr); min-height:550px; }
+.auth-brand-panel { position:relative; isolation:isolate; overflow:hidden; display:flex; align-items:stretch; min-height:550px; padding:34px 30px; border-right:1px solid rgba(167,139,250,.15); background:radial-gradient(ellipse at 70% 25%,rgba(124,58,237,.24),transparent 48%),linear-gradient(150deg,#211a31 0%,#17151f 58%,#111117 100%); }
+.auth-brand-grid { position:absolute; inset:0; z-index:-1; opacity:.22; background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px); background-size:30px 30px; mask-image:linear-gradient(145deg,#000,transparent 82%); }
+.auth-brand-orbit { position:absolute; z-index:-1; border:1px solid rgba(167,139,250,.18); border-radius:50%; transform:rotate(-24deg); }
+.auth-brand-orbit-one { width:390px; height:190px; right:-185px; top:95px; box-shadow:0 0 35px rgba(124,58,237,.12),inset 0 0 25px rgba(124,58,237,.06); }
+.auth-brand-orbit-two { width:330px; height:150px; right:-150px; top:116px; border-color:rgba(216,180,254,.14); }
+.auth-brand-content { display:flex; flex-direction:column; align-items:flex-start; width:100%; }
+.auth-brand-logo-wrap { width:82px; height:82px; display:grid; place-items:center; border:1px solid rgba(196,181,253,.18); border-radius:22px; background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)); box-shadow:0 16px 34px -22px rgba(124,58,237,.8),inset 0 1px 0 rgba(255,255,255,.08); }
+.auth-brand-logo { width:62px; height:62px; object-fit:contain; filter:drop-shadow(0 5px 12px rgba(124,58,237,.35)); }
+.auth-brand-kicker { margin-top:19px; color:#c4b5fd; font-size:10px; font-weight:800; letter-spacing:.2em; }
+.auth-brand-rule { width:42px; height:2px; margin-top:23px; border-radius:3px; background:linear-gradient(90deg,#a78bfa,#6d28d9); box-shadow:0 0 14px rgba(167,139,250,.45); }
+.auth-brand-content h3 { margin:20px 0 0; color:#fff; font-size:clamp(25px,2.4vw,32px); line-height:1.12; font-weight:800; letter-spacing:-.045em; }
+.auth-brand-content h3 span { color:#c4a7ff; }
+.auth-brand-content p { max-width:250px; margin-top:14px; color:#b9b4c6; font-size:13px; line-height:1.75; }
+.auth-brand-foot { display:flex; align-items:center; gap:9px; margin-top:auto; padding-top:32px; color:#c9c4d3; font-size:11px; font-weight:600; }
+.auth-brand-status-dot { width:7px; height:7px; border-radius:50%; background:#34d399; box-shadow:0 0 12px rgba(52,211,153,.6); }
+.auth-form-panel { min-width:0; padding:28px 34px 26px; }
+.auth-form-intro { margin-bottom:21px; }
+.auth-form-eyebrow { color:#bba4fa; font-size:10px; font-weight:800; letter-spacing:.16em; }
+.auth-form-intro h3 { margin:7px 0 0; color:#fff; font-size:23px; line-height:1.2; font-weight:800; letter-spacing:-.035em; }
+.auth-form-intro p { margin-top:7px; color:#aaa5b6; font-size:12px; line-height:1.55; }
+.auth-tabs { border-color:rgba(167,139,250,.17) !important; background:rgba(9,8,13,.55) !important; }
+.auth-tabs button { height:40px !important; border-radius:9px !important; font-size:13px !important; }
+.auth-tabs button[class*="bg-vx-accent"] { background:linear-gradient(135deg,#8955ed,#6827cf) !important; box-shadow:0 5px 16px -9px rgba(139,92,246,.9),inset 0 1px 0 rgba(255,255,255,.17); }
+.auth-form { margin-top:17px !important; gap:14px !important; }
+.auth-form input:not([type="checkbox"]) { height:45px; border-radius:10px; background:rgba(10,9,15,.62); border-color:rgba(255,255,255,.11); }
+.auth-form input:not([type="checkbox"]):hover { border-color:rgba(167,139,250,.38); }
+.auth-form button[type="submit"] { min-height:47px; border-radius:10px; box-shadow:0 10px 24px -16px rgba(139,92,246,.95),inset 0 1px 0 rgba(255,255,255,.16); }
+.auth-form-panel a[href^="/api/auth/"] { min-height:43px; border-radius:10px; box-shadow:inset 0 1px 0 rgba(255,255,255,.12); }
+.auth-form-panel a[href^="/api/auth/google"] { border:1px solid rgba(255,255,255,.75); }
+.auth-form-panel > p:last-child { font-size:11px !important; color:#9993a6 !important; line-height:1.65 !important; }
+@media (max-width:700px) {
+  .auth-modal { max-width:min(94vw,470px) !important; }
+  .auth-layout { grid-template-columns:minmax(0,1fr); min-height:0; }
+  .auth-brand-panel { min-height:0; padding:19px 22px; border-right:0; border-bottom:1px solid rgba(167,139,250,.15); }
+  .auth-brand-content { display:grid; grid-template-columns:54px 1fr; column-gap:14px; align-items:center; }
+  .auth-brand-logo-wrap { grid-row:span 2; width:54px; height:54px; border-radius:15px; }
+  .auth-brand-logo { width:42px; height:42px; }
+  .auth-brand-kicker { margin:0; align-self:end; font-size:9px; }
+  .auth-brand-rule,.auth-brand-content h3,.auth-brand-content p,.auth-brand-foot { display:none; }
+  .auth-form-panel { padding:22px 21px 23px; }
+  .auth-form-intro { margin-bottom:16px; }
+  .auth-form-intro h3 { font-size:21px; }
+}
+
+
+
+/* Hero background depth: understated brand atmosphere, not a neon-heavy effect. */
+.vx-hero-panel {
+  background-color: #17151f;
+  background-image:
+    radial-gradient(ellipse 58% 82% at 91% 18%, rgba(124,58,237,.23), transparent 72%),
+    radial-gradient(ellipse 46% 72% at 4% 100%, rgba(87,62,126,.15), transparent 74%),
+    radial-gradient(ellipse 34% 55% at 56% 110%, rgba(73,54,103,.12), transparent 76%),
+    linear-gradient(118deg, rgba(255,255,255,.026), transparent 38%, rgba(124,58,237,.045) 100%);
+}
+.vx-hero-panel::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.26;
+  background:
+    linear-gradient(135deg, transparent 0 43%, rgba(167,139,250,.09) 43.15%, transparent 43.45% 100%),
+    linear-gradient(135deg, transparent 0 67%, rgba(167,139,250,.065) 67.15%, transparent 67.45% 100%),
+    radial-gradient(ellipse at 74% 48%, transparent 0 31%, rgba(167,139,250,.10) 31.12%, transparent 31.35% 42%, rgba(167,139,250,.065) 42.12%, transparent 42.35%);
+  mask-image:linear-gradient(100deg, transparent 0%, rgba(0,0,0,.25) 36%, #000 76%, transparent 100%);
+}
+.vx-hero-panel::after {
+  content:"";
+  position:absolute;
+  width:min(56vw,760px);
+  height:min(56vw,760px);
+  right:-19%;
+  top:-54%;
+  pointer-events:none;
+  border:1px solid rgba(167,139,250,.10);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 38px rgba(167,139,250,.022),
+    0 0 0 92px rgba(167,139,250,.016),
+    0 0 0 156px rgba(167,139,250,.012),
+    inset 0 0 85px rgba(124,58,237,.045);
+}
+.vx-hero-layout { position:relative; z-index:1; }
+.vx-hero-copy { position:relative; }
+.vx-hero-copy::before {
+  content:"";
+  position:absolute;
+  width:210px;
+  height:1px;
+  left:0;
+  top:-26px;
+  background:linear-gradient(90deg,rgba(196,181,253,.62),rgba(196,181,253,0));
+  opacity:.5;
+}
+.vx-hero-visual-wrap::before {
+  content:"";
+  position:absolute;
+  width:42%;
+  aspect-ratio:1;
+  right:8%;
+  top:14%;
+  border-radius:50%;
+  background:rgba(124,58,237,.11);
+  filter:blur(75px);
+  pointer-events:none;
+}
+@media (max-width:1023px) {
+  .vx-hero-panel::after { width:90vw; height:90vw; right:-40%; top:-26%; }
+  .vx-hero-copy::before { top:-17px; }
+}
+@media (max-width:640px) {
+  .vx-hero-panel::before { opacity:.16; }
+  .vx-hero-panel::after { width:120vw; height:120vw; right:-60%; top:-18%; }
+}
