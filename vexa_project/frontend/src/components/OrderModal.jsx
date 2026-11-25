@@ -47,7 +47,7 @@ function Row({ k, v, strong }) {
 }
 
 export default function OrderModal({ product, onClose }) {
-  const { user } = useApp()
+  const { user, completeCartItem, continueCheckout, cart } = useApp()
   const navigate = useNavigate()
   const siteConfig = useSite()
   const termDiscounts = siteConfig.termDiscounts || {}
@@ -91,6 +91,7 @@ export default function OrderModal({ product, onClose }) {
     try {
       const data = await api.createOrder({ productSlug: product.slug, note: form.note, fields: extra, termMonths: terms.length ? months : 1, legalAccepted: true })
       setDone(data.order)
+      completeCartItem(product)
     } catch (err) {
       setErrors(err.errors || {})
       setServerError(err.message)
@@ -116,6 +117,7 @@ export default function OrderModal({ product, onClose }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button size="sm" onClick={() => { onClose(); navigate(siteConfig.routes.orders) }}><Package className="w-4 h-4" /> Siparişlerime git</Button>
+          {cart.some((i) => i.product && i.product.price != null) && <Button size="sm" onClick={continueCheckout}>Sepetteki sıradaki ürüne geç ({cart.filter((i) => i.product && i.product.price != null).length}) <ArrowRight className="w-4 h-4" /></Button>}
           {siteConfig.links.payment && <Button size="sm" href={siteConfig.links.payment} external>Ödeme bilgileri</Button>}
           <Button variant="secondary" size="sm" onClick={onClose}>Kapat</Button>
         </div>

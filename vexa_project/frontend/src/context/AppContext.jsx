@@ -5,7 +5,11 @@ const AppContext = createContext(null)
 const USER_KEY = 'vexstar_user'
 const CART_KEY = 'vexstar_cart'
 function readCart() {
-  try { const value = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); return Array.isArray(value) ? value : [] } catch { return [] }
+  try {
+    const value = JSON.parse(localStorage.getItem(CART_KEY) || '[]')
+    // hizmetler adetle satılmaz: her satır tek sipariştir
+    return Array.isArray(value) ? value.filter((i) => i && i.key && i.product).map((i) => ({ ...i, quantity: 1 })) : []
+  } catch { return [] }
 }
 
 // the signed-in user is remembered next to the session token, so a reload shows the avatar immediately
@@ -34,6 +38,10 @@ export function AppProvider({ children }) {
   const [authTab, setAuthTab] = useState('login')
   const [orderProduct, setOrderProduct] = useState(null)
   const [cart, setCart] = useState(readCart)
+  const [cartOpen, setCartOpen] = useState(false)
+  const [cartToast, setCartToast] = useState(null)
+  const cartRef = useRef(cart)
+  cartRef.current = cart
   const [authNotice, setAuthNotice] = useState('')
   const pendingOrder = useRef(null) // product the visitor wanted to order before logging in
 
@@ -63,14 +71,26 @@ export function AppProvider({ children }) {
   const addToCart = useCallback((product, months = null) => {
     const term = months || product?._term || null
     const key = `${product.slug || product.id}:${term || 'once'}`
-    setCart((items) => {
-      const existing = items.find((item) => item.key === key)
-      if (existing) return items.map((item) => item.key === key ? { ...item, quantity: (item.quantity || 1) + 1 } : item)
-      return [...items, { key, product, months: term, quantity: 1 }]
-    })
+    const exists = cartRef.current.some((item) => item.key === key)
+    if (!exists) setCart((items) => (items.some((item) => item.key === key) ? items : [...items, { key, product, months: term, quantity: 1 }]))
+    setCartToast({ id: Date.now(), kind: exists ? 'exists' : 'added', name: product.name, image: (product.images || [])[0] || '' })
   }, [])
   const removeFromCart = useCallback((key) => setCart((items) => items.filter((item) => item.key !== key)), [])
   const clearCart = useCallback(() => setCart([]), [])
+  // abonelik süresini sepette değiştir; aynı ürün+süre zaten varsa satırlar birleşir
+  const setCartTerm = useCallback((key, months) => {
+    setCart((items) => {
+      const cur = items.find((item) => item.key === key)
+      if (!cur) return items
+      const nextKey = `${cur.product.slug || cur.product.id}:${months || 'once'}`
+      if (nextKey === key) return items
+      if (items.some((item) => item.key === nextKey)) return items.filter((item) => item.key !== key)
+      return items.map((item) => (item.key === key ? { ...item, key: nextKey, months, product: { ...item.product, _term: months } } : item))
+    })
+  }, [])
+  const openCart = useCallback(() => { setCartToast(null); setCartOpen(true) }, [])
+  const closeCart = useCallback(() => setCartOpen(false), [])
+  const dismissCartToast = useCallback(() => setCartToast(null), [])
 
   const finishAuth = useCallback((data) => {
     tokenStore.set(data.token)
@@ -147,13 +167,30 @@ export function AppProvider({ children }) {
   )
   const closeOrder = useCallback(() => setOrderProduct(null), [])
 
+  // sepetten sipariş: her hizmetin kurulum bilgileri ayrı istendiği için ürünler sırayla tamamlanır
+  const checkoutItem = useCallback((item) => {
+    setCartOpen(false)
+    openOrder(item.product, item.months)
+  }, [openOrder])
+  // sipariş tamamlanınca o satır sepetten düşer
+  const completeCartItem = useCallback((product) => {
+    const key = `${product.slug || product.id}:${product._term || 'once'}`
+    setCart((items) => items.filter((item) => item.key !== key))
+  }, [])
+  const continueCheckout = useCallback(() => {
+    const next = cartRef.current.find((item) => item.product && item.product.price != null)
+    setOrderProduct(null)
+    if (next) setTimeout(() => setOrderProduct(next.months ? { ...next.product, _term: next.months } : next.product), 60)
+  }, [])
+
   const value = useMemo(
     () => ({
       user, setUser, checking, login, register, logout,
       authOpen, authTab, authNotice, openAuth, closeAuth,
       orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart,
+      setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutItem, completeCartItem, continueCheckout,
     }),
-    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart]
+    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart, setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutItem, completeCartItem, continueCheckout]
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

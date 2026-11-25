@@ -37,7 +37,7 @@ const TRUST = [
 export default function ProductDetail() {
   const { slug } = useParams()
   const products = useProducts()
-  const { addToCart } = useApp()
+  const { addToCart, cart, openCart } = useApp()
   const ratings = useRatings()
   const { reviews: mine, reload: reloadReviews } = useProductReviews(slug)
   const { categories, termDiscounts = {} } = useSite()
@@ -99,6 +99,7 @@ export default function ProductDetail() {
       ]
   const go = (id) => document.getElementById(id) && document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' })
   const addProductToCart = () => addToCart(p, terms.length ? m : null)
+  const inCart = cart.some((i) => i.key === `${p.slug}:${terms.length ? m : 'once'}`)
   const askTo = `${routes.contact}?konu=${encodeURIComponent(p.name)}`
 
   return (
@@ -184,7 +185,7 @@ export default function ProductDetail() {
             </div>
 
             <div className="product-detail-actions mt-2 flex flex-col sm:flex-row gap-2">
-              {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : <Button size="lg" onClick={addProductToCart} className="product-detail-action flex-1"><ShoppingCart className="w-4 h-4" /> Sepete Ekle</Button>}
+              {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : (inCart ? <Button size="lg" variant="secondary" onClick={openCart} className="product-detail-action flex-1"><Check className="w-4 h-4 text-emerald-400" /> Sepette · Sepete Git</Button> : <Button size="lg" onClick={addProductToCart} className="product-detail-action flex-1"><ShoppingCart className="w-4 h-4" /> Sepete Ekle</Button>)}
               <Button size="lg" variant="secondary" to={askTo} className="product-detail-action"><Info className="w-4 h-4" /> Ürün Hakkında Bilgi Al</Button>
             </div>
 
@@ -296,7 +297,7 @@ export default function ProductDetail() {
           <div className="text-[20px] font-black tabular-nums text-white leading-tight">{quote ? 'Teklif alın' : formatPrice(terms.length ? grand : p.price)}</div>
           {!quote && terms.length > 0 && <div className="text-[11.5px] text-vx-muted">{termLabel(m)} toplam</div>}
         </div>
-        <div className="ml-auto shrink-0 w-[160px]">{quote ? <Button size="md" to={askTo} className="w-full">Teklif İste</Button> : <Button size="md" onClick={order} className="w-full">Sipariş Ver</Button>}</div>
+        <div className="ml-auto shrink-0 w-[160px]">{quote ? <Button size="md" to={askTo} className="w-full">Teklif İste</Button> : <Button size="md" onClick={inCart ? openCart : addProductToCart} className="w-full">{inCart ? 'Sepete Git' : 'Sepete Ekle'}</Button>}</div>
       </div>
     </div>
   )
