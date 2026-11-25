@@ -18,13 +18,13 @@ function Bubble({ to, icon: Icon, label, title, sub, className = '', delay = 0, 
     <Link
       to={to}
       style={float ? { animationDelay: `${delay}s` } : undefined}
-      className={`${float ? 'vx-float ' : ''}flex items-center gap-3 p-3 rounded-2xl bg-vx-surface/90 backdrop-blur border border-vx-accent/40 shadow-xl shadow-black/50 hover:border-vx-accent-text/70 transition-colors ${className}`}
+      className={`${float ? 'vx-float ' : ''}vx-hero-bubble flex items-center gap-3 p-3 rounded-2xl bg-vx-surface/90 backdrop-blur border border-vx-accent/40 shadow-xl shadow-black/50 hover:border-vx-accent-text/70 transition-colors ${className}`}
     >
-      <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white"><Icon className="w-5 h-5" /></span>
+      <span className="vx-hero-bubble-icon grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white"><Icon className="w-5 h-5" /></span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[10.5px] font-bold uppercase tracking-wide text-vx-accent-soft">{label}</span>
-        <span className="block text-[14px] font-semibold text-white truncate">{title}</span>
-        <span className="block text-[13px] text-zinc-300 truncate">{sub}</span>
+        <span className="vx-hero-bubble-label block text-[10.5px] font-bold uppercase tracking-wide text-vx-accent-soft">{label}</span>
+        <span className="vx-hero-bubble-title block text-[14px] font-semibold text-white truncate">{title}</span>
+        <span className="vx-hero-bubble-sub block text-[13px] text-zinc-300 truncate">{sub}</span>
       </span>
       <ArrowRight className="w-4 h-4 shrink-0 text-vx-accent-text" />
     </Link>
@@ -33,7 +33,7 @@ function Bubble({ to, icon: Icon, label, title, sub, className = '', delay = 0, 
 
 function BrandVisual({ featured, routes }) {
   return (
-    <div className="relative mx-auto w-full max-w-[470px] aspect-square">
+    <div className="vx-hero-visual relative mx-auto w-full max-w-[470px] aspect-square">
       <div className="vx-spin-slow absolute inset-[4%] rounded-full border border-dashed border-vx-accent/40" />
       <div className="vx-spin-rev absolute inset-[16%] rounded-full border border-vx-accent/25" />
       <div className="absolute inset-[22%] rounded-full bg-vx-accent/35 blur-3xl" />
@@ -78,7 +78,7 @@ function TrustStats() {
   if (!cells.length) return null
   const cols = cells.length === 1 ? 'sm:grid-cols-1 sm:max-w-sm' : cells.length === 2 ? 'sm:grid-cols-2 sm:max-w-xl' : 'sm:grid-cols-3'
   return (
-    <div className={`mt-8 grid grid-cols-1 ${cols} divide-y sm:divide-y-0 sm:divide-x divide-vx-line overflow-hidden rounded-2xl border border-vx-line bg-vx-surface/70 backdrop-blur`}>
+    <div className={`vx-hero-stats mt-8 grid grid-cols-1 ${cols} divide-y sm:divide-y-0 sm:divide-x divide-vx-line overflow-hidden rounded-2xl border border-vx-line bg-vx-surface/70 backdrop-blur`}>
       {cells.map(({ key, ...c }) => <StatCell key={key} {...c} />)}
     </div>
   )
@@ -93,18 +93,18 @@ export default function Hero() {
   const featured = products.find((p) => p.popular) || products[0]
 
   return (
-    <section id="home" className="relative rounded-[1.9rem] p-px bg-gradient-to-br from-violet-500/50 via-vx-line to-fuchsia-500/30">
-      <div className="relative overflow-hidden rounded-[calc(1.9rem-1px)] bg-vx-card bg-[radial-gradient(60%_90%_at_88%_20%,rgba(124,58,237,0.28),transparent_70%)]">
+    <section id="home" className="vx-hero-shell relative rounded-[1.9rem] p-px bg-gradient-to-br from-violet-500/50 via-vx-line to-fuchsia-500/30">
+      <div className="vx-hero-panel relative overflow-hidden rounded-[calc(1.9rem-1px)] bg-vx-card bg-[radial-gradient(60%_90%_at_88%_20%,rgba(124,58,237,0.28),transparent_70%)]">
         <div aria-hidden="true" className="vx-grid pointer-events-none absolute inset-0 opacity-40" />
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-8 items-center px-5 py-9 sm:px-10 sm:py-12 xl:px-14">
-          <div>
-            <h1 className="text-[2.5rem] sm:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight leading-[1.05] text-white">
+        <div className="vx-hero-layout relative z-10 grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-8 items-center px-5 py-9 sm:px-10 sm:py-12 xl:px-14">
+          <div className="vx-hero-copy">
+            <h1 className="vx-hero-title text-[2.5rem] sm:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight leading-[1.05] text-white">
               Sunucunuz ve markanız için{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-300 to-fuchsia-300">Discord botu ve web sitesi.</span>
             </h1>
-            <p className="mt-5 max-w-[520px] text-[16px] leading-relaxed text-zinc-200">Hazır paketlerle hemen sipariş verin veya ihtiyacınıza özel teklif alın.</p>
+            <p className="vx-hero-description mt-5 max-w-[520px] text-[16px] leading-relaxed text-zinc-200">Hazır paketlerle hemen sipariş verin veya ihtiyacınıza özel teklif alın.</p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="vx-hero-actions mt-7 flex flex-wrap items-center gap-3">
               {c1 && <Button size="lg" className="w-full sm:w-auto" to={c1.path}><I1 className="w-5 h-5" /> {c1.name}</Button>}
               {c2 && <Button size="lg" variant="secondary" className="w-full sm:w-auto" to={c2.path}><I2 className="w-5 h-5" /> {c2.name}</Button>}
               <Link to={routes.contact} className="inline-flex items-center gap-1.5 h-12 px-2 text-[14px] font-semibold text-vx-accent-soft hover:text-white transition-colors">Teklif iste <ArrowRight className="w-4 h-4" /></Link>
@@ -119,7 +119,7 @@ export default function Hero() {
             <TrustStats />
           </div>
 
-          <div className="hidden lg:block"><BrandVisual featured={featured} routes={routes} /></div>
+          <div className="vx-hero-visual-wrap hidden lg:block"><BrandVisual featured={featured} routes={routes} /></div>
         </div>
       </div>
     </section>
