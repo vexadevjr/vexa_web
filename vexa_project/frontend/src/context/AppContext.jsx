@@ -36,7 +36,7 @@ export function AppProvider({ children }) {
   const [checking, setChecking] = useState(() => Boolean(tokenStore.get()) && !readUser())
   const [authOpen, setAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState('login')
-  const [orderProduct, setOrderProduct] = useState(null)
+  const [orderItems, setOrderItems] = useState(null) // [{ key, product, months }] — tek ürün ya da tüm sepet
   const [cart, setCart] = useState(readCart)
   const [cartOpen, setCartOpen] = useState(false)
   const [cartToast, setCartToast] = useState(null)
@@ -99,7 +99,7 @@ export function AppProvider({ children }) {
     setAuthNotice('')
     // continue the order the visitor started before signing in
     if (pendingOrder.current) {
-      setOrderProduct(pendingOrder.current)
+      setOrderItems(pendingOrder.current)
       pendingOrder.current = null
     }
   }, [])
@@ -151,46 +151,44 @@ export function AppProvider({ children }) {
   }, [])
 
   // ordering needs an account: guests are sent to login / register first and returned to the order afterwards
-  const openOrder = useCallback(
-    (base, months) => {
-      const product = months ? { ...base, _term: months } : base
+  const startOrder = useCallback(
+    (items) => {
+      const list = (items || []).filter((i) => i && i.product && i.product.price != null)
+      if (!list.length) return
       if (!user) {
-        pendingOrder.current = product
+        pendingOrder.current = list
         setAuthNotice('Sipariş vermek için giriş yapın veya kayıt olun.')
         setAuthTab('login')
         setAuthOpen(true)
         return
       }
-      setOrderProduct(product)
+      setOrderItems(list)
     },
     [user]
   )
-  const closeOrder = useCallback(() => setOrderProduct(null), [])
-
-  // sepetten sipariş: her hizmetin kurulum bilgileri ayrı istendiği için ürünler sırayla tamamlanır
-  const checkoutItem = useCallback((item) => {
+  // tek ürün siparişi
+  const openOrder = useCallback(
+    (base, months) => startOrder([{ key: `${base.slug || base.id}:${months || 'once'}`, product: base, months: months || null }]),
+    [startOrder]
+  )
+  // tüm sepeti tek akışta siparişe çevir
+  const checkoutCart = useCallback((items) => {
     setCartOpen(false)
-    openOrder(item.product, item.months)
-  }, [openOrder])
-  // sipariş tamamlanınca o satır sepetten düşer
-  const completeCartItem = useCallback((product) => {
-    const key = `${product.slug || product.id}:${product._term || 'once'}`
-    setCart((items) => items.filter((item) => item.key !== key))
-  }, [])
-  const continueCheckout = useCallback(() => {
-    const next = cartRef.current.find((item) => item.product && item.product.price != null)
-    setOrderProduct(null)
-    if (next) setTimeout(() => setOrderProduct(next.months ? { ...next.product, _term: next.months } : next.product), 60)
-  }, [])
+    startOrder(items)
+  }, [startOrder])
+  const closeOrder = useCallback(() => setOrderItems(null), [])
+  // sipariş oluşunca ilgili satır sepetten düşer
+  const completeCartKey = useCallback((key) => setCart((items) => items.filter((item) => item.key !== key)), [])
+  const orderProduct = orderItems && orderItems.length ? orderItems[0].product : null
 
   const value = useMemo(
     () => ({
       user, setUser, checking, login, register, logout,
       authOpen, authTab, authNotice, openAuth, closeAuth,
-      orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart,
-      setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutItem, completeCartItem, continueCheckout,
+      orderProduct, orderItems, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart,
+      setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutCart, completeCartKey,
     }),
-    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart, setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutItem, completeCartItem, continueCheckout]
+    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, orderItems, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart, setCartTerm, cartOpen, openCart, closeCart, cartToast, dismissCartToast, checkoutCart, completeCartKey]
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

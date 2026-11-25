@@ -21,7 +21,7 @@ export default function ProductCard({ product, categoryName = '' }) {
   const months = terms.includes(termMonths) ? termMonths : (terms[0] || 1)
   const termPct = terms.length ? Number(termDiscounts?.[months]) || 0 : 0
   const termTotal = terms.length && product.price != null ? discountedTotalFor(product.price, months, termDiscounts) : product.price
-  const termOldTotal = terms.length && product.price != null ? totalFor(product.price, months) : null
+  const termOldTotal = terms.length && product.price != null ? totalFor(sale ? sale.old : product.price, months) : null
   const to = productPath(product)
   const inCart = cart.some((i) => i.key === `${product.slug}:${terms.length ? months : 'once'}`)
 
@@ -60,7 +60,7 @@ export default function ProductCard({ product, categoryName = '' }) {
         <div className="mt-auto pt-3">
           <div className="flex items-end justify-between gap-3 border-t border-vx-line pt-3">
             <div className="min-w-0">
-              {product.price == null ? <div className="text-[22px] font-black text-white">Teklif alın</div> : <><div className="flex items-baseline gap-2 flex-wrap"><span className="text-[24px] font-black tracking-tight tabular-nums text-white">{formatPrice(terms.length ? termTotal : product.price)}</span>{termPct > 0 && <span className="text-[13px] text-vx-muted line-through">{formatPrice(termOldTotal)}</span>}</div>{terms.length > 0 && termPct > 0 && <div className="mt-1 text-[11px] text-emerald-400">Seçilen döneme özel %{termPct} indirim</div>}</>}
+              {product.price == null ? <div className="text-[22px] font-black text-white">Teklif alın</div> : <><div className="flex items-baseline gap-2 flex-wrap"><span className="text-[24px] font-black tracking-tight tabular-nums text-white">{formatPrice(terms.length ? termTotal : product.price)}</span>{terms.length > 0 && termOldTotal > termTotal && <span className="text-[13px] text-vx-muted line-through decoration-rose-400/70">{formatPrice(termOldTotal)}</span>}{!terms.length && sale && <span className="text-[13px] text-vx-muted line-through decoration-rose-400/70">{formatPrice(sale.old)}</span>}</div>{terms.length > 0 && termPct > 0 && <div className="mt-1 text-[11px] text-emerald-400">Seçilen döneme özel %{termPct} indirim</div>}</>}
             </div>
             <div className="pb-1 text-right text-[12px] text-vx-muted"><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />{deliveryLabel(product)}</div>
           </div>

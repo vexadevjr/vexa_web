@@ -34,7 +34,7 @@ function useCartRows() {
 }
 
 function CartDrawer() {
-  const { cartOpen, closeCart, removeFromCart, clearCart, setCartTerm, checkoutItem } = useApp()
+  const { cartOpen, closeCart, removeFromCart, clearCart, setCartTerm, checkoutCart } = useApp()
   const { termDiscounts = {} } = useSite()
   const rows = useCartRows()
   useEffect(() => {
@@ -125,10 +125,10 @@ function CartDrawer() {
                 <div className="flex items-baseline justify-between pt-1.5"><span className="text-[14px] font-semibold text-white">Ödenecek tutar</span><span className="text-[24px] font-black tabular-nums text-white">{formatPrice(totalSum)}</span></div>
               </div>
               {saving > 0 && <div className="mt-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-center text-[12px] font-semibold text-emerald-300">Bu sepette {formatPrice(saving)} tasarruf ediyorsunuz</div>}
-              <button disabled={!valid.length} onClick={() => checkoutItem(valid[0].item)} className="mt-3 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 text-[15px] font-bold text-white ring-1 ring-inset ring-white/20 transition hover:from-violet-400 hover:to-violet-600 disabled:cursor-not-allowed disabled:opacity-50">
+              <button disabled={!valid.length} onClick={() => checkoutCart(valid.map((r) => r.item))} className="mt-3 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 text-[15px] font-bold text-white ring-1 ring-inset ring-white/20 transition hover:from-violet-400 hover:to-violet-600 disabled:cursor-not-allowed disabled:opacity-50">
                 <Lock className="h-4 w-4" /> Sepeti Onayla ({valid.length}) <ArrowRight className="h-4 w-4" />
               </button>
-              {valid.length > 1 && <p className="mt-2 text-center text-[11.5px] text-vx-muted">Her hizmetin kurulum bilgileri farklı olduğundan siparişler sırayla tamamlanır (1/{valid.length}).</p>}
+              {valid.length > 1 && <p className="mt-2 text-center text-[11.5px] text-vx-muted">Sepetinizdeki {valid.length} hizmet tek ekranda, tek onayla sipariş edilir.</p>}
               <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[11.5px] text-vx-muted"><ShieldCheck className="h-3.5 w-3.5" /> Bu adımda ödeme alınmaz · İş başlamadan ücretsiz iptal</p>
             </div>
           </>
