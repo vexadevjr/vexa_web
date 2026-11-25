@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Check, Clock } from 'lucide-react'
+import { ArrowRight, Check, Clock, ShoppingCart } from 'lucide-react'
 import Button from './Button.jsx'
 import FitImage from './FitImage.jsx'
 import StarBar from './StarBar.jsx'
@@ -11,7 +11,7 @@ import { useSite } from '../context/SiteContext.jsx'
 
 // Compact listing card. The whole card opens the product page (stretched link); the buy button stays separately clickable.
 export default function ProductCard({ product, categoryName = '' }) {
-  const { openOrder } = useApp()
+  const { addToCart } = useApp()
   const { termMonths, termDiscounts } = useSite()
   const rate = ratingOf(useRatings(), product)
   const quote = product.price == null
@@ -64,7 +64,7 @@ export default function ProductCard({ product, categoryName = '' }) {
             <div className="pb-1 text-right text-[12px] text-vx-muted"><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />{deliveryLabel(product)}</div>
           </div>
           <div className="relative z-10 mt-3 flex items-center gap-2">
-            {quote ? <Button size="sm" to={`${siteConfig.routes.contact}?konu=${encodeURIComponent(product.name)}`} className="flex-1">Teklif İste</Button> : <Button size="sm" onClick={() => openOrder(terms.length ? { ...product, _term: months } : product)} className="flex-1">Sipariş Ver</Button>}
+            {quote ? <Button size="sm" to={`${siteConfig.routes.contact}?konu=${encodeURIComponent(product.name)}`} className="flex-1">Teklif İste</Button> : <Button size="sm" onClick={() => addToCart(product, terms.length ? months : null)} className="flex-1"><ShoppingCart className="h-4 w-4" /> Sepete Ekle</Button>}
             <Link to={to} className="inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-[13px] font-semibold text-vx-accent-soft hover:text-white transition-colors" aria-label={`${product.name} detayları`}>Detay <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
         </div>

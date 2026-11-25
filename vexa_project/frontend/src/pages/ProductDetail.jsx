@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { BadgeCheck, Check, ChevronRight, Clock, Headphones, ListChecks, MessageSquare, PackageCheck, RotateCcw, ShieldCheck, Tag, Truck } from 'lucide-react'
+import { BadgeCheck, Check, ChevronRight, Clock, Headphones, ListChecks, MessageSquare, PackageCheck, RotateCcw, ShieldCheck, Tag, Truck, ShoppingCart, Info } from 'lucide-react'
 import Button from '../components/Button.jsx'
 import ProductGallery from '../components/ProductGallery.jsx'
 import PriceBlock from '../components/PriceBlock.jsx'
@@ -37,7 +37,7 @@ const TRUST = [
 export default function ProductDetail() {
   const { slug } = useParams()
   const products = useProducts()
-  const { openOrder } = useApp()
+  const { addToCart } = useApp()
   const ratings = useRatings()
   const { reviews: mine, reload: reloadReviews } = useProductReviews(slug)
   const { categories, termDiscounts = {} } = useSite()
@@ -98,7 +98,7 @@ export default function ProductDetail() {
         { k: 'Sipariş takibi', v: 'Hesabım → Siparişlerim' },
       ]
   const go = (id) => document.getElementById(id) && document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' })
-  const order = () => openOrder(p, terms.length ? m : null)
+  const addProductToCart = () => addToCart(p, terms.length ? m : null)
   const askTo = `${routes.contact}?konu=${encodeURIComponent(p.name)}`
 
   return (
@@ -184,8 +184,8 @@ export default function ProductDetail() {
             </div>
 
             <div className="product-detail-actions mt-2 flex flex-col sm:flex-row gap-2">
-              {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : <Button size="lg" onClick={order} className="product-detail-action flex-1">Hemen Sipariş Ver</Button>}
-              <Button size="lg" variant="secondary" to={askTo} className="product-detail-action"><MessageSquare className="w-4 h-4" /> Soru Sor</Button>
+              {quote ? <Button size="lg" to={askTo} className="product-detail-action flex-1">Teklif İste</Button> : <Button size="lg" onClick={addProductToCart} className="product-detail-action flex-1"><ShoppingCart className="w-4 h-4" /> Sepete Ekle</Button>}
+              <Button size="lg" variant="secondary" to={askTo} className="product-detail-action"><Info className="w-4 h-4" /> Ürün Hakkında Bilgi Al</Button>
             </div>
 
           </div>

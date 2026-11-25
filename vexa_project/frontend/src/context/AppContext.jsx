@@ -3,6 +3,10 @@ import { api, tokenStore } from '../lib/api.js'
 
 const AppContext = createContext(null)
 const USER_KEY = 'vexstar_user'
+const CART_KEY = 'vexstar_cart'
+function readCart() {
+  try { const value = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); return Array.isArray(value) ? value : [] } catch { return [] }
+}
 
 // the signed-in user is remembered next to the session token, so a reload shows the avatar immediately
 function readUser() {
@@ -29,6 +33,7 @@ export function AppProvider({ children }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState('login')
   const [orderProduct, setOrderProduct] = useState(null)
+  const [cart, setCart] = useState(readCart)
   const [authNotice, setAuthNotice] = useState('')
   const pendingOrder = useRef(null) // product the visitor wanted to order before logging in
 
@@ -50,6 +55,22 @@ export function AppProvider({ children }) {
   useEffect(() => {
     writeUser(user)
   }, [user])
+
+  useEffect(() => {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(cart)) } catch { /* storage unavailable */ }
+  }, [cart])
+
+  const addToCart = useCallback((product, months = null) => {
+    const term = months || product?._term || null
+    const key = `${product.slug || product.id}:${term || 'once'}`
+    setCart((items) => {
+      const existing = items.find((item) => item.key === key)
+      if (existing) return items.map((item) => item.key === key ? { ...item, quantity: (item.quantity || 1) + 1 } : item)
+      return [...items, { key, product, months: term, quantity: 1 }]
+    })
+  }, [])
+  const removeFromCart = useCallback((key) => setCart((items) => items.filter((item) => item.key !== key)), [])
+  const clearCart = useCallback(() => setCart([]), [])
 
   const finishAuth = useCallback((data) => {
     tokenStore.set(data.token)
@@ -130,9 +151,9 @@ export function AppProvider({ children }) {
     () => ({
       user, setUser, checking, login, register, logout,
       authOpen, authTab, authNotice, openAuth, closeAuth,
-      orderProduct, openOrder, closeOrder,
+      orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart,
     }),
-    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder]
+    [user, setUser, checking, login, register, logout, authOpen, authTab, authNotice, openAuth, closeAuth, orderProduct, openOrder, closeOrder, cart, addToCart, removeFromCart, clearCart]
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
