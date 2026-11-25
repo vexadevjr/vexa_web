@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 
-export default function Modal({ title, onClose, children, wide = false }) {
+export default function Modal({ title, onClose, children, wide = false, className = '' }) {
   const dialogRef = useRef(null)
   const closeRef = useRef(onClose)
   closeRef.current = onClose
@@ -33,7 +33,7 @@ export default function Modal({ title, onClose, children, wide = false }) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`w-full ${wide ? 'max-w-2xl' : 'max-w-md'} max-h-[92vh] overflow-y-auto rounded-2xl bg-vx-card border border-vx-line outline-none`}
+        className={`w-full ${wide ? 'max-w-4xl' : 'max-w-md'} max-h-[92vh] overflow-y-auto rounded-2xl bg-vx-card border border-vx-line outline-none ${className}`}
       >
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-vx-line">
           <h2 className="text-lg font-semibold text-white">{title}</h2>

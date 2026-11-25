@@ -7,6 +7,7 @@ import { DiscordIcon, GoogleIcon } from './Icons.jsx'
 import { Link } from 'react-router-dom'
 import { siteConfig } from '../config/siteConfig.js'
 import { useApp } from '../context/AppContext.jsx'
+import vLogo from '../assets/vexstar-logo.png'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -50,8 +51,34 @@ export default function AuthModal() {
   }
 
   return (
-    <Modal title="Müşteri Paneli" onClose={closeAuth}>
-      <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-vx-surface border border-vx-line">
+    <Modal title="Müşteri Paneli" onClose={closeAuth} wide className="auth-modal">
+      <div className="auth-layout">
+        <aside className="auth-brand-panel" aria-hidden="true">
+          <div className="auth-brand-grid" />
+          <div className="auth-brand-orbit auth-brand-orbit-one" />
+          <div className="auth-brand-orbit auth-brand-orbit-two" />
+          <div className="auth-brand-content">
+            <div className="auth-brand-logo-wrap">
+              <img src={vLogo} alt="" className="auth-brand-logo" />
+            </div>
+            <span className="auth-brand-kicker">VEXSTAR DEVELOPMENT</span>
+            <div className="auth-brand-rule" />
+            <h3>Hesabınızın<br /><span>kontrolü</span> sizde.</h3>
+            <p>Siparişlerinizi, destek taleplerinizi ve hesap bilgilerinizi tek noktadan yönetin.</p>
+            <div className="auth-brand-foot">
+              <span className="auth-brand-status-dot" />
+              <span>Güvenli müşteri alanı</span>
+            </div>
+          </div>
+        </aside>
+
+        <div className="auth-form-panel">
+          <div className="auth-form-intro">
+            <span className="auth-form-eyebrow">MÜŞTERİ HESABI</span>
+            <h3>{isRegister ? 'Aramıza katılın' : 'Tekrar hoş geldiniz'}</h3>
+            <p>{isRegister ? 'Vexstar hesabınızı oluşturarak işlemlerinizi kolayca yönetin.' : 'Devam etmek için hesabınıza giriş yapın.'}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-vx-surface border border-vx-line auth-tabs">
         {[
           ['login', 'Giriş Yap'],
           ['register', 'Kayıt Ol'],
@@ -65,9 +92,9 @@ export default function AuthModal() {
             {label}
           </button>
         ))}
-      </div>
+          </div>
 
-      <form onSubmit={submit} noValidate className="mt-5 space-y-4">
+          <form onSubmit={submit} noValidate className="mt-5 space-y-4 auth-form">
         {isRegister && (
           <Field label="Ad soyad" error={errors.name}>
             <input className={inputCls} value={form.name} onChange={set('name')} autoComplete="name" maxLength={80} />
@@ -143,7 +170,9 @@ export default function AuthModal() {
         <Link to={siteConfig.routes.privacy} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">Gizlilik Politikası</Link>
         ’nı ve{' '}
         <Link to={siteConfig.routes.kvkk} onClick={closeAuth} className="text-vx-accent-text hover:text-white underline underline-offset-2">KVKK Aydınlatma Metni</Link>’ni kabul etmiş olursunuz.
-      </p>
+          </p>
+        </div>
+      </div>
     </Modal>
   )
 }
