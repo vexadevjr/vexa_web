@@ -208,3 +208,98 @@ input:focus, textarea:focus, select:focus { border-color: rgb(var(--vx-accent-te
 @media (max-width: 640px) {
   .product-detail-trust { padding: 12px; }
 }
+
+/* Homepage hero: restrained, editorial polish. Scoped to the hero only; content and behavior stay unchanged. */
+.vx-hero-shell {
+  background: linear-gradient(135deg, rgba(167, 139, 250, .42), rgba(75, 68, 91, .62) 48%, rgba(192, 132, 252, .24));
+  box-shadow: 0 24px 70px -48px rgba(0, 0, 0, .95), 0 1px 0 rgba(255,255,255,.035);
+}
+.vx-hero-panel {
+  background-color: #191820;
+  background-image:
+    radial-gradient(58% 92% at 91% 17%, rgba(124, 58, 237, .19), transparent 72%),
+    linear-gradient(115deg, rgba(255,255,255,.018), transparent 46%, rgba(124,58,237,.025));
+}
+.vx-hero-panel > .vx-grid { opacity: .19; }
+.vx-hero-layout {
+  min-height: 470px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(390px, .92fr);
+  gap: clamp(28px, 4vw, 64px);
+  padding: clamp(34px, 4.2vw, 62px);
+}
+.vx-hero-copy { max-width: 690px; }
+.vx-hero-title {
+  max-width: 720px;
+  font-size: clamp(2.55rem, 3.45vw, 3.55rem) !important;
+  line-height: 1.075 !important;
+  letter-spacing: -.045em !important;
+  font-weight: 800 !important;
+}
+.vx-hero-title > span {
+  background-image: linear-gradient(100deg, #d5c6ff 0%, #c4a7f7 52%, #e0b7ee 100%);
+}
+.vx-hero-description {
+  max-width: 560px;
+  margin-top: 22px !important;
+  color: #c9c6d2 !important;
+  font-size: 15.5px !important;
+  line-height: 1.75 !important;
+}
+.vx-hero-actions { margin-top: 28px !important; gap: 12px !important; }
+.vx-hero-actions > a { min-height: 48px; }
+.vx-hero-stats {
+  max-width: 610px;
+  margin-top: 30px !important;
+  border-color: rgba(160, 151, 181, .22) !important;
+  background: rgba(16, 15, 21, .48) !important;
+  box-shadow: 0 12px 30px -24px rgba(0,0,0,.9);
+}
+.vx-hero-stat-cell { min-height: 68px; padding: 13px 16px !important; gap: 13px !important; }
+.vx-hero-stat-cell > span:first-child {
+  width: 40px !important;
+  height: 40px !important;
+  border: 1px solid rgba(167, 139, 250, .16);
+  background: rgba(124, 58, 237, .16) !important;
+}
+.vx-hero-visual-wrap { min-width: 0; }
+.vx-hero-visual { max-width: 440px; }
+.vx-hero-visual > .vx-spin-slow,
+.vx-hero-visual > .vx-spin-rev { opacity: .58; }
+.vx-hero-visual > img { filter: drop-shadow(0 14px 30px rgba(0,0,0,.38)) drop-shadow(0 0 28px rgba(124,58,237,.32)) !important; }
+.vx-hero-bubble {
+  min-height: 76px;
+  padding: 12px 13px !important;
+  gap: 11px !important;
+  border-color: rgba(167,139,250,.27) !important;
+  border-radius: 14px !important;
+  background: rgba(23,22,30,.94) !important;
+  box-shadow: 0 14px 32px -20px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  backdrop-filter: blur(12px);
+}
+.vx-hero-bubble:hover { border-color: rgba(196,181,253,.58) !important; background: rgba(29,27,39,.98) !important; }
+.vx-hero-bubble-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; background: linear-gradient(140deg,#8051e8,#a33cda) !important; }
+.vx-hero-bubble-label { font-size: 10px !important; letter-spacing: .075em !important; color: #c8b8f4 !important; }
+.vx-hero-bubble-title { font-size: 13px !important; line-height: 1.35 !important; }
+.vx-hero-bubble-sub { font-size: 12px !important; line-height: 1.35 !important; color: #c2bfca !important; }
+@media (max-width: 1279px) {
+  .vx-hero-layout { grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr); padding: 36px; gap: 28px; }
+  .vx-hero-title { font-size: clamp(2.35rem, 4vw, 3.1rem) !important; }
+  .vx-hero-visual { max-width: 400px; }
+}
+@media (max-width: 1023px) {
+  .vx-hero-layout { min-height: 0; grid-template-columns: minmax(0,1fr); padding: 36px; }
+  .vx-hero-copy { max-width: 760px; }
+  .vx-hero-title { max-width: 740px; }
+  .vx-hero-stats { max-width: 680px; }
+}
+@media (max-width: 640px) {
+  .vx-hero-shell { border-radius: 20px !important; }
+  .vx-hero-panel { border-radius: 19px !important; }
+  .vx-hero-layout { padding: 26px 20px 28px !important; gap: 24px !important; }
+  .vx-hero-title { font-size: clamp(2rem, 9vw, 2.65rem) !important; line-height: 1.1 !important; }
+  .vx-hero-description { margin-top: 16px !important; font-size: 14.5px !important; }
+  .vx-hero-actions { margin-top: 22px !important; }
+  .vx-hero-actions > a { min-height: 46px; }
+  .vx-hero-stats { margin-top: 22px !important; }
+  .vx-hero-stat-cell { min-height: 62px; padding: 12px !important; }
+}
