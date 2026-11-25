@@ -62,10 +62,42 @@ function VisitTracker() {
   return null
 }
 
-function Splash() {
+function Splash({ exiting = false }) {
   return (
-    <div className="min-h-screen grid place-items-center">
-      <img src={vLogo} alt="Vexstar" className="w-24 h-auto animate-pulse" />
+    <div className={`vx-loading-screen${exiting ? ' is-exiting' : ''}`} role="status" aria-live="polite" aria-label="Vexstar yükleniyor">
+      <div className="vx-loading-atmosphere" aria-hidden="true">
+        <span className="vx-loading-orbit vx-loading-orbit-one" />
+        <span className="vx-loading-orbit vx-loading-orbit-two" />
+        <span className="vx-loading-orbit vx-loading-orbit-three" />
+        <span className="vx-loading-beam vx-loading-beam-one" />
+        <span className="vx-loading-beam vx-loading-beam-two" />
+        <span className="vx-loading-particle vx-loading-particle-one" />
+        <span className="vx-loading-particle vx-loading-particle-two" />
+        <span className="vx-loading-particle vx-loading-particle-three" />
+        <span className="vx-loading-particle vx-loading-particle-four" />
+      </div>
+
+      <div className="vx-loading-content">
+        <div className="vx-loading-logo-stage">
+          <span className="vx-loading-logo-halo" />
+          <span className="vx-loading-logo-ring" />
+          <span className="vx-loading-logo-ring vx-loading-logo-ring-inner" />
+          <img src={vLogo} alt="Vexstar Development" className="vx-loading-logo" />
+          <span className="vx-loading-logo-glint" />
+        </div>
+
+        <div className="vx-loading-brand">
+          <div className="vx-loading-wordmark">VEXSTAR</div>
+          <div className="vx-loading-submark">D E V E L O P M E N T</div>
+        </div>
+
+        <div className="vx-loading-message">Dijital hizmetleriniz hazırlanıyor<span className="vx-loading-ellipsis" aria-hidden="true">...</span></div>
+        <div className="vx-loading-track" aria-hidden="true">
+          <span className="vx-loading-track-fill" />
+          <span className="vx-loading-track-glow" />
+        </div>
+        <div className="vx-loading-footnote">GÜVENİLİR • GÜÇLÜ • KESİNTİSİZ</div>
+      </div>
     </div>
   )
 }
@@ -76,6 +108,13 @@ function PublicApp() {
   const { ready, categories } = useSite()
   const ann = useActiveAnnouncement()
   const { pathname } = useLocation()
+  const [splashVisible, setSplashVisible] = useState(true)
+
+  useEffect(() => {
+    if (!ready) return undefined
+    const timer = window.setTimeout(() => setSplashVisible(false), 520)
+    return () => window.clearTimeout(timer)
+  }, [ready])
 
   // lock the page behind the mobile menu drawer
   useEffect(() => {
@@ -86,7 +125,7 @@ function PublicApp() {
   }, [menuOpen])
 
   // wait for the real content (or last visit's cache) so the default text never flashes
-  if (!ready) return <Splash />
+  if (!ready || splashVisible) return <Splash exiting={ready} />
 
   return (
     <div className="min-h-screen text-white">
