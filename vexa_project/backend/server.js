@@ -127,7 +127,6 @@ app.use('/api/content', require('./routes/content'))
 app.use('/api/track', require('./routes/track'))
 app.use('/api/media', require('./routes/media'))
 app.use('/api/admin', require('./routes/admin'))
-app.use('/api/payment/shopier', require('./routes/shopier'));
 
 
 app.use('/api', (req, res) => {
