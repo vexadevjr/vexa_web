@@ -12,6 +12,11 @@ const { findProductBySlug } = require('../services/products')
 const { validate, fail, str } = require('../utils/validate')
 const { makeNo } = require('../utils/ids')
 const Setting = require('../models/Setting')
+const { sendOrderBotMessage } = require('../utils/discordBotNotify');
+
+// Sipariş kaydedildikten / ödendikten hemen sonra çalıştırın:
+await sendOrderBotMessage(order);
+
 
 const rules = {
   productSlug: { required: true, max: 60 },
