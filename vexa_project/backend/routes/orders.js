@@ -12,7 +12,7 @@ const { findProductBySlug } = require('../services/products')
 const { validate, fail, str } = require('../utils/validate')
 const { makeNo } = require('../utils/ids')
 const Setting = require('../models/Setting')
-const { sendOrderBotMessage } = require('../utils/discordBotNotify');
+const { sendOrderBotMessage } = require('../utils/discordBotNotify')
 
 const rules = {
   productSlug: { required: true, max: 60 },
@@ -66,8 +66,8 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       legalVersion: '2026-11-14',
     })
 
-    res.status(201).json(...)
-    
+    await sendOrderBotMessage(order, account)
+
     res.status(201).json({
       order: {
         orderNo: order.orderNo,
