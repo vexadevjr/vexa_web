@@ -56,4 +56,9 @@ module.exports = Object.freeze({
     google: { id: process.env.GOOGLE_CLIENT_ID || '', secret: process.env.GOOGLE_CLIENT_SECRET || '' },
     discord: { id: process.env.DISCORD_CLIENT_ID || '', secret: process.env.DISCORD_CLIENT_SECRET || '' },
   },
+  // Server-side Discord notifications for orders that have actually been delivered.
+  discordPurchase: {
+    token: process.env.DISCORD_BOT_TOKEN || '',
+    channelId: process.env.DISCORD_PURCHASE_CHANNEL_ID || '',
+  },
 })
