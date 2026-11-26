@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     productSlug: { type: String, required: true },
     productName: { type: String, required: true },
+    productImage: { type: String, default: '' },
     price: { type: Number, required: true, min: 0 }, // total for the chosen term, calculated on the server
     termMonths: { type: Number, default: 1 },
     monthlyPrice: { type: Number, default: null },
@@ -26,6 +27,9 @@ const orderSchema = new mongoose.Schema(
     cancelReason: { type: String, default: '', maxlength: 300 },
     cancelledBy: { type: String, enum: ['customer', 'admin', ''], default: '' },
     status: { type: String, enum: ['yeni', 'onaylandi', 'hazirlaniyor', 'teslim-edildi', 'iptal'], default: 'yeni' },
+    discordPurchaseNotifiedAt: { type: Date, default: null },
+    discordPurchaseMessageId: { type: String, default: '' },
+    discordPurchaseNotificationClaimedAt: { type: Date, default: null },
   },
   { timestamps: true }
 )
