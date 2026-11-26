@@ -1,3 +1,4 @@
+
 'use strict'
 
 const config = require('../config/appConfig')
@@ -8,19 +9,24 @@ const CLAIM_TTL_MS = 5 * 60 * 1000
 
 function absoluteImageUrl(image) {
   if (!image) return ''
-  try { return new URL(image, `${config.siteUrl}/`).toString() } catch (_) { return '' }
+  try {
+    return new URL(image, `${config.siteUrl}/`).toString()
+  } catch (_) {
+    return ''
+  }
 }
 
 async function sendDeliveredPurchaseNotification(orderNo) {
   const { token, channelId } = config.discordPurchase
+
   if (!token || !channelId) {
-    console.warn('[discord-purchase] DISCORD_BOT_TOKEN veya DISCORD_PURCHASE_CHANNEL_ID ayarlı değil; bildirim atlandı.')
+    console.warn('[discord-purchase] Discord ayarları eksik.')
     return false
   }
 
   const now = new Date()
   const staleClaim = new Date(now.getTime() - CLAIM_TTL_MS)
-  // Atomic claim prevents duplicate messages if two admin requests update the same order together.
+
   const order = await Order.findOneAndUpdate(
     {
       orderNo,
@@ -34,54 +40,177 @@ async function sendDeliveredPurchaseNotification(orderNo) {
     { $set: { discordPurchaseNotificationClaimedAt: now } },
     { new: true }
   )
+
   if (!order) return false
 
-  const term = Number(order.termMonths) > 1 ? `${order.termMonths} Ay` : (order.delivery || 'Tek seferlik')
-  const discordName = order.customer && order.customer.discord ? order.customer.discord : 'Belirtilmedi'
+  const term = Number(order.termMonths) > 1
+    ? `${order.termMonths} Ay`
+    : order.termMonths === 1
+      ? '1 Ay'
+      : (order.delivery || 'Tek seferlik')
+
+  const customerName = String(
+    order.customer?.name || 'Belirtilmedi'
+  ).slice(0, 200)
+
+  const discordName = String(
+    order.customer?.discord || 'Belirtilmedi'
+  ).slice(0, 200)
+
+  const productName = String(
+    order.productName || 'Ürün'
+  ).slice(0, 200)
+
+  const amount =
+    `${Number(order.price).toLocaleString('tr-TR')} ${
+      order.currency === 'TRY' ? 'TL' : String(order.currency || '')
+    }`
+
   const fields = [
-    { name: '🧾 Sipariş No', value: `\`${order.orderNo}\``, inline: true },
-    { name: '🛒 İşlem Türü', value: 'SATIN ALIM', inline: true },
-    { name: '👤 Müşteri', value: String((order.customer && order.customer.name) || 'Belirtilmedi').slice(0, 200), inline: true },
-    { name: '💬 Discord', value: String(discordName).slice(0, 200), inline: true },
-    { name: '📦 Ürün', value: String(order.productName || 'Ürün').slice(0, 200), inline: true },
-    { name: '⏳ Süre', value: String(term).slice(0, 200), inline: true },
-    { name: '💰 Tutar', value: `${Number(order.price).toLocaleString('tr-TR')} ${order.currency === 'TRY' ? 'TL' : String(order.currency || '')}`, inline: true },
-    { name: '✅ Durum', value: 'TESLİM EDİLDİ', inline: true },
+    {
+      name: '📋  SİPARİŞ DETAYLARI',
+      value: '\u200b',
+      inline: false,
+    },
+    {
+      name: '🔗 Sipariş Numarası',
+      value: `\`${String(order.orderNo).slice(0, 80)}\``,
+      inline: true,
+    },
+    {
+      name: '🛒 İşlem Türü',
+      value: '**SATIN ALIM**',
+      inline: true,
+    },
+    {
+      name: '👤  MÜŞTERİ BİLGİLERİ',
+      value: '\u200b',
+      inline: false,
+    },
+    {
+      name: '👑 Müşteri',
+      value: customerName,
+      inline: true,
+    },
+    {
+      name: '💬 Discord',
+      value: discordName,
+      inline: true,
+    },
+    {
+      name: '📦  ÜRÜN DETAYLARI',
+      value: '\u200b',
+      inline: false,
+    },
+    {
+      name: '🛍️ Ürün',
+      value: productName,
+      inline: true,
+    },
+    {
+      name: '⏳ Süre',
+      value: term,
+      inline: true,
+    },
+    {
+      name: '💰 Tutar',
+      value: `**${amount}**`,
+      inline: true,
+    },
+    {
+      name: '✅ Durum',
+      value: '**TESLİM EDİLDİ**',
+      inline: true,
+    },
   ]
 
-  const image = absoluteImageUrl(order.productImage)
+  const productImage = absoluteImageUrl(order.productImage)
+  const logo = absoluteImageUrl('/vexstar-logo.png')
+
   const embed = {
     title: 'Vexstar | Satın Alım Sistemi',
-    description: '🎉 Yeni bir ürün başarıyla teslim edildi!',
-    color: 0x8B5CF6,
+    url: config.siteUrl,
+    description:
+      '🎉 **Yeni bir ürün başarıyla teslim edildi!**\n' +
+      'Sipariş teslimat işlemi başarıyla tamamlandı.',
+    color: 0x4F8FEF,
     fields,
-    footer: { text: 'Vexstar Development • vexstar.com.tr' },
+    footer: {
+      text: 'VEXSTAR DEVELOPMENT  •  vexstar.com.tr',
+    },
     timestamp: new Date().toISOString(),
   }
-  if (image) embed.thumbnail = { url: image }
+
+  if (logo) embed.thumbnail = { url: logo }
+  if (productImage) embed.image = { url: productImage }
 
   try {
-    const response = await fetch(`${DISCORD_API}/channels/${encodeURIComponent(channelId)}/messages`, {
-      method: 'POST',
-      headers: { Authorization: `Bot ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ embeds: [embed], allowed_mentions: { parse: [] } }),
-      signal: AbortSignal.timeout(10000),
-    })
+    const response = await fetch(
+      `${DISCORD_API}/channels/${encodeURIComponent(channelId)}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bot ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          embeds: [embed],
+          allowed_mentions: { parse: [] },
+        }),
+        signal: AbortSignal.timeout(10000),
+      }
+    )
+
     const data = await response.json().catch(() => ({}))
-    if (!response.ok) throw new Error(`Discord API ${response.status}: ${data.message || 'Mesaj gönderilemedi'}`)
+
+    if (!response.ok) {
+      throw new Error(
+        `Discord API ${response.status}: ${
+          data.message || 'Mesaj gönderilemedi'
+        }`
+      )
+    }
 
     await Order.updateOne(
-      { _id: order._id, discordPurchaseNotifiedAt: null },
-      { $set: { discordPurchaseNotifiedAt: new Date(), discordPurchaseMessageId: data.id || '' }, $unset: { discordPurchaseNotificationClaimedAt: 1 } }
+      {
+        _id: order._id,
+        discordPurchaseNotifiedAt: null,
+      },
+      {
+        $set: {
+          discordPurchaseNotifiedAt: new Date(),
+          discordPurchaseMessageId: data.id || '',
+        },
+        $unset: {
+          discordPurchaseNotificationClaimedAt: 1,
+        },
+      }
     )
-    console.log(`[discord-purchase] ${order.orderNo} teslimat bildirimi gönderildi.`)
+
+    console.log(
+      `[discord-purchase] ${order.orderNo} bildirimi gönderildi.`
+    )
+
     return true
+
   } catch (err) {
     await Order.updateOne(
-      { _id: order._id, discordPurchaseNotifiedAt: null },
-      { $unset: { discordPurchaseNotificationClaimedAt: 1 } }
+      {
+        _id: order._id,
+        discordPurchaseNotifiedAt: null,
+      },
+      {
+        $unset: {
+          discordPurchaseNotificationClaimedAt: 1,
+        },
+      }
     ).catch(() => {})
-    console.error(`[discord-purchase] ${order.orderNo} bildirimi gönderilemedi:`, err.message)
+
+    console.error(
+      `[discord-purchase] ${order.orderNo} bildirimi gönderilemedi:`,
+      err.message
+    )
+
     return false
   }
 }
