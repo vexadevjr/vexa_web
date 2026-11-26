@@ -21,8 +21,8 @@ export default function ProductCard({ product, categoryName = '' }) {
   const months = terms.includes(termMonths) ? termMonths : (terms[0] || 1)
   const termPct = terms.length ? Number(termDiscounts?.[months]) || 0 : 0
   const termTotal = terms.length && product.price != null ? discountedTotalFor(product.price, months, termDiscounts) : product.price
-  const termOldTotal = terms.length && product.price != null ? totalFor(sale ? sale.old : product.price, months) : null
   const to = productPath(product)
+  const termOldTotal = terms.length && product.price != null ? totalFor(sale ? sale.old : product.price, months) : null
   const inCart = cart.some((i) => i.key === `${product.slug}:${terms.length ? months : 'once'}`)
 
   return (

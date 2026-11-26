@@ -91,7 +91,8 @@ export default function OrderModal({ onClose }) {
         const base = ok ? totalFor(p.price, mm) : 0
         const total = ok ? (terms.length ? discountedTotalFor(p.price, mm, termDiscounts) : base) : 0
         const old = ok ? Math.max(base, sale ? totalFor(sale.old, mm) : 0) : 0
-        return { ...l, p, terms, mm, sale, ok, total, old, termPct: terms.length ? Number(termDiscounts[mm]) || 0 : 0, result: results[l.key] }
+        const list = old
+        return { ...l, p, terms, mm, sale, ok, total, old, list, termPct: terms.length ? Number(termDiscounts[mm]) || 0 : 0, result: results[l.key] }
       }),
     [lines, products, termDiscounts, results]
   )
@@ -100,7 +101,7 @@ export default function OrderModal({ onClose }) {
 
   const pending = rows.filter((r) => r.ok && !(r.result && r.result.orderNo))
   const placed = rows.filter((r) => r.result && r.result.orderNo)
-  const sumOld = pending.reduce((a, r) => a + r.old, 0)
+  const sumOld = pending.reduce((a, r) => a + r.list, 0)
   const sumTotal = pending.reduce((a, r) => a + r.total, 0)
   const saving = Math.max(0, Math.round((sumOld - sumTotal) * 100) / 100)
   const allDone = rows.length > 0 && placed.length > 0 && pending.length === 0

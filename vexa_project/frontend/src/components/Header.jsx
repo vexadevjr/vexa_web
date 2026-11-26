@@ -29,7 +29,8 @@ function useCartRows() {
     const unit = ok ? (sale ? sale.old : p.price) : 0
     const list = ok ? totalFor(unit, m || 1) : 0
     const total = ok ? (m ? discountedTotalFor(p.price, m, termDiscounts) : p.price) : 0
-    return { item, p, m, ok, unavailable, badTerm, list, total, termPct: m ? Number(termDiscounts[m]) || 0 : 0 }
+    const old = list
+    return { item, p, m, ok, unavailable, badTerm, list, old, total, termPct: m ? Number(termDiscounts[m]) || 0 : 0 }
   })
 }
 
@@ -74,7 +75,7 @@ function CartDrawer() {
         ) : (
           <>
             <ul className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-              {rows.map(({ item, p, m, ok, unavailable, badTerm, list, total, termPct }) => {
+              {rows.map(({ item, p, m, ok, unavailable, badTerm, list, old, total, termPct }) => {
                 const cover = (p.images || [])[0]
                 return (
                   <li key={item.key} className={`rounded-2xl border p-3 ${ok ? 'border-vx-line bg-vx-card' : 'border-amber-500/40 bg-amber-500/5'}`}>
@@ -106,7 +107,7 @@ function CartDrawer() {
                       <div className="mt-3 flex items-end justify-between gap-3 border-t border-vx-line pt-3">
                         <div className="text-[12px] text-vx-muted">{m ? `${termLabel(m)} · aylık ${formatPrice(p.price)}` : 'Tek seferlik'}{termPct > 0 && <div className="mt-0.5 font-semibold text-emerald-400">%{termPct} dönem indirimi</div>}</div>
                         <div className="text-right">
-                          {list > total && <div className="text-[12px] tabular-nums text-zinc-500 line-through">{formatPrice(list)}</div>}
+                          {old > total && <div className="text-[12px] tabular-nums text-zinc-500 line-through">{formatPrice(old)}</div>}
                           <div className="text-[18px] font-black tabular-nums text-white">{formatPrice(total)}</div>
                         </div>
                       </div>
