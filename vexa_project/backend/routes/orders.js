@@ -52,6 +52,7 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       user: account._id,
       productSlug: product.slug,
       productName: product.name,
+      productImage: Array.isArray(product.images) ? (product.images[0] || '') : '',
       price: finalPrice,
       termMonths: months,
       monthlyPrice: product.price,

@@ -2,6 +2,7 @@
 const router = require('express').Router()
 const Product = require('../models/Product')
 const Order = require('../models/Order')
+const { sendDeliveredPurchaseNotification } = require('../services/discordPurchaseNotification')
 const Message = require('../models/Message')
 const Review = require('../models/Review')
 const Visit = require('../models/Visit')
@@ -698,6 +699,10 @@ router.patch('/orders/:orderNo', async (req, res, next) => {
         order.secretsPurgedAt = new Date()
       }
       await order.save()
+    }
+    if (order.status === 'teslim-edildi' && !order.discordPurchaseNotifiedAt) {
+      // Notification errors are logged by the service and never roll back the admin status update.
+      await sendDeliveredPurchaseNotification(order.orderNo)
     }
     res.json({ ok: true })
   } catch (err) {
