@@ -14,10 +14,6 @@ const { makeNo } = require('../utils/ids')
 const Setting = require('../models/Setting')
 const { sendOrderBotMessage } = require('../utils/discordBotNotify');
 
-// Sipariş kaydedildikten / ödendikten hemen sonra çalıştırın:
-await sendOrderBotMessage(order);
-
-
 const rules = {
   productSlug: { required: true, max: 60 },
   note: { max: 1000, multiline: true },
@@ -70,6 +66,8 @@ router.post('/', requireDb, formLimiter, requireAuth, async (req, res, next) => 
       legalVersion: '2026-11-14',
     })
 
+    res.status(201).json(...)
+    
     res.status(201).json({
       order: {
         orderNo: order.orderNo,
